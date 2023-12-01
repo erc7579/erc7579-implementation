@@ -18,6 +18,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
     {
         // @DEV - This is just an example. You can elect to encode the validator address how ever you want.
 
+        // Special thanks to taek (ZeroDev) for this trick
         bytes calldata userOpSignature;
         uint256 userOpEndOffset;
         assembly {

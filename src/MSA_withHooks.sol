@@ -15,7 +15,7 @@ contract MSAHooks is MSA, HookManager {
     {
         IHook hook = _hook;
 
-        bytes memory hookData = hook.preCheck(target, value, callData);
+        bytes memory hookData = hook.preCheck(msg.sender, target, value, callData);
         super._execute(target, value, callData);
         require(hook.postCheck(hookData), "HookManager: postCheck failed");
     }
