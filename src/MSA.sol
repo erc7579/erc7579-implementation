@@ -4,19 +4,20 @@ import "./interfaces/IMSA.sol";
 import "./core/Execution.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA {
+contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     function validateUserOp(
         UserOperation memory userOp,
-        bytes32 userOpHash,
+        bytes32 serOpHash,
         uint256 missingAccountFunds
     )
         external
-        override
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
+        // @DEV - This is just an example. You can elect to encode the validator address how ever you want.
+
         bytes calldata userOpSignature;
         uint256 userOpEndOffset;
         assembly {
@@ -29,7 +30,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA {
         // get validator address from signature
         address validator = address(bytes20(userOpSignature[0:20]));
 
-        // clean up signature
+        // MSA MUST clean up signature encoding before sending userOp to IValidator
         userOp.signature = userOpSignature[20:];
 
         // check if validator is enabled
@@ -122,6 +123,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA {
     ////////////////////////////////////////////////////
 
     function initializeAccount(bytes calldata data) external override {
+        // TODO check if already initialized  and revert if so
         address defaultValidator = abi.decode(data, (address));
         _validators.init();
         _executors.init();

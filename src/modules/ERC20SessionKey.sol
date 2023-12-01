@@ -3,7 +3,9 @@ pragma solidity ^0.8.23;
 import "src/interfaces/IModule.sol";
 import "src/interfaces/IMSA.sol";
 
-contract MockValidator is IValidator {
+import "forge-std/interfaces/IERC20.sol";
+
+contract ERC20SessionKey is IValidator {
     function enable(bytes calldata data) external override { }
 
     function disable(bytes calldata data) external override { }
@@ -18,11 +20,15 @@ contract MockValidator is IValidator {
         returns (uint256)
     {
         bytes4 execSelector = bytes4(userOp.callData[:4]);
+        address target = address(bytes20(userOp.callData[16:36]));
+        bytes calldata targetCallData = userOp.callData[36:];
 
         if (execSelector != IMSA.execute.selector) revert InvalidExecution(execSelector);
-        (address target, uint256 value, bytes memory callData) =
-            abi.decode(userOp.callData[4:], (address, uint256, bytes));
+
         if (target == userOp.sender) revert InvalidTargetAddress(target);
+
+        bytes4 targetSelector = bytes4(targetCallData[:4]);
+        if (targetSelector != IERC20.transfer.selector) revert InvalidTargetCall();
     }
 
     function isValidSignature(

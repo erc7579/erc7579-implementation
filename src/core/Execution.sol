@@ -27,6 +27,7 @@ contract Execution {
         bytes calldata callData
     )
         internal
+        virtual
         returns (bytes memory result)
     {
         /// @solidity memory-safe-assembly

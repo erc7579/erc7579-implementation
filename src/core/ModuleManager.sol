@@ -6,7 +6,7 @@ import "./AccountBase.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
 
-abstract contract ModuleManager is AccountBase, IMSA_Management {
+abstract contract ModuleManager is AccountBase, IMSA_Config {
     error InvalidModule(address module);
 
     using SentinelListLib for SentinelListLib.SentinelList;
