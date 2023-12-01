@@ -50,6 +50,10 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     /////////////////////////////////////////////////////
     // Executions
     ////////////////////////////////////////////////////
+
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function execute(
         address target,
         uint256 value,
@@ -63,6 +67,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         return _execute(target, value, callData);
     }
 
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function executeDelegateCall(
         address target,
         bytes calldata callData
@@ -75,6 +82,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         return _executeDelegatecall(target, callData);
     }
 
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
@@ -88,6 +98,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         result = _execute(targets, values, callDatas);
     }
 
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function executeFromModule(
         address target,
         uint256 value,
@@ -101,6 +114,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         returnData = _execute(target, value, callData);
     }
 
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function executeBatchFromModule(
         address[] calldata targets,
         uint256[] calldata values,
@@ -114,6 +130,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         returnDatas = _execute(targets, values, callDatas);
     }
 
+    /**
+     * @inheritdoc IMSA_Exec
+     */
     function executeDelegateCallFromModule(
         address target,
         bytes memory callData
@@ -130,6 +149,9 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     // Account Initialization
     ////////////////////////////////////////////////////
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function initializeAccount(bytes calldata data) external override {
         if (_validators.alreadyInitialized()) revert();
         address defaultValidator = abi.decode(data, (address));

@@ -24,6 +24,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         _;
     }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function enableValidator(
         address validator,
         bytes calldata data
@@ -36,6 +39,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         emit EnableValidator(validator);
     }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function disableValidator(
         address validator,
         bytes calldata data
@@ -50,10 +56,16 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         emit DisableValidator(validator);
     }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function isValidatorEnabled(address validator) external view returns (bool) {
         return _validators.contains(validator);
     }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function enableExecutor(
         address validator,
         bytes calldata data
@@ -63,6 +75,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         onlyEntryPoint
     { }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function disableExecutor(
         address validator,
         bytes calldata data
@@ -72,6 +87,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         onlyEntryPoint
     { }
 
+    /**
+     * @inheritdoc IMSA_Config
+     */
     function isExecutorEnabled(address executor) external view returns (bool) {
         return _executors.contains(executor);
     }
