@@ -7,11 +7,14 @@ import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
 
 abstract contract ModuleManager is AccountBase, IMSA_Config {
-    error InvalidModule(address module);
-
     using SentinelListLib for SentinelListLib.SentinelList;
 
+    error InvalidModule(address module);
+
+
+    // linked list of validators. List is initialized by initializeAccount()
     SentinelListLib.SentinelList internal _validators;
+    // linked list of executors. List is initialized by initializeAccount()
     SentinelListLib.SentinelList internal _executors;
 
     modifier onlyExecutorModule() {
