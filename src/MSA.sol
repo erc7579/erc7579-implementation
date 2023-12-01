@@ -14,7 +14,8 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA {
     )
         external
         override
-        returns (uint256)
+        payPrefund(missingAccountFunds)
+        returns (uint256 validSignature)
     {
         bytes calldata userOpSignature;
         uint256 userOpEndOffset;
@@ -33,7 +34,8 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA {
 
         // check if validator is enabled
         if (!_validators.contains(validator)) revert InvalidModule(validator);
-        return IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
+        validSignature =
+            IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
     }
 
     /////////////////////////////////////////////////////

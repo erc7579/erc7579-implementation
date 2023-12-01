@@ -7,7 +7,8 @@ import { MockValidator } from "./mocks/MockValidator.sol";
 import { MockExecutor } from "./mocks/MockExecutor.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
 
-address constant ENTRYPOINT = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
+import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
+import "./dependencies/EntryPoint.sol";
 
 contract MSATest is Test {
     MSA account;
@@ -17,8 +18,12 @@ contract MSATest is Test {
 
     MockTarget target;
 
+    IEntryPoint entrypoint = IEntryPoint(ENTRYPOINT_ADDR);
+
     function setUp() public {
+        etchEntrypoint();
         account = new MSA();
+        vm.deal(address(account), 100 ether);
 
         validator = new MockValidator();
         executor = new MockExecutor();
@@ -38,12 +43,27 @@ contract MSATest is Test {
     }
 
     function testExecute() public {
-        vm.prank(ENTRYPOINT);
-        account.execute({
-            target: address(target),
-            value: 0,
-            callData: abi.encodeCall(MockTarget.setValue, 1337)
+        bytes memory executeThis = abi.encodeCall(MockTarget.setValue, 1337);
+
+        bytes memory execFunction = abi.encodeCall(MSA.execute, (address(target), 0, executeThis));
+        UserOperation memory userOp = UserOperation({
+            sender: address(account),
+            nonce: entrypoint.getNonce(address(account), 0),
+            initCode: "",
+            callData: execFunction,
+            callGasLimit: 2e6,
+            verificationGasLimit: 2e6,
+            preVerificationGas: 2e6,
+            maxFeePerGas: 1,
+            maxPriorityFeePerGas: 1,
+            paymasterAndData: bytes(""),
+            signature: abi.encodePacked(address(validator), hex"41414141")
         });
+
+        UserOperation[] memory userOps = new UserOperation[](1);
+        userOps[0] = userOp;
+
+        entrypoint.handleOps(userOps, payable(address(0x69)));
 
         assertTrue(target.value() == 1337);
     }

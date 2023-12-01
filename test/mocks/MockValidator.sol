@@ -16,7 +16,7 @@ contract MockValidator is IValidator {
         override
         returns (uint256)
     {
-        return 0;
+        return VALIDATION_SUCCESS;
     }
 
     function isValidSignature(

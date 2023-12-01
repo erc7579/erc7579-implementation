@@ -3,6 +3,9 @@ pragma solidity ^0.8.21;
 
 import "./IERC4337.sol";
 
+uint256 constant VALIDATION_SUCCESS = 0;
+uint256 constant VALIDATION_FAILED = 1;
+
 interface IModuleBase {
     function enable(bytes calldata data) external;
     function disable(bytes calldata data) external;
