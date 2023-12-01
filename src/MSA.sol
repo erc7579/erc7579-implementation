@@ -1,38 +1,49 @@
-import "./IERC4337.sol";
-import "./IMiniMSA.sol";
+// SPDX-License-Identifier: MIT
+import "./interfaces/IERC4337.sol";
+import "./interfaces/IMSA.sol";
 import "./core/Execution.sol";
+import "./core/ModuleManager.sol";
 
-contract MSA is Execution, IERC4337, IMSA {
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds)
+contract MSA is Execution, ModuleManager, IERC4337, IMSA {
+    using SentinelListLib for SentinelListLib.SentinelList;
+
+    function validateUserOp(
+        UserOperation memory userOp,
+        bytes32 userOpHash,
+        uint256 missingAccountFunds
+    )
         external
         override
+        returns (uint256)
     {
         bytes calldata userOpSignature;
         uint256 userOpEndOffset;
         assembly {
             userOpEndOffset := add(calldataload(0x04), 0x24)
-            userOpSignature.offset := add(calldataload(add(userOpEndOffset, 0x120)), userOpEndOffset)
+            userOpSignature.offset :=
+                add(calldataload(add(userOpEndOffset, 0x120)), userOpEndOffset)
             userOpSignature.length := calldataload(sub(userOpSignature.offset, 0x20))
         }
-    }
 
-    /////////////////////////////////////////////////////
-    // Access Control
-    ////////////////////////////////////////////////////
+        // get validator address from signature
+        address validator = address(bytes20(userOpSignature[0:20]));
 
-    modifier onlyEntryPoint() virtual {
-        if (msg.sender != entryPoint()) revert Unauthorized();
-        _;
-    }
+        // clean up signature
+        userOp.signature = userOpSignature[20:];
 
-    function entryPoint() public view virtual returns (address) {
-        return 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
+        // check if validator is enabled
+        if (!_validators.contains(validator)) revert InvalidModule(validator);
+        return IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
     }
 
     /////////////////////////////////////////////////////
     // Executions
     ////////////////////////////////////////////////////
-    function execute(address target, uint256 value, bytes calldata callData)
+    function execute(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
         external
         override
         onlyEntryPoint
@@ -41,7 +52,10 @@ contract MSA is Execution, IERC4337, IMSA {
         return _execute(target, value, callData);
     }
 
-    function executeDelegateCall(address target, bytes calldata callData)
+    function executeDelegateCall(
+        address target,
+        bytes calldata callData
+    )
         external
         override
         onlyEntryPoint
@@ -50,38 +64,65 @@ contract MSA is Execution, IERC4337, IMSA {
         return _executeDelegatecall(target, callData);
     }
 
-    function executeBatch(address[] calldata targets, uint256[] calldata values, bytes[] calldata callDatas)
+    function executeBatch(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata callDatas
+    )
         external
         override
         onlyEntryPoint
-    {}
+        returns (bytes[] memory result)
+    {
+        result = _execute(targets, values, callDatas);
+    }
 
-    function executeFromModule(address target, uint256 value, bytes calldata callData)
+    function executeFromModule(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
         external
         override
         onlyExecutorModule
-        returns (bool, bytes memory)
-    {}
+        returns (bytes memory returnData)
+    {
+        returnData = _execute(target, value, callData);
+    }
 
-    function executeBatchFromModule(address[] calldata target, uint256[] calldata value, bytes[] calldata callDatas)
+    function executeBatchFromModule(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata callDatas
+    )
         external
         override
         onlyExecutorModule
-        returns (bool, bytes memory)
-    {}
+        returns (bytes[] memory returnDatas)
+    {
+        returnDatas = _execute(targets, values, callDatas);
+    }
 
-    function executeDelegateCallFromModule(address target, bytes memory callData)
+    function executeDelegateCallFromModule(
+        address target,
+        bytes memory callData
+    )
         external
         override
         onlyExecutorModule
-        returns (bool, bytes memory)
+        returns (bytes memory)
     {
         revert Unsupported();
     }
 
     /////////////////////////////////////////////////////
-    // Account Management
+    // Account Initialization
     ////////////////////////////////////////////////////
 
-    function setupModule(address validator) external onlyEntryPoint {}
+    function initializeAccount(bytes calldata data) external override {
+        address defaultValidator = abi.decode(data, (address));
+        _validators.init();
+        _executors.init();
+        _validators.push(defaultValidator);
+    }
 }

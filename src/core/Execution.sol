@@ -1,6 +1,34 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
 contract Execution {
-    function _execute(address target, uint256 value, bytes calldata callData) internal returns (bytes memory result) {
+    function _execute(
+        address[] calldata target,
+        uint256[] calldata value,
+        bytes[] calldata callData
+    )
+        internal
+        returns (bytes[] memory result)
+    {
+        uint256 length = target.length;
+
+        // ensure that provided arrays are the same length
+        if (length != value.length || length != callData.length) revert();
+
+        result = new bytes[](length);
+        for (uint256 i; i < length; i++) {
+            result[i] = _execute(target[i], value[i], callData[i]);
+        }
+    }
+
+    function _execute(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
+        internal
+        returns (bytes memory result)
+    {
         /// @solidity memory-safe-assembly
         assembly {
             result := mload(0x40)
@@ -18,7 +46,13 @@ contract Execution {
     }
 
     /// @dev Execute a delegatecall with `delegate` on this account.
-    function _executeDelegatecall(address delegate, bytes calldata callData) internal returns (bytes memory result) {
+    function _executeDelegatecall(
+        address delegate,
+        bytes calldata callData
+    )
+        internal
+        returns (bytes memory result)
+    {
         /// @solidity memory-safe-assembly
         assembly {
             result := mload(0x40)

@@ -4,3 +4,9 @@
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/vectorized/solady
+[submodule "lib/sentinellist"]
+	path = lib/sentinellist
+	url = https://github.com/zeroknots/sentinellist
+[submodule "lib/account-abstraction"]
+	path = lib/account-abstraction
+	url = https://github.com/eth-infinitism/account-abstraction
