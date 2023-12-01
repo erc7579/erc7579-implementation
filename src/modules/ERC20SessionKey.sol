@@ -36,6 +36,7 @@ contract ERC20SessionKey is IValidator {
         bytes calldata data
     )
         external
+        view
         override
         returns (bytes4)
     { }

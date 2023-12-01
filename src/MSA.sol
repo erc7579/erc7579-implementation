@@ -2,9 +2,10 @@
 import "./interfaces/IERC4337.sol";
 import "./interfaces/IMSA.sol";
 import "./core/Execution.sol";
+import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
+contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     function validateUserOp(
@@ -38,6 +39,12 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
         if (!_validators.contains(validator)) revert InvalidModule(validator);
         validSignature =
             IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
+    }
+
+    function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4) {
+        address validator = abi.decode(data, (address));
+        if (!_validators.contains(validator)) revert InvalidModule(validator);
+        return IValidator(validator).isValidSignature(hash, data);
     }
 
     /////////////////////////////////////////////////////

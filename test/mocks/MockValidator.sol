@@ -27,6 +27,7 @@ contract MockValidator is IValidator {
         bytes calldata data
     )
         external
+        view
         override
         returns (bytes4)
     { }

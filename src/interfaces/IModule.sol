@@ -44,7 +44,7 @@ interface IValidator is IModuleBase {
     /**
      * Validator can be used for ERC-1271 validation
      */
-    function isValidSignature(bytes32 hash, bytes calldata data) external returns (bytes4);
+    function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4);
 }
 
 interface IExecutor is IModuleBase {
