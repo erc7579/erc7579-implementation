@@ -37,6 +37,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         override
         onlyEntryPoint
     {
+        IValidator(validator).enable(data);
         _validators.push(validator);
         emit EnableValidator(validator);
     }
@@ -53,7 +54,8 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         onlyEntryPoint
     {
         // decode prev validator cause this is a linked list (optional)
-        address prevValidator = abi.decode(data, (address));
+        (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IValidator(validator).disable(disableModuleData);
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }
@@ -75,7 +77,12 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         external
         override
         onlyEntryPoint
-    { }
+    {
+        IExecutor(validator).enable(data);
+        _executors.push(validator);
+
+        emit EnableExecutor(validator);
+    }
 
     /**
      * @inheritdoc IMSA_Config
@@ -87,7 +94,13 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         external
         override
         onlyEntryPoint
-    { }
+    {
+        (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IExecutor(validator).disable(disableModuleData);
+        _executors.pop(prevValidator, validator);
+
+        emit DisableExecutor(validator);
+    }
 
     /**
      * @inheritdoc IMSA_Config

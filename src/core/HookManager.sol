@@ -15,6 +15,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
      * @inheritdoc IMSA_ConfigExt
      */
     function enableHook(address hook, bytes calldata data) external onlyEntryPoint {
+        IHook(hook).enable(data);
         _hook = IHook(hook);
         emit EnableHook(hook);
     }
@@ -23,6 +24,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
      * @inheritdoc IMSA_ConfigExt
      */
     function disableHook(address hook, bytes calldata data) external onlyEntryPoint {
+        IHook(hook).disable(data);
         _hook = IHook(address(0));
         emit DisableHook(hook);
     }
