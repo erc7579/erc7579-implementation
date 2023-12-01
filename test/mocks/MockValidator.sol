@@ -19,10 +19,7 @@ contract MockValidator is IValidator {
     {
         bytes4 execSelector = bytes4(userOp.callData[:4]);
 
-        if (execSelector != IMSA.execute.selector) revert InvalidExecution(execSelector);
-        (address target, uint256 value, bytes memory callData) =
-            abi.decode(userOp.callData[4:], (address, uint256, bytes));
-        if (target == userOp.sender) revert InvalidTargetAddress(target);
+        return VALIDATION_SUCCESS;
     }
 
     function isValidSignature(

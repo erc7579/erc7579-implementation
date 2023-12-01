@@ -191,6 +191,8 @@ interface IMSA_Config {
     function isExecutorEnabled(address executor) external view returns (bool);
 }
 
+interface IMSA is IMSA_Exec, IMSA_Config { }
+
 /**
  * @dev Configuration Interface of the minimal Modular Smart Account Hook extention standard
  */

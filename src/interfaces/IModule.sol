@@ -48,8 +48,8 @@ interface IValidator is IModuleBase {
 }
 
 interface IExecutor is IModuleBase {
-    function supportsDelegateCall() external view returns (bool);
-    function supportsBatchedCall() external view returns (bool);
+    // function supportsDelegateCall() external view returns (bool);
+    // function supportsBatchedCall() external view returns (bool);
 }
 
 interface IHook is IModuleBase {

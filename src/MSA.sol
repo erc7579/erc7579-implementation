@@ -9,7 +9,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
 
     function validateUserOp(
         UserOperation memory userOp,
-        bytes32 serOpHash,
+        bytes32 userOpHash,
         uint256 missingAccountFunds
     )
         external
@@ -123,7 +123,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec {
     ////////////////////////////////////////////////////
 
     function initializeAccount(bytes calldata data) external override {
-        // TODO check if already initialized  and revert if so
+        if (_validators.alreadyInitialized()) revert();
         address defaultValidator = abi.decode(data, (address));
         _validators.init();
         _executors.init();

@@ -23,7 +23,7 @@ contract ERC20SessionKey is IValidator {
         address target = address(bytes20(userOp.callData[16:36]));
         bytes calldata targetCallData = userOp.callData[36:];
 
-        if (execSelector != IMSA.execute.selector) revert InvalidExecution(execSelector);
+        if (execSelector != IMSA_Exec.execute.selector) revert InvalidExecution(execSelector);
 
         if (target == userOp.sender) revert InvalidTargetAddress(target);
 
