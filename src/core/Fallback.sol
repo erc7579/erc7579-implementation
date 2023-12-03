@@ -5,7 +5,9 @@ pragma solidity ^0.8.21;
  */
 
 abstract contract Fallback {
+    error InvalidAddress(address addr);
     // keccak256("fallback_manager.handler.address")
+
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5;
 
@@ -27,7 +29,7 @@ abstract contract Fallback {
             where the first 3 bytes of the previous calldata + the first byte of the address make up a valid function signature. The subsequent call would result in unsanctioned access to Safe's internal protected methods.
             For some reason, solidity matches the first 4 bytes of the calldata to a function signature, regardless if more data follow these 4 bytes.
         */
-        require(handler != address(this), "GS400");
+        if (handler == address(this)) revert InvalidAddress(handler);
 
         bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
         /* solhint-disable no-inline-assembly */
