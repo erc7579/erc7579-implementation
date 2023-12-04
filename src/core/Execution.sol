@@ -4,7 +4,8 @@ pragma solidity ^0.8.23;
 /**
  * @title Execution
  * @dev This contract executes calls in the context of this contract.
- * big shoutout to vectorized / solady for this code
+ * shoutout to solady (vectorized, ross) for this code
+ * https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol
  */
 contract Execution {
     function _execute(
