@@ -8,6 +8,11 @@ import "./core/ModuleManager.sol";
 contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
+    /**
+     * Validator selectiion / encoding is NOT in scope of this standard.
+     * This is just an example of how it could be done.
+     *
+     */
     function validateUserOp(
         UserOperation memory userOp,
         bytes32 userOpHash,
@@ -17,8 +22,6 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
-        // @DEV - This is just an example. You can elect to encode the validator address how ever you want.
-
         // Special thanks to taek (ZeroDev) for this trick
         bytes calldata userOpSignature;
         uint256 userOpEndOffset;
