@@ -151,14 +151,14 @@ interface IModule {
 
 #### Validators
 
-Validation Modules are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
-Validation Modules MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
+Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
+Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
 
 ```solidity
 function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
 ```
 
-Validation Modules MUST implement the `isValidSignature` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
+Validators MUST implement the `isValidSignature` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
 
 The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The Validation Module MAY utilize this parameter for validation (i.e. EIP-712 domain separators)
 Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid. (Note: validators wont be able to use `this.isValidSignature.selector` since the interface is different to the ERC-1271 interface)
@@ -225,7 +225,7 @@ For a flourishing module ecosystem, compatibility across accounts is crucial. Ho
 
 #### Differentiating module types
 
-todo: Security issue
+Not differentiating between module types could present a security issue when enforcing authorization control. For example, if a smart account has a validator module enabled, and the validator module is also an executor, the executor could call back into the smart account and perform unauthorized actions.
 
 ## Backwards Compatibility
 
@@ -233,7 +233,7 @@ No backward compatibility issues found.
 
 ## Reference Implementation
 
-todo: add interface or add entire msa implementation (in assets)
+Currently [here](./src/MSA.sol)
 
 ## Security Considerations
 
