@@ -24,6 +24,7 @@ interface IMSA_Exec {
         bytes calldata callData
     )
         external
+        payable
         returns (bytes memory result);
 
     /**
@@ -41,6 +42,7 @@ interface IMSA_Exec {
         bytes calldata callData
     )
         external
+        payable
         returns (bytes memory result);
 
     /**
@@ -60,6 +62,7 @@ interface IMSA_Exec {
         bytes[] calldata callDatas
     )
         external
+        payable
         returns (bytes[] memory results);
 
     /**
@@ -79,6 +82,7 @@ interface IMSA_Exec {
         bytes calldata callData
     )
         external
+        payable
         returns (bytes memory);
 
     /**
@@ -98,6 +102,7 @@ interface IMSA_Exec {
         bytes[] calldata callDatas
     )
         external
+        payable
         returns (bytes[] memory results);
 
     /**
@@ -115,6 +120,7 @@ interface IMSA_Exec {
         bytes memory callData
     )
         external
+        payable
         returns (bytes memory);
 }
 
