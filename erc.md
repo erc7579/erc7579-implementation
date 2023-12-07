@@ -33,8 +33,14 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 - **Smart account** - An ERC-4337 compliant smart contract account that has a modular architecture.
 - **Module** - A smart contract with self-contained smart account functionality.
+  - Validator: A Module that validates ERC-4337 compliant User Operation and ERC-1271.
+  - Executor: A Module that can be added to a smart account, that can execute transactions on behalf of the smart account via a callback.
+  - Fallback Handler: A Module that can can extend the fallback functionality of a smart account.
+- **Entrypoint** - A trusted singleton contract according to ERC-4337 specifications.
 
 ### Account Spec
+
+The Modular Smart Account can utilize modules to extend it's capabilities.
 
 #### Execution Methods
 
