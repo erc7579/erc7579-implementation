@@ -5,7 +5,6 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-import "forge-std/console2.sol";
 
 contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
