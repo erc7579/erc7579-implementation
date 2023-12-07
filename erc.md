@@ -18,7 +18,7 @@ This proposal outlines the minimally required interfaces and behavior for modula
 
 Contract accounts are gaining adoption with many new accounts being built in a modular fashion. These modular contract accounts (hereafter smart accounts) move functionality into external contracts (modules) in order to increase the speed and potential of innovation, to future-proof themselves and to allow customizability by developers and users. However, currently these smart accounts are built in vastly different ways, creating vendor lock-in and module fragmentation.
 
-To solve these problems, we need to standardize the core interfaces for smart accounts and modules. However, it is highly important that this standardisation is done with minimal impact on the implementation logic of the accounts, so that smart account vendors can innovate and compete, while also allowing a flourishing, multi-account-compatible module ecosystem.
+To solve these problems, we need to standardize the core interfaces for smart accounts and modules. However, it is highly important that this standardization is done with minimal impact on the implementation logic of the accounts, so that smart account vendors can innovate and compete, while also allowing a flourishing, multi-account-compatible module ecosystem.
 
 The goals of this standard are:
 
