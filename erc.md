@@ -173,11 +173,21 @@ When enabling modules to the smart account, the smart account implementation MUS
 
 ##### Configure Validators
 
+Validator Modules can be added and removed from the smart account. Additional values needed for enabling/disabling MAY be passed as `abi.encoded` values via the `bytes calldata data` parameter.
+
+When enabling a Validator, the Smart account MUST call the `IValidator(validator).enable()` function
+When disabling a Validator, the Smart account MUST call the `IValidator(validator).disable()` function
+Smart account SHOULD implement default validators, or ensure that at least one validator remains enabled on the account, to prevent a user from losing control over his/her smart account.
+Authorization control is REQUIRED for `enableValidator()` and `disableValidator()`.
+
 ```solidity
 function enableValidator(address validator, bytes calldata data) external;
 function disableValidator(address validator, bytes calldata data) external;
 function isValidatorEnabled(address validator) external view returns (bool);
 ```
+
+When enabling a Validator, the Smart account MUST emit `EnableValidatorModule(address)`
+When disabling a Validator, the Smart account MUST emit `DisableValidatorModule(address)`
 
 ```solidity
 // Events
@@ -187,11 +197,20 @@ event DisableValidatorModule(address validator);
 
 ##### Configure Executors
 
+Executor Modules can be added and removed from the smart account. Additional values needed for enabling/disabling MAY be passed as `abi.encoded` values via the `bytes calldata data` parameter.
+
+When enabling a Executor, the Smart account MUST call the `IExecutor(executor).enable()` function
+When disabling a Executor, the Smart account MUST call the `IExecutor(executor).disable()` function
+Authorization control is REQUIRED for `enableValidator()` and `disableValidator()`.
+
 ```solidity
 function enableExecutor(address executor, bytes calldata data) external;
 function disableExecutor(address executor, bytes calldata data) external;
 function isExecutorEnabled(address executor) external view returns (bool);
 ```
+
+When enabling an Executor, the Smart account MUST emit `EnableExecutorModule(address)`
+When disabling an Executor , the Smart account MUST emit `DisableExecutorModule(address)`
 
 ```solidity
 // Events
@@ -201,14 +220,22 @@ event DisableExecutorModule(address executor);
 
 ##### Configure Fallback Handler
 
+Fallback Handlers can be added and removed from the smart account.
+
+When enabling a Fallback Handler, the Smart account MUST call the `IFallbackHandler(_fallback).enable()` function
+When disabling a Fallback Handler, the Smart account MUST call the `IFallbackHandler(_fallback).disable()` function
+Authorization control is REQUIRED for `enableFallback()` and `disableFallback()`.
+
 ```solidity
 function enableFallback(address fallbackHandler, bytes calldata data) external;
 function disableFallback(address fallbackHandler, bytes calldata data) external;
 function isFallbackEnabled(address fallbackHandler) external view returns (bool);
 ```
 
-```solidity
+When enabling a Fallback Handler, the Smart account MUST emit `EnableFallbackHandler(address)`
+When disabling a Fallback Handler , the Smart account MUST emit `DisableFallbackHandler(address)`
 
+```solidity
 // Events
 event EnableFallbackHandler(address fallbackHandler);
 event DisableFallbackHandler(address fallbackHandler);
@@ -234,8 +261,6 @@ Should a smart account encode validation selection mechanisms in ERC-1271 `bytes
 The smart account's ERC-1271 `isValidSignature` function SHOULD return the return value of the Validation Module that the request was forwarded to.
 
 #### Fallback
-
-Consolidating implementations to use the ERC-2771 msg.sender in calldata might be a good way to get authorization control without adding a lot of gas overhead.
 
 Smart accounts MAY implement a fallback function that that MAY forward the call to a Fallback Handler. If implemented and enabled, the Fallback Handler MUST be called with `call`.
 
@@ -339,7 +364,7 @@ tbd
 
 ## Rationale
 
-### Standardisation
+### standardization
 
 As mentioned above, there are several reasons for why standardizing smart accounts is very beneficial to the ecosystem. The most important of these are:
 
