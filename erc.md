@@ -231,6 +231,40 @@ The smart account's ERC-1271 `isValidSignature` function SHOULD return the retur
 
 Consolidating implementations to use the ERC-2771 msg.sender in calldata might be a good way to get authorization control without adding a lot of gas overhead.
 
+Smart accounts MAY implement a fallback function that that MAY forward the call to a Fallback Handler. If implemented and enabled, the Fallback Handler MUST be called with `call`.
+
+If the account has a fallback handler enabled:
+
+- smart accounts MUST use `call` to invoke the Fallback Handler
+- smart account MUST utilize ERC-2771 to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
+
+```solidity
+// Example on how to implement ERC-2771 in fallback
+// Code inspired by (Gnosis) Safe 1.4
+fallback() external {
+    bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
+    assembly {
+        let handler := sload(slot)
+        if iszero(handler) { return(0, 0) }
+
+        let calldataPtr := allocate(calldatasize())
+        calldatacopy(calldataPtr, 0, calldatasize())
+
+        // The msg.sender address is shifted to the left by 12 bytes to remove the padding
+        // Then the address without padding is stored right after the calldata
+        let senderPtr := allocate(20)
+        mstore(senderPtr, shl(96, caller()))
+
+        // Add 20 bytes for the address appended add the end
+        let success := call(gas(), handler, 0, calldataPtr, add(calldatasize(), 20), 0, 0)
+
+        let returnDataPtr := allocate(returndatasize())
+        returndatacopy(returnDataPtr, 0, returndatasize())
+        }
+}
+
+```
+
 ### Module Spec
 
 This standard is separating modules into the following different types:
