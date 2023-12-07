@@ -58,6 +58,9 @@ MUST implement:
 - `function enableExecutor(address executor, bytes calldata data) external;`
 - `function disableExecutor(address executor, bytes calldata data) external;`
 - `function isExecutorEnabled(address executor) external view returns (bool);`
+- `function enableFallback(address fallbackHandler, bytes calldata data) external;`
+- `function disableFallback(address fallbackHandler, bytes calldata data) external;`
+- `function isFallbackEnabled(address fallbackHandler) external view returns (bool);`
 
 Different module types MUST be stored in different places.
 
