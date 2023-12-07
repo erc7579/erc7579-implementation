@@ -235,8 +235,8 @@ Smart accounts MAY implement a fallback function that that MAY forward the call 
 
 If the account has a fallback handler enabled:
 
-- smart accounts MUST use `call` to invoke the Fallback Handler
-- smart account MUST utilize ERC-2771 to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
+- Smart accounts MUST use `call` to invoke the Fallback Handler
+- Smart account MUST utilize ERC-2771 to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
 
 ```solidity
 // Example on how to implement ERC-2771 in fallback
@@ -272,7 +272,6 @@ This standard is separating modules into the following different types:
 - Validation
 - Execution
 - Fallback
-- Hook (optional)
 
 Note: It is possible that module developers build business logic, that requires a module to be multiple types at the same time.
 
@@ -353,7 +352,7 @@ Our approach has been twofold:
 
 ### Extensions
 
-While we want to be minimal, we also want to allow for innovation and opinionated features. Some of these features might also need to be standardised (for similar reasons as the core interfaces) even if not all smart accounts will implement them. To ensure that this is possible, we have outlined a system for extending the standard with more opinionated features in a backwards-compatible way. Outlining this system is important to ensure that the core interfaces are not overriden by extensions that prevent backwards compatibility and disadvantage accounts that choose not to use these extensions.
+While we want to be minimal, we also want to allow for innovation and opinionated features. Some of these features might also need to be standardized (for similar reasons as the core interfaces) even if not all smart accounts will implement them. To ensure that this is possible, we have outlined a system for extending the standard with more opinionated features in a backwards-compatible way. Outlining this system is important to ensure that the core interfaces are not overriden by extensions that prevent backwards compatibility and disadvantage accounts that choose not to use these extensions.
 
 ## Backwards Compatibility
 
