@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
+/**
+  * @dev 4337 AccountBase for access control and payPrefund
+  * Code is based on Solady's 4337
+  */
 contract AccountBase {
     error Unauthorized();
     /////////////////////////////////////////////////////
