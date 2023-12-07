@@ -63,6 +63,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyEntryPoint
         returns (bytes memory result)
@@ -78,6 +79,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyEntryPoint
         returns (bytes memory result)
@@ -94,6 +96,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes[] calldata callDatas
     )
         external
+        payable
         override
         onlyEntryPoint
         returns (bytes[] memory result)
@@ -110,6 +113,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes memory returnData)
@@ -126,6 +130,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes[] calldata callDatas
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes[] memory returnDatas)
@@ -141,6 +146,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         bytes memory callData
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes memory)
