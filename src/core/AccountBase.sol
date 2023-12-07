@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
+/**
+  * @dev 4337 AccountBase for access control and payPrefund
+  * Code is based on Solady's 4337
+  */
 contract AccountBase {
     error Unauthorized();
     /////////////////////////////////////////////////////
     // Access Control
     ////////////////////////////////////////////////////
 
-    modifier onlyEntryPoint() virtual {
-        if (msg.sender != entryPoint()) revert Unauthorized();
+    modifier onlyEntryPointOrSelf() virtual {
+        if (!(msg.sender == entryPoint() || msg.sender == address(this))) {
+            revert Unauthorized();
+        }
         _;
     }
 
