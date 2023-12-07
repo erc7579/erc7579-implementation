@@ -25,6 +25,16 @@ The goals of this standard are:
 - define the most minimal interfaces for smart accounts and modules that ensure interoperability between accounts
 - outline a system for extending this standard with more opinionated features in a backwards-compatible way
 
+The ERC-4337 validation phase validates calls to execution functions. Modular validation requires the validation module to know the specific function being validated, especially for Session Key Validators. It needs to know:
+
+1. The function called by Entrypoint on the account.
+2. The target address if it is an execution function.
+3. Whether it is a `call` or `delegatecall`.
+4. Whether it is a single or batched transaction.
+5. The function signature used in the interaction with the external contract (e.g., ERC20 transfer).
+
+For a flourishing module ecosystem, compatibility across accounts is crucial. However, if smart accounts implement custom execute functions with different parameters and calldata offsets, it becomes impossible to build reusable modules across accounts.
+
 ## Specification
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119 and RFC 8174.
@@ -43,8 +53,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 The Modular Smart Account can utilize modules to extend it's capabilities.
 
 #### Execution Methods
-
-Standardizing execute functions and separating them into granular methods, allows ERC-4337 SessionKey validation modules to easily scope, what transaction it is approving.
 
 To comply with this standard, smart accounts MUST implement ALL interfaces. If an account implementation elects to not support any of the execute methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
