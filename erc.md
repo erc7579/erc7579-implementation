@@ -7,12 +7,12 @@ status: Draft
 type: Standards Track
 category: ERC
 created: 2023-12-06
-requires: <EIP number(s)> # Only required when you reference an EIP in the `Specification` section. Otherwise, remove this field.
+requires: ERC-165, ERC-1271, ERC-2771, ERC-4337
 ---
 
 ## Abstract
 
-This proposal outlines the minimally required interfaces and behaviour for modular smart accounts and modules to ensure their interoperability.
+This proposal outlines the minimally required interfaces and behavior for modular smart accounts and modules to ensure their interoperability.
 
 ## Motivation
 
@@ -34,62 +34,263 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - **Smart account** - An ERC-4337 compliant smart contract account that has a modular architecture.
 - **Module** - A smart contract with self-contained smart account functionality.
 
-### Execution functions
+### Account Spec
 
-MUST implement:
+#### Execution Methods
 
-- `function execute(address target, uint256 value, bytes data) external returns (bytes memory result);`
-- `function executeDelegateCall(address target, bytes data) external returns (bytes memory result);`
-- `function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);`
-- `function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);`
-- `function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);`
-- `function executeBatchFromModule(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);`
+Standardizing execute functions and separating them into granular methods, allows ERC-4337 SessionKey validation modules to easily scope, what transaction it is approving.
 
-If functionality should not be supported, account MUST revert "Unsupported"!
+To comply with this standard, smart accounts MUST implement ALL interfaces. If an account implementation elects to not support any of the execute methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
-### Account configurations
+##### execute
 
-MUST implement:
+This function is intended to be primarily used to be executed within the ERC-4337 execution phase and invoked by the ERC-4337 Entrypoint.
 
-- `function initializeAccount(bytes calldata data) external;`
-- `function enableValidator(address validator, bytes calldata data) external;`
-- `function disableValidator(address validator, bytes calldata data) external;`
-- `function isValidatorEnabled(address validator) external view returns (bool);`
-- `function enableExecutor(address executor, bytes calldata data) external;`
-- `function disableExecutor(address executor, bytes calldata data) external;`
-- `function isExecutorEnabled(address executor) external view returns (bool);`
-- `function enableFallback(address fallbackHandler, bytes calldata data) external;`
-- `function disableFallback(address fallbackHandler, bytes calldata data) external;`
-- `function isFallbackEnabled(address fallbackHandler) external view returns (bool);`
+If the account supports this interface:
 
-Different module types MUST be stored in different places.
+- Smart account MUST execute a `call` to the provided target with the provided parameters for value and calldata.
+- MUST implement authorization control, scoped to allow ERC-4337 Entrypoint.
+- MAY implement authorization control, scoped to allow `msg.sender == address(this)`.
+- The smart account MUST revert if the call was not successful.
 
-question: should account have view function to get all enabled modules or functions for each module type?
+If the account does not support this feature:
 
-### Module interfaces
+- MUST implement the interface
+- MUST revert
 
-Validators MUST implement:
+```solidity
+function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
+```
 
-- `function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);`
-- `function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4);`
+###### executeBatch
 
-Executors MUST implement:
+This function is intended to be primarily used to be executed within the ERC-4337 execution phase and invoked by the ERC-4337 Entrypoint.
 
-Nothing.
+Transaction Batching is a commonly requested feature in smart accounts.
+If the account supports this interface:
 
-### Validation
+- Smart account MUST iterate over the arrays provided as parameters and execute a `call` for each of the provided `target, values, data` pairs.
+- To avoid unexpected behavior, the Smart Account SHALL ensure that the length of the provided arrays are equal.
+- MUST implement authorization control, scoped to allow ERC-4337 Entrypoint.
+- MAY implement authorization control, scoped to allow `msg.sender == address(this)`.
+- Function MUST revert if any of the calls was not successful.
 
-Standard does NOT dictate “Validation Module” selection. (userOp.signature, modes, userOp.nonce, other factors)
+If the account does not support this feature:
 
-However, account MUST clean up any userOp field if it is encoded with additional data. (Question: is this also required if nonce is used?)
+- MUST implement the interface
+- MUST revert
 
-### ERC-1271
+```solidity
+function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
+```
 
-tbd
+##### executeDelegateCall
 
-### Fallback
+This function is intended to be primarily used to be executed within the ERC-4337 execution phase and invoked by the ERC-4337 Entrypoint.
+
+If the account supports this interface:
+
+- Smart account MUST execute a `delegatecall` to the provided target with provided calldata.
+- MUST implement authorization control, scoped to allow ERC-4337 entrypoint.
+- MAY implement authorization control, scoped to allow `msg.sender == address(this)`.
+- Function MUST revert if the call was not successful.
+
+If the account does not support this feature:
+
+- MUST implement the interface
+- MUST revert
+
+```solidity
+function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
+```
+
+##### executeFromModule
+
+This function is interned to be used by Executor Modules. It allows enabled modules, to execute transactions on behalf of the smart account.
+
+If the account supports this interface:
+
+- Smart account MUST execute a `call` to the provided target with provided calldata.
+- MUST implement authorization control, scoped to only allow enabled modules to execute this function.
+- Function MUST revert if the call was not successful.
+
+If the account does not support this feature:
+
+- MUST implement the interface
+- MUST revert
+
+```solidity
+function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);
+```
+
+##### executeDelegateCallFromModule
+
+This function is interned to be used by Executor Modules. It allows enabled modules, to execute transactions on behalf of the smart account.
+
+If the account supports this interface:
+
+- Smart account MUST execute a `delegatecall` to the provided target with provided calldata.
+- MUST implement authorization control, scoped to only allow enabled modules to execute this function.
+- Function MUST revert if the call was not successful.
+
+If the account does not support this feature:
+
+- MUST implement the interface
+- MUST revert
+
+```solidity
+function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
+```
+
+##### executeDelegateCallFromModule
+
+This function is interned to be used by Executor Modules. It allows enabled modules, to execute transactions on behalf of the smart account.
+
+If the account supports this interface:
+
+- Smart account MUST execute multiple `call` to the provided targets with provided calldatas.
+- MUST implement authorization control, scoped to only allow enabled modules to execute this function.
+- Function MUST revert if any of the calls was not successful.
+
+If the account does not support this feature:
+
+- MUST implement the interface
+- MUST revert
+
+```solidity
+function executeBatchFromModule(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
+```
+
+#### Account configurations
+
+When enabling modules to the smart account, the smart account implementation MUST different between the module types. Not doing so, can create a security issue.
+
+##### Configure Validators
+
+```solidity
+function enableValidator(address validator, bytes calldata data) external;
+function disableValidator(address validator, bytes calldata data) external;
+function isValidatorEnabled(address validator) external view returns (bool);
+```
+
+```solidity
+// Events
+event EnableValidatorModule(address validator);
+event DisableValidatorModule(address validator);
+```
+
+##### Configure Executors
+
+```solidity
+function enableExecutor(address executor, bytes calldata data) external;
+function disableExecutor(address executor, bytes calldata data) external;
+function isExecutorEnabled(address executor) external view returns (bool);
+```
+
+```solidity
+// Events
+event EnableExecutorModule(address executor);
+event DisableExecutorModule(address executor);
+```
+
+##### Configure Fallback Handler
+
+```solidity
+function enableFallback(address fallbackHandler, bytes calldata data) external;
+function disableFallback(address fallbackHandler, bytes calldata data) external;
+function isFallbackEnabled(address fallbackHandler) external view returns (bool);
+```
+
+```solidity
+
+// Events
+event EnableFallbackHandler(address fallbackHandler);
+event DisableFallbackHandler(address fallbackHandler);
+
+```
+
+#### ERC-4337 Validation Phase and Validation Module Selection
+
+This Standard does NOT dictate how “Validation Module” selection is implemented. (userOp.signature, modes, userOp.nonce, other factors).
+Should a smart account encode validation selection mechanisms in ERC-4337 userOps fields (i.e. userOp.signature), the smart account is REQUIRED to sanitize the affected userOp value BEFORE invoking the validation module.
+
+The smart account's `validateUserOp` function SHOULD return the return value of the Validation Module.
+
+#### ERC-1271 Forwarding
+
+The smart account MUST implement the ERC-1271 interface. The ERC-1271 call MAY be forwarded to Validation Modules. If ERC-1271 forwarding is implemented,
+the Validation Module MUST be called with `isValidSignature(address sender, bytes32 hash, bytes signature)`, where the sender is the msg.sender of the ERC-1271 and hash is the `bytes32 hash` for the original ERC-1271 call.
+
+Should the smart account implement any validator selection encoding in the `bytes signature` parameter, the smart account MUST sanitize the parameter, before forwarding it to the Validation Module.
+
+Should a smart account encode validation selection mechanisms in ERC-1271 `bytes signature`, the smart account is REQUIRED to sanitize the `bytes signature` value BEFORE invoking the validation module.
+
+The smart account's ERC-1271 `isValidSignature` function SHOULD return the return value of the Validation Module that the request was forwarded to.
+
+#### Fallback
 
 Consolidating implementations to use the ERC-2771 msg.sender in calldata might be a good way to get authorization control without adding a lot of gas overhead.
+
+### Module Spec
+
+This standard is separating modules into the following different types:
+
+- Validation
+- Execution
+- Fallback
+- Hook (optional)
+
+Note: It is possible that module developers build business logic, that requires a module to be multiple types at the same time.
+
+#### Validation Modules
+
+The smart account MUST call enable/disable functions while adding and removing modules to the smart account.
+Validation Modules MUST implement enable and disable functions.
+
+```solidity
+function enable(bytes calldata data) external;
+function disable(bytes calldata data) external;
+```
+
+Validation Modules are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
+Validation Modules MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
+
+```solidity
+function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
+```
+
+Validation Modules MUST implement a `isValidSignature`. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
+
+The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The Validation Module MAY utilize this parameter for validation (i.e. EIP-712 domain separators)
+Validation Module MUST validate that the signature is a valid signature of the `bytes32 hash`.
+Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid.
+
+```solidity
+function isValidSignature(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
+```
+
+#### Executor Modules
+
+The smart account MUST call enable/disable functions while adding and removing modules to the smart account.
+Executor Modules MUST implement enable and disable functions.
+
+```solidity
+function enable(bytes calldata data) external;
+function disable(bytes calldata data) external;
+```
+
+#### Fallback Handlers
+
+The smart account MUST call enable/disable functions while adding and removing modules to the smart account.
+Fallback Handlers MUST implement enable and disable functions.
+
+```solidity
+function enable(bytes calldata data) external;
+function disable(bytes calldata data) external;
+```
+
+Fallback Handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control.
+Authorization Control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
 
 ### Extensions
 
@@ -101,7 +302,7 @@ tbd
 
 ### Standardisation
 
-As mentioned above, there are several reasons for why standardising smart accounts is very beneficial to the ecosystem. The most important of these are:
+As mentioned above, there are several reasons for why standardizing smart accounts is very beneficial to the ecosystem. The most important of these are:
 
 - Interoperability for modules to be used across different smart accounts
 - Interoperability for smart accounts to be used across different wallet applications and sdks
