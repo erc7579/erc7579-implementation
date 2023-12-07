@@ -11,19 +11,41 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
 
     error InvalidModule(address module);
 
-    // linked list of validators. List is initialized by initializeAccount()
-    SentinelListLib.SentinelList internal _validators;
-    // linked list of executors. List is initialized by initializeAccount()
-    SentinelListLib.SentinelList internal _executors;
+    /// @custom:storage-location erc7201:modulemanager.storage.msa
+    struct ModuleManagerStorage {
+        // linked list of validators. List is initialized by initializeAccount()
+        SentinelListLib.SentinelList _validators;
+        // linked list of executors. List is initialized by initializeAccount()
+        SentinelListLib.SentinelList _executors;
+    }
+
+    // keccak256("modulemanager.storage.msa");
+    bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
+        0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
+
+    function _getModuleMangerStorage() internal pure returns (ModuleManagerStorage storage ims) {
+        bytes32 position = MODULEMANAGER_STORAGE_LOCATION;
+        assembly {
+            ims.slot := position
+        }
+    }
 
     modifier onlyExecutorModule() {
+        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         if (!_executors.contains(msg.sender)) revert InvalidModule(msg.sender);
         _;
     }
 
     modifier onlyValidatorModule(address validator) {
+        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         if (!_validators.contains(validator)) revert InvalidModule(validator);
         _;
+    }
+
+    function _initModuleManager() internal {
+        ModuleManagerStorage storage ims = _getModuleMangerStorage();
+        ims._executors.init();
+        ims._validators.init();
     }
 
     /**
@@ -35,8 +57,13 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
     {
+        _enableValidator(validator, data);
+    }
+
+    function _enableValidator(address validator, bytes calldata data) internal {
+        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         IValidator(validator).enable(data);
         _validators.push(validator);
         emit EnableValidator(validator);
@@ -51,8 +78,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
     {
+        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).disable(disableModuleData);
@@ -63,7 +91,8 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     /**
      * @inheritdoc IMSA_Config
      */
-    function isValidatorEnabled(address validator) external view returns (bool) {
+    function isValidatorEnabled(address validator) public view returns (bool) {
+        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         return _validators.contains(validator);
     }
 
@@ -76,8 +105,13 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
     {
+        _enableExecutor(validator, data);
+    }
+
+    function _enableExecutor(address validator, bytes calldata data) internal {
+        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         IExecutor(validator).enable(data);
         _executors.push(validator);
 
@@ -93,10 +127,11 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
     {
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IExecutor(validator).disable(disableModuleData);
+        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         _executors.pop(prevValidator, validator);
 
         emit DisableExecutor(validator);
@@ -105,7 +140,8 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     /**
      * @inheritdoc IMSA_Config
      */
-    function isExecutorEnabled(address executor) external view returns (bool) {
+    function isExecutorEnabled(address executor) public view returns (bool) {
+        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         return _executors.contains(executor);
     }
 }

@@ -127,16 +127,6 @@ interface IMSA_Config {
 
     event EnableExecutor(address module);
     event DisableExecutor(address module);
-    /////////////////////////////////////////////////////
-    //  Account Initialization
-    ////////////////////////////////////////////////////
-
-    /**
-     * @dev initializes a MSA
-     * @dev implement checks  that account can only be initialized once
-     * @param data abi encoded init params
-     */
-    function initializeAccount(bytes calldata data) external;
 
     /////////////////////////////////////////////////////
     //  Validator Modules
@@ -164,7 +154,7 @@ interface IMSA_Config {
      */
     function isValidatorEnabled(address validator) external view returns (bool);
     /////////////////////////////////////////////////////
-    //  Executort Modules
+    //  Executor Modules
     ////////////////////////////////////////////////////
 
     /**
@@ -185,13 +175,43 @@ interface IMSA_Config {
 
     /**
      * @dev checks if specific executor module is enabled on the account
-     * @param executor The address of the Executort module to enable.
+     * @param executor The address of the Executort module
      * returns bool if executor is enabled
      */
     function isExecutorEnabled(address executor) external view returns (bool);
+    /////////////////////////////////////////////////////
+    //  Fallback Modules
+    ////////////////////////////////////////////////////
+    /**
+     * @dev Enables a Fallback module on the account.
+     * @dev Implement Authorization control of your chosing
+     */
+    function enableFallback(address fallbackHandler, bytes calldata data) external;
+    /**
+     * @dev DisableExecutor
+     *
+     */
+    function disableFallback(address fallbackHandler, bytes calldata data) external;
+    /**
+     * @dev checks if specific fallback handler is enabled on the account
+     * @param fallbackHandler The address of the fallback handler module
+     * returns bool if fallbackhandler is enabled
+     */
+    function isFallbackEnabled(address fallbackHandler) external view returns (bool);
 }
 
-interface IMSA is IMSA_Exec, IMSA_Config { }
+interface IMSA is IMSA_Exec, IMSA_Config {
+    /////////////////////////////////////////////////////
+    //  Account Initialization
+    ////////////////////////////////////////////////////
+
+    /**
+     * @dev initializes a MSA
+     * @dev implement checks  that account can only be initialized once
+     * @param data abi encoded init params
+     */
+    function initializeAccount(bytes calldata data) external;
+}
 
 /**
  * @dev Configuration Interface of the minimal Modular Smart Account Hook extention standard

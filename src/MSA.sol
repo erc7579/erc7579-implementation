@@ -5,7 +5,9 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
+import "forge-std/console2.sol";
+
+contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
@@ -39,14 +41,14 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         userOp.signature = userOpSignature[20:];
 
         // check if validator is enabled
-        if (!_validators.contains(validator)) revert InvalidModule(validator);
+        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
         validSignature =
             IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
     }
 
     function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4) {
         address validator = address(bytes20(data[0:20]));
-        if (!_validators.contains(validator)) revert InvalidModule(validator);
+        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
         return IValidator(validator).isValidSignature(hash, data[20:]);
     }
 
@@ -64,7 +66,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
         returns (bytes memory result)
     {
         return _execute(target, value, callData);
@@ -79,7 +81,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
         returns (bytes memory result)
     {
         return _executeDelegatecall(target, callData);
@@ -95,7 +97,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     )
         external
         override
-        onlyEntryPoint
+        onlyEntryPointOrSelf
         returns (bytes[] memory result)
     {
         result = _execute(targets, values, callDatas);
@@ -153,13 +155,13 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     ////////////////////////////////////////////////////
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IMSA
      */
     function initializeAccount(bytes calldata data) external override {
-        if (_validators.alreadyInitialized()) revert();
-        address defaultValidator = abi.decode(data, (address));
-        _validators.init();
-        _executors.init();
-        _validators.push(defaultValidator);
+        if (isExecutorEnabled(address(0x1))) revert();
+
+        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        (bool success,) = bootstrap.delegatecall(bootstrapCall);
+        if (!success) revert();
     }
 }
