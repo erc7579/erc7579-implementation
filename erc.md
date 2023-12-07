@@ -68,8 +68,6 @@ For each of the functions in the interface, the smart account:
 - MUST implement authorization control. For execute functions with `fromModule` in their name, this MUST be scoped to only allow enabled modules to call the function. For all other execute functions, this MUST be scoped to allow the ERC-4337 Entrypoint to call the function and MAY be scoped to allow `msg.sender == address(this)`.
 - MUST revert if the call was not successful.
 
-If the smart account does not support any of the execute functions, it MUST implement the function and have it revert.
-
 #### Account configurations
 
 When enabling or disabling a module on a smart account, it
@@ -160,7 +158,7 @@ Validation Modules MUST validate that the signature is a valid signature of the 
 function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
 ```
 
-Validation Modules MUST implement anthe `isValidSignature` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
+Validation Modules MUST implement the `isValidSignature` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
 
 The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The Validation Module MAY utilize this parameter for validation (i.e. EIP-712 domain separators)
 Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid. (Note: validators wont be able to use `this.isValidSignature.selector` since the interface is different to the ERC-1271 interface)
