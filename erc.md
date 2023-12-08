@@ -280,11 +280,19 @@ For a flourishing module ecosystem, compatibility across accounts is crucial. Ho
 
 #### Differentiating module types
 
-Not differentiating between module types could present a security issue when enforcing authorization control. For example, if a smart account has a validator module enabled, and the validator module is also an executor, the executor could call back into the smart account and perform unauthorized actions.
+Not differentiating between module types could present a security issue when enforcing authorization control. For example, if a smart account treats validators and executors as the same type of module, it could allow a validator to execute arbitrary transactions on behalf of the smart account.
+
+#### Dependence on ERC-4337
+
+This standard has a strict dependency on ERC-4337 for the validation flow. However, it is likely that smart account builders will want to build modular accounts in the future that do not use ERC-4337 but, for example, a native account abstraction implementation on a rollup. Once this starts to happen, the proposed upgrade path for this standard is to move the ERC-4337 dependency into an extension (ie a separate ERC) and to make it optional for smart accounts to implement. If it is required to standardise the validation flow for different account abstraction implementations, then these requirements could also be moved into an extension.
+
+The reason this is not done from the start is that currently, the only modular accounts that are being built are using ERC-4337. Therefore, it makes sense to standardise the interfaces for these accounts first and to move the ERC-4337 dependency into an extension once there is a need for it. This is to maximise learnings about how modular accounts would look like when built on different account abstraction implementations.
 
 ## Backwards Compatibility
 
-No backward compatibility issues found.
+### Already deployed smart accounts
+
+Smart accounts that have already been deployed will most likely be able to implement this standard. If they are deployed as a proxy, it is possible to upgrade to a new account implementation that is compliant with this standard. If they are deployed as a singleton, it might still be possible to become compliant, for example by adding a compliant adapter as a fallback handler, if this is supported.
 
 ## Reference Implementation
 
