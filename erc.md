@@ -51,7 +51,7 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
-```
+```solidity
 interface IExectution {
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
@@ -79,7 +79,7 @@ When enabling or disabling a module on a smart account, it
 - MUST enforce authorization control on the relevant enable or disable function for the module type
 - SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
 
-```
+```solidity
 interface IAccountConfig {
     // VALIDATORS
     // Functions
