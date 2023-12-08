@@ -8,7 +8,7 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is IERC165, Execution, ModuleManager, IERC4337, IMSA, Fallback {
+contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
@@ -183,9 +183,6 @@ contract MSA is IERC165, Execution, ModuleManager, IERC4337, IMSA, Fallback {
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
         if (interfaceID == type(IMSA).interfaceId) return true;
-        if (interfaceID == type(IMSA_Config).interfaceId) return true;
-        if (interfaceID == type(IERC4337).interfaceId) return true;
-        if (interfaceID == type(IERC165).interfaceId) return true;
-        return false;
+        return super.supportsInterface(interfaceID);
     }
 }

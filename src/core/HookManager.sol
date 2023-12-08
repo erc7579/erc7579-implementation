@@ -62,4 +62,9 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
 
         return _hook == hook;
     }
+
+    function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
+        if (interfaceID == type(IMSA_ConfigExt).interfaceId) return true;
+        return super.supportsInterface(interfaceID);
+    }
 }

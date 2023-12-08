@@ -58,4 +58,14 @@ contract Bootstrap is ModuleManager, Fallback, HookManager {
             address(this), abi.encodeCall(this.initMSA, (_validators, _executors, _hook, _fallback))
         );
     }
+
+    function supportsInterface(bytes4 interfaceID)
+        public
+        pure
+        virtual
+        override(HookManager, ModuleManager)
+        returns (bool)
+    {
+        return false;
+    }
 }

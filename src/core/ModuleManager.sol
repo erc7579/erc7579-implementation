@@ -5,8 +5,9 @@ import "sentinellist/SentinelList.sol";
 import "./AccountBase.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
+import "forge-std/interfaces/IERC165.sol";
 
-abstract contract ModuleManager is AccountBase, IMSA_Config {
+abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     error InvalidModule(address module);
@@ -155,5 +156,15 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     function isAlreadyInitialized() internal view virtual returns (bool) {
         ModuleManagerStorage storage ims = _getModuleMangerStorage();
         return ims._validators.alreadyInitialized();
+    }
+
+    function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
+        if (interfaceID == type(IMSA_Config).interfaceId) return true;
+        if (interfaceID == type(IERC165).interfaceId) return true;
+        if (interfaceID == IMSA_Config.enableExecutor.selector) return true;
+        if (interfaceID == IMSA_Config.disableExecutor.selector) return true;
+        if (interfaceID == IMSA_Config.enableValidator.selector) return true;
+        if (interfaceID == IMSA_Config.disableValidator.selector) return true;
+        return false;
     }
 }
