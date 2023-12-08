@@ -152,6 +152,8 @@ interface IModule {
 }
 ```
 
+Modules MUST revert if enable/disable was unsuccessful.
+
 #### Validators
 
 Validators MUST implement the `IModule` interface.
