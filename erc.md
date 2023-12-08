@@ -70,7 +70,7 @@ For each of the functions in the interface, the smart account:
 
 #### Account configurations
 
-To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
+To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the configuration methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 When enabling or disabling a module on a smart account, it
 
@@ -115,6 +115,29 @@ interface IAccountConfig {
 }
 ```
 
+#### Hooks
+
+Hook Modules are an OPTIONAL extension of this standard. Smart accounts MAY use Hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+
+To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
+
+- MUST call the `enable` or `disable` function on the module when enabling or disabling a hook
+- MUST pass the initialisation data to the module when enabling or disabling a hook
+- SHOULD store the module address during the enable process and remove it during the disable process
+- MUST emit the relevant event for the module type
+- MUST enforce authorization control on the relevant enable or disable function for the module type
+- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
+- MUST call the `preCheck` function before a smart account execution with the execution parameters
+- MUST call the `postCheck` function after a smart account execution with the return value of `preCheck`
+
+```solidity
+interface IAccountConfig_Hook {
+    function enableHook(address hook, bytes calldata data) external;
+    function disableHook(address hook, bytes calldata data) external;
+    function isHookEnabled(address hook) external view returns (bool);
+}
+```
+
 #### ERC-1271 Forwarding
 
 The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignature(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
@@ -131,6 +154,22 @@ If the account has a fallback handler enabled, it:
 
 - MUST use `call` to invoke the Fallback Handler
 - MUST utilize [ERC-2771](./erc-2771.md) to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
+
+#### ERC-165
+
+Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very helpful for wallets or dapps to discover which functionality is supported by the account.
+
+```solidity
+function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+    if(interfaceID == type(IERC165).interfaceID) return true;
+    else if (interfaceID == type(IExecution).interfaceId) return true;
+    else if (interfaceID == type(IAccountConfig).interfaceId) return true;
+    // Only if Hook extension is supported
+    else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
+    else return false;
+}
+
+```
 
 ### Modules
 
@@ -185,32 +224,9 @@ Authorization Control MUST use ERC-2771 checks to validate, that the `_msgSender
 
 #### Hooks
 
-Hook Modules are an OPTIONAL extension of this standard. Smart accounts MAY use Hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
-
-To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below.
-
-- MUST call the `enable` or `disable` function on the module
-- MUST pass the initialisation data to the module
-- SHOULD store the module address during the enable process and remove it during the disable process
-- MUST emit the relevant event for the module type
-- MUST enforce authorization control on the relevant enable or disable function for the module type
-- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
-- MUST call the `preCheck` before a smart account execution with the execution parameters
-- MUST call the `postCheck` after a smart account execution with the return value of `preCheck`
-
-```solidity
-interface IAccountConfig_Hook {
-    function enableHook(address hook, bytes calldata data) external;
-    function disableHook(address hook, bytes calldata data) external;
-    function isHookEnabled(address hook) external view returns (bool);
-}
-```
-
-#### Hook Modules
-
 Hooks MUST implement the `IModule` interface.
 
-Hook Modules are represented by ModuleType: `4`.
+Hooks have module type id: `4`.
 
 Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
 
@@ -222,22 +238,6 @@ Hooks MUST implement the `postCheck` function, which MAY validate the `hookData`
 
 ```solidity
 function postCheck(bytes calldata hookData) external returns (bool success);
-```
-
-### ERC-165
-
-Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very helpful for wallets or dapps to discover which functionality is supported by the account.
-
-```solidity
-function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
-    if(interfaceID == type(IERC165),interfaceID) return true;
-    else if (interfaceID == type(IExecution).interfaceId) return true;
-    else if (interfaceID == type(IAccountConfig).interfaceId) return true;
-    // Only if Hook extension is supported
-    else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
-    else return false;
-}
-
 ```
 
 ## Rationale
