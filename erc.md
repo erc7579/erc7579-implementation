@@ -52,7 +52,7 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 ```solidity
-interface IExectution {
+interface IExecution{
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
     function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
@@ -230,6 +230,7 @@ Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very h
 ```solidity
 function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
     if(interfaceID == type(IERC165),interfaceID) return true;
+    else if (interfaceID == type(IExecution).interfaceId) return true;
     else if (interfaceID == type(IAccountConfig).interfaceId) return true;
     // Only if Hook extension is supported
     else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
