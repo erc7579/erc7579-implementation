@@ -175,10 +175,6 @@ function isValidSignature(address sender, bytes32 hash, bytes calldata signature
 
 Executors MUST implement the `IModule` interface.
 
-<!-- Todo: remove if nothing is added -->
-
-None
-
 #### Fallback Handlers
 
 Fallback Handlers MUST implement the `IModule` interface.
