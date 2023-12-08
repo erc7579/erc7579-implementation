@@ -5,7 +5,15 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
+import "forge-std/interfaces/IERC165.sol";
+
+/**
+ * @title reference implementation of the minimal modular smart account
+ * @author zeroknots.eth | rhinestone.wtf
+ *
+ */
+
+contract MSA is IERC165, Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
@@ -167,5 +175,19 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
         _validators.init();
         _executors.init();
         _validators.push(defaultValidator);
+    }
+
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+        if (interfaceID == type(IERC165).interfaceId) {
+            return true;
+        } else if (interfaceID == type(IMSA_Exec).interfaceId) {
+            return true;
+        } else if (interfaceID == type(IMSA_Config).interfaceId) {
+            return true;
+        } else if (interfaceID == type(IERC4337).interfaceId) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

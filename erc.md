@@ -52,7 +52,7 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 ```solidity
-interface IExectution {
+interface IExecution{
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
     function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
@@ -69,6 +69,8 @@ For each of the functions in the interface, the smart account:
 - MUST revert if the call was not successful.
 
 #### Account configurations
+
+To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the configuration methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 When enabling or disabling a module on a smart account, it
 
@@ -113,6 +115,29 @@ interface IAccountConfig {
 }
 ```
 
+#### Hooks
+
+Hook Modules are an OPTIONAL extension of this standard. Smart accounts MAY use Hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+
+To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
+
+- MUST call the `enable` or `disable` function on the module when enabling or disabling a hook
+- MUST pass the initialisation data to the module when enabling or disabling a hook
+- SHOULD store the module address during the enable process and remove it during the disable process
+- MUST emit the relevant event for the module type
+- MUST enforce authorization control on the relevant enable or disable function for the module type
+- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
+- MUST call the `preCheck` function before a smart account execution with the execution parameters
+- MUST call the `postCheck` function after a smart account execution with the return value of `preCheck`
+
+```solidity
+interface IAccountConfig_Hook {
+    function enableHook(address hook, bytes calldata data) external;
+    function disableHook(address hook, bytes calldata data) external;
+    function isHookEnabled(address hook) external view returns (bool);
+}
+```
+
 #### ERC-1271 Forwarding
 
 The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignature(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
@@ -130,6 +155,22 @@ If the account has a fallback handler enabled, it:
 - MUST use `call` to invoke the Fallback Handler
 - MUST utilize [ERC-2771](./erc-2771.md) to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
 
+#### ERC-165
+
+Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very helpful for wallets or dapps to discover which functionality is supported by the account.
+
+```solidity
+function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+    if(interfaceID == type(IERC165).interfaceID) return true;
+    else if (interfaceID == type(IExecution).interfaceId) return true;
+    else if (interfaceID == type(IAccountConfig).interfaceId) return true;
+    // Only if Hook extension is supported
+    else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
+    else return false;
+}
+
+```
+
 ### Modules
 
 This standard separates modules into the following different types that each has a unique and incremental identifier, which SHOULD be used by accounts, modules and other entities to identify the module type:
@@ -146,11 +187,15 @@ Modules MUST implement the following interface, which is used by smart accounts 
 interface IModule {
     function enable(bytes calldata data) external;
     function disable(bytes calldata data) external;
+    function isModuleType(uint256 typeID) external view returns(bool);
 }
 ```
 
+Modules MUST revert if enable/disable was unsuccessful.
+
 #### Validators
 
+Validators MUST implement the `IModule` interface.
 Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
 Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
 
@@ -169,22 +214,31 @@ function isValidSignature(address sender, bytes32 hash, bytes calldata signature
 
 #### Executors
 
-<!-- Todo: remove if nothing is added -->
-
-None
+Executors MUST implement the `IModule` interface.
 
 #### Fallback Handlers
 
+Fallback Handlers MUST implement the `IModule` interface.
 Fallback Handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control.
 Authorization Control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
 
 #### Hooks
 
-todo: add as optional extension
+Hooks MUST implement the `IModule` interface.
 
-### ERC-165
+Hooks have module type id: `4`.
 
-todo: smart account should implement erc-165 to declare what features are supported
+Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
+
+```solidity
+function preCheck(address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
+```
+
+Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
+
+```solidity
+function postCheck(bytes calldata hookData) external returns (bool success);
+```
 
 ## Rationale
 

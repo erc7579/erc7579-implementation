@@ -6,6 +6,12 @@ import "./AccountBase.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
 
+/**
+ * @title ModuleManager
+ * @author zeroknots.eth | rhinestone.wtf
+ * @dev This contract manages Validator and Executor modules for the MSA
+ * @dev it uses SentinelList to manage the linked list of modules
+ */
 abstract contract ModuleManager is AccountBase, IMSA_Config {
     using SentinelListLib for SentinelListLib.SentinelList;
 
