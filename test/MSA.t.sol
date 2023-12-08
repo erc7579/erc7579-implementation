@@ -3,49 +3,67 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
 import "src/MSA.sol";
+import "src/MSAFactory.sol";
+import "./Bootstrap.t.sol";
 import { MockValidator } from "./mocks/MockValidator.sol";
 import { MockExecutor } from "./mocks/MockExecutor.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
 
-import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
 import "./dependencies/EntryPoint.sol";
 
-contract MSATest is Test {
-    MSA account;
+contract MSATest is BootstrapUtil, Test {
+    // singletons
+    MSA implementation;
+    MSAFactory factory;
+    IEntryPoint entrypoint = IEntryPoint(ENTRYPOINT_ADDR);
 
-    MockValidator validator;
-    MockExecutor executor;
+    MockValidator defaultValidator;
+    MockExecutor defaultExecutor;
 
     MockTarget target;
 
-    IEntryPoint entrypoint = IEntryPoint(ENTRYPOINT_ADDR);
+    MSA account;
 
     function setUp() public {
         etchEntrypoint();
-        account = new MSA();
-        vm.deal(address(account), 100 ether);
+        implementation = new MSA();
+        factory = new MSAFactory(address(implementation));
 
-        validator = new MockValidator();
-        executor = new MockExecutor();
-
+        // setup module singletons
+        defaultExecutor = new MockExecutor();
+        defaultValidator = new MockValidator();
         target = new MockTarget();
 
-        init();
+        // setup account init config
+        BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
+        BootstrapConfig[] memory executors = makeBootstrapConfig(address(defaultExecutor), "");
+        BootstrapConfig memory hook = _makeBootstrapConfig(address(0), "");
+        BootstrapConfig memory fallbackHandler = _makeBootstrapConfig(address(0), "");
+
+        // create account
+        account = MSA(
+            factory.createAccount({
+                salt: "1",
+                initCode: bootstrapSingleton._getInitMSACalldata(
+                    validators, executors, hook, fallbackHandler
+                    )
+            })
+        );
+        vm.deal(address(account), 1 ether);
     }
 
-    function init() public {
-        bytes memory initParams = abi.encode(address(validator));
-        account.initializeAccount(initParams);
+    function test_checkValidatorEnabled() public {
+        assertTrue(account.isValidatorEnabled(address(defaultValidator)));
     }
 
-    function testInit() public {
-        assertTrue(account.isValidatorEnabled(address(validator)));
+    function test_checkExecutorEnabled() public {
+        assertTrue(account.isExecutorEnabled(address(defaultExecutor)));
     }
 
-    function testExecute() public {
-        bytes memory executeThis = abi.encodeCall(MockTarget.setValue, 1337);
-
-        bytes memory execFunction = abi.encodeCall(MSA.execute, (address(target), 0, executeThis));
+    function test_execVia4337() public {
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
+        bytes memory execFunction =
+            abi.encodeCall(MSA.execute, (address(target), 0, setValueOnTarget));
         UserOperation memory userOp = UserOperation({
             sender: address(account),
             nonce: entrypoint.getNonce(address(account), 0),
@@ -57,9 +75,8 @@ contract MSATest is Test {
             maxFeePerGas: 1,
             maxPriorityFeePerGas: 1,
             paymasterAndData: bytes(""),
-            signature: abi.encodePacked(address(validator), hex"41414141")
+            signature: abi.encodePacked(address(defaultValidator), hex"41414141")
         });
-
         UserOperation[] memory userOps = new UserOperation[](1);
         userOps[0] = userOp;
 

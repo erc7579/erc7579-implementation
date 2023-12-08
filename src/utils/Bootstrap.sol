@@ -12,7 +12,7 @@ struct BootstrapConfig {
     bytes data;
 }
 
-contract MSABootstrap is ModuleManager, Fallback, HookManager {
+contract Bootstrap is ModuleManager, Fallback, HookManager {
     function initMSA(
         BootstrapConfig[] calldata _validators,
         BootstrapConfig[] calldata _executors,
@@ -54,6 +54,8 @@ contract MSABootstrap is ModuleManager, Fallback, HookManager {
         view
         returns (bytes memory init)
     {
-        init = abi.encodeCall(this.initMSA, (_validators, _executors, _hook, _fallback));
+        init = abi.encode(
+            address(this), abi.encodeCall(this.initMSA, (_validators, _executors, _hook, _fallback))
+        );
     }
 }

@@ -18,6 +18,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         uint256 missingAccountFunds
     )
         external
+        virtual
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
@@ -63,6 +64,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         payable
+        virtual
         override
         onlyEntryPointOrSelf
         returns (bytes memory result)
@@ -79,6 +81,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         payable
+        virtual
         override
         onlyEntryPointOrSelf
         returns (bytes memory result)
@@ -113,6 +116,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         payable
+        virtual
         override
         onlyExecutorModule
         returns (bytes memory returnData)
@@ -130,6 +134,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         payable
+        virtual
         override
         onlyExecutorModule
         returns (bytes[] memory returnDatas)
@@ -146,6 +151,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         payable
+        virtual
         override
         onlyExecutorModule
         returns (bytes memory)
@@ -160,7 +166,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     /**
      * @inheritdoc IMSA
      */
-    function initializeAccount(bytes calldata data) external override {
+    function initializeAccount(bytes calldata data) external virtual override {
         // only allow initialization once
         if (isAlreadyInitialized()) revert();
 
