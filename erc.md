@@ -142,7 +142,7 @@ Note: A single module can be of multiple types.
 
 Modules MUST implement the following interface, which is used by smart accounts to enable and disable modules:
 
-```
+```solidity
 interface IModule {
     function enable(bytes calldata data) external;
     function disable(bytes calldata data) external;
