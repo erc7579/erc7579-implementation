@@ -1,6 +1,6 @@
 ---
-title: Minimal Modular Smart Accounts # 44 characters or less
-description: <Description is one full (short) sentence> # Todo
+title: Minimal Modular Smart Accounts
+description: Minimally required interfaces and behavior for modular smart accounts and modules
 author: #Todo
 discussions-to: <tbd>
 status: Draft
@@ -12,9 +12,7 @@ requires: ERC-165, ERC-1271, ERC-2771, ERC-4337
 
 ## Abstract
 
-<!-- Todo -->
-
-This proposal outlines the minimally required interfaces and behavior for modular smart accounts and modules to ensure their interoperability.
+This proposal outlines the minimally required interfaces and behavior for modular smart accounts and modules to ensure interoperability accross implementations.
 
 ## Motivation
 
@@ -43,9 +41,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 #### Validation
 
-This Standard does not dictate how “Validation Module” selection is implemented. However, should a smart account encode validation selection mechanisms in ERC-4337 `UserOperation` fields (i.e. `userOp.signature`), the smart account MUST sanitize the affected userOp values before invoking the validation module.
+This Standard does not dictate how validator selection is implemented. However, should a smart account encode validator selection mechanisms in ERC-4337 `UserOperation` fields (i.e. `userOp.signature`), the smart account MUST sanitize the affected values before invoking the validator.
 
-The smart account's `validateUserOp` function SHOULD return the return value of the Validation Module.
+The smart account's `validateUserOp` function SHOULD return the return value of the validator.
 
 #### Execution Behavior
 
@@ -117,7 +115,7 @@ interface IAccountConfig {
 
 #### Hooks
 
-Hook Modules are an OPTIONAL extension of this standard. Smart accounts MAY use Hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
 
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
@@ -132,9 +130,15 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 
 ```solidity
 interface IAccountConfig_Hook {
+    // HOOKS
+    // Functions
     function enableHook(address hook, bytes calldata data) external;
     function disableHook(address hook, bytes calldata data) external;
     function isHookEnabled(address hook) external view returns (bool);
+
+    // Events
+    event EnableHook(address hook);
+    event DisableHook(address hook);
 }
 ```
 
@@ -142,22 +146,22 @@ interface IAccountConfig_Hook {
 
 The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignatureWithSender(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
 
-Should the smart account implement any validator selection encoding in the `bytes signature` parameter, the smart account MUST sanitize the parameter, before forwarding it to the Validation Module.
+Should the smart account implement any validator selection encoding in the `bytes signature` parameter, the smart account MUST sanitize the parameter, before forwarding it to the validator.
 
-The smart account's ERC-1271 `isValidSignature` function SHOULD return the return value of the Validation Module that the request was forwarded to.
+The smart account's ERC-1271 `isValidSignature` function SHOULD return the return value of the validator that the request was forwarded to.
 
 #### Fallback
 
-Smart accounts MAY implement a fallback function that forwards the call to a Fallback Handler.
+Smart accounts MAY implement a fallback function that forwards the call to a fallback handler.
 
 If the account has a fallback handler enabled, it:
 
-- MUST use `call` to invoke the Fallback Handler
-- MUST utilize [ERC-2771](./erc-2771.md) to add the original `msg.sender` to the `calldata` sent to the Fallback Handler
+- MUST use `call` to invoke the fallback handler
+- MUST utilize [ERC-2771](./erc-2771.md) to add the original `msg.sender` to the `calldata` sent to the fallback handler
 
 #### ERC-165
 
-Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very helpful for wallets or dapps to discover which functionality is supported by the account.
+Smart accounts MUST implement ERC-165 with meta-interfaces. These will be used by wallets or dapps to discover which functionality is supported by the account.
 
 ```solidity
 function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
@@ -175,9 +179,9 @@ function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
 
 This standard separates modules into the following different types that each has a unique and incremental identifier, which SHOULD be used by accounts, modules and other entities to identify the module type:
 
-- Validation (ID: 1)
-- Execution (ID: 2)
-- Fallback (ID: 3)
+- Validation (type id: 1)
+- Execution (type id: 2)
+- Fallback (type id: 3)
 
 Note: A single module can be of multiple types.
 
@@ -191,22 +195,21 @@ interface IModule {
 }
 ```
 
-Modules MUST revert if enable/disable was unsuccessful.
+Modules MUST revert if `enable` or `disable` was unsuccessful.
 
 #### Validators
 
-Validators MUST implement the `IModule` interface.
-Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
-Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
+- Validators MUST implement the `IModule` interface.
+- Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
+- Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
 
 ```solidity
 function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
 ```
 
-Validators MUST implement the `isValidSignatureWithSender` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
+Validators MUST also implement the `isValidSignatureWithSender` function. The validator MUST return the ERC-1271 `MAGIC_VALUE` if the signature is valid and MUST NOT modify state.
 
-The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The Validation Module MAY utilize this parameter for validation (i.e. EIP-712 domain separators)
-Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid.
+The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The validator MAY utilize this parameter for validation (i.e. EIP-712 domain separators).
 
 ```solidity
 function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
@@ -218,15 +221,13 @@ Executors MUST implement the `IModule` interface.
 
 #### Fallback Handlers
 
-Fallback Handlers MUST implement the `IModule` interface.
-Fallback Handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control.
-Authorization Control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
+Fallback handlers MUST implement the `IModule` interface.
+
+Fallback handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control. Authorization control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
 
 #### Hooks
 
-Hooks MUST implement the `IModule` interface.
-
-Hooks have module type id: `4`.
+Hooks MUST implement the `IModule` interface and have module type id: `4`.
 
 Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
 
