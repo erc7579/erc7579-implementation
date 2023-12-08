@@ -58,8 +58,6 @@ interface IValidator is IModule {
 }
 
 interface IExecutor is IModule {
-// function supportsDelegateCall() external view returns (bool);
-// function supportsBatchedCall() external view returns (bool);
 }
 
 interface IHook is IModule {
