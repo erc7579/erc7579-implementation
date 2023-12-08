@@ -70,6 +70,8 @@ For each of the functions in the interface, the smart account:
 
 #### Account configurations
 
+To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
+
 When enabling or disabling a module on a smart account, it
 
 - MUST call the `enable` or `disable` function on the module
@@ -146,11 +148,13 @@ Modules MUST implement the following interface, which is used by smart accounts 
 interface IModule {
     function enable(bytes calldata data) external;
     function disable(bytes calldata data) external;
+    function isModuleType(uint256 typeID) external view returns(bool);
 }
 ```
 
 #### Validators
 
+Validators MUST implement the `IModule` interface.
 Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
 Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
 
@@ -169,22 +173,74 @@ function isValidSignature(address sender, bytes32 hash, bytes calldata signature
 
 #### Executors
 
+Executors MUST implement the `IModule` interface.
+
 <!-- Todo: remove if nothing is added -->
 
 None
 
 #### Fallback Handlers
 
+Fallback Handlers MUST implement the `IModule` interface.
 Fallback Handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control.
 Authorization Control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
 
 #### Hooks
 
-todo: add as optional extension
+Hook Modules are an OPTIONAL extension of this standard. Smart accounts MAY use Hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+
+To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below.
+
+- MUST call the `enable` or `disable` function on the module
+- MUST pass the initialisation data to the module
+- SHOULD store the module address during the enable process and remove it during the disable process
+- MUST emit the relevant event for the module type
+- MUST enforce authorization control on the relevant enable or disable function for the module type
+- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
+- MUST call the `preCheck` before a smart account execution with the execution parameters
+- MUST call the `postCheck` after a smart account execution with the return value of `preCheck`
+
+```solidity
+interface IAccountConfig_Hook {
+    function enableHook(address hook, bytes calldata data) external;
+    function disableHook(address hook, bytes calldata data) external;
+    function isHookEnabled(address hook) external view returns (bool);
+}
+```
+
+#### Hook Modules
+
+Hooks MUST implement the `IModule` interface.
+
+Hook Modules are represented by ModuleType: `4`.
+
+Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
+
+```solidity
+function preCheck(address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
+```
+
+Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
+
+```solidity
+function postCheck(bytes calldata hookData) external returns (bool success);
+}
+```
 
 ### ERC-165
 
-todo: smart account should implement erc-165 to declare what features are supported
+Smart accounts MUST implement ERC-165 with meta-interfaces. These will be very helpful for wallets or dapps to discover which functionality is supported by the account.
+
+```solidity
+function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+    if(interfaceID == type(IERC165),interfaceID) return true;
+    else if (interfaceID == type(IAccountConfig).interfaceId) return true;
+    // Only if Hook extension is supported
+    else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
+    else return false;
+}
+
+```
 
 ## Rationale
 
