@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 /**
  * @dev Execution Interface of the minimal Modular Smart Account standard
+ * @author zeroknots.eth | rhinestone.wtf
  */
 interface IMSA_Exec {
     error Unsupported();
