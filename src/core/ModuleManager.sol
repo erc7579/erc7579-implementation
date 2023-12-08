@@ -23,7 +23,12 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
         0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
-    function _getModuleMangerStorage() internal pure returns (ModuleManagerStorage storage ims) {
+    function _getModuleMangerStorage()
+        internal
+        pure
+        virtual
+        returns (ModuleManagerStorage storage ims)
+    {
         bytes32 position = MODULEMANAGER_STORAGE_LOCATION;
         assembly {
             ims.slot := position
@@ -42,7 +47,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         _;
     }
 
-    function _initModuleManager() internal {
+    function _initModuleManager() internal virtual {
         ModuleManagerStorage storage ims = _getModuleMangerStorage();
         ims._executors.init();
         ims._validators.init();
@@ -55,14 +60,15 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         address validator,
         bytes calldata data
     )
-        external
+        public
+        virtual
         override
         onlyEntryPointOrSelf
     {
         _enableValidator(validator, data);
     }
 
-    function _enableValidator(address validator, bytes calldata data) internal {
+    function _enableValidator(address validator, bytes calldata data) internal virtual {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         IValidator(validator).enable(data);
         _validators.push(validator);
@@ -91,7 +97,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     /**
      * @inheritdoc IMSA_Config
      */
-    function isValidatorEnabled(address validator) public view returns (bool) {
+    function isValidatorEnabled(address validator) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         return _validators.contains(validator);
     }
@@ -103,7 +109,8 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         address validator,
         bytes calldata data
     )
-        external
+        public
+        virtual
         override
         onlyEntryPointOrSelf
     {
@@ -140,12 +147,12 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
     /**
      * @inheritdoc IMSA_Config
      */
-    function isExecutorEnabled(address executor) public view returns (bool) {
+    function isExecutorEnabled(address executor) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         return _executors.contains(executor);
     }
 
-    function isAlreadyInitialized() internal view returns (bool) {
+    function isAlreadyInitialized() internal view virtual returns (bool) {
         ModuleManagerStorage storage ims = _getModuleMangerStorage();
         return ims._validators.alreadyInitialized();
     }

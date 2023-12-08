@@ -17,7 +17,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
 
     error HookPostCheckFailed();
 
-    function _setHook(address hook) internal {
+    function _setHook(address hook) internal virtual {
         bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
         assembly {
             sstore(slot, hook)
@@ -27,11 +27,11 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     /**
      * @inheritdoc IMSA_ConfigExt
      */
-    function enableHook(address hook, bytes calldata data) external onlyEntryPointOrSelf {
+    function enableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
         _enableHook(hook, data);
     }
 
-    function _enableHook(address hook, bytes calldata data) internal {
+    function _enableHook(address hook, bytes calldata data) internal virtual {
         IHook(hook).enable(data);
         _setHook(hook);
         emit EnableHook(hook);
@@ -40,11 +40,11 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     /**
      * @inheritdoc IMSA_ConfigExt
      */
-    function disableHook(address hook, bytes calldata data) external onlyEntryPointOrSelf {
+    function disableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
         _disableHook(hook, data);
     }
 
-    function _disableHook(address hook, bytes calldata data) internal {
+    function _disableHook(address hook, bytes calldata data) internal virtual {
         IHook(hook).disable(data);
         _setHook(address(0));
         emit DisableHook(hook);
@@ -53,7 +53,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     /**
      * @inheritdoc IMSA_ConfigExt
      */
-    function isHookEnabled(address hook) external view returns (bool isEnabled) {
+    function isHookEnabled(address hook) public view virtual returns (bool isEnabled) {
         address _hook;
         bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
         assembly {

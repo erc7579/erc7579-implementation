@@ -23,7 +23,8 @@ abstract contract Fallback is AccountBase, IMSA_Config {
         address fallbackHandler,
         bytes calldata data
     )
-        external
+        public
+        virtual
         onlyEntryPointOrSelf
     {
         IFallback(fallbackHandler).enable(data);
@@ -34,13 +35,14 @@ abstract contract Fallback is AccountBase, IMSA_Config {
         address fallbackHandler,
         bytes calldata data
     )
-        external
+        public
+        virtual
         onlyEntryPointOrSelf
     {
         _setFallback(address(0));
     }
 
-    function isFallbackEnabled(address fallbackHandler) external view returns (bool enabled) {
+    function isFallbackEnabled(address fallbackHandler) public view returns (bool enabled) {
         bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
 
         address _handler;
@@ -51,7 +53,7 @@ abstract contract Fallback is AccountBase, IMSA_Config {
         enabled = _handler == fallbackHandler;
     }
 
-    function _enableFallback(address fallbackHandler, bytes calldata data) internal {
+    function _enableFallback(address fallbackHandler, bytes calldata data) internal virtual {
         _setFallback(fallbackHandler);
         IFallback(fallbackHandler).enable(data);
         emit FallbackHandlerChanged(fallbackHandler);

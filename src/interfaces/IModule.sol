@@ -57,8 +57,7 @@ interface IValidator is IModule {
         returns (bytes4);
 }
 
-interface IExecutor is IModule {
-}
+interface IExecutor is IModule { }
 
 interface IHook is IModule {
     function preCheck(
