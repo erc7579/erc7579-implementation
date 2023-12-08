@@ -52,6 +52,18 @@ contract MSATest is BootstrapUtil, Test {
         vm.deal(address(account), 1 ether);
     }
 
+    function test_AccountFeatureDetectionExecutors() public {
+        assertTrue(account.supportsInterface(type(IMSA).interfaceId));
+    }
+
+    function test_AccountFeatureDetectionConfig() public {
+        assertTrue(account.supportsInterface(type(IMSA_Config).interfaceId));
+    }
+
+    function test_AccountFeatureDetectionConfigWHooks() public {
+        assertFalse(account.supportsInterface(type(IMSA_ConfigExt).interfaceId));
+    }
+
     function test_checkValidatorEnabled() public {
         assertTrue(account.isValidatorEnabled(address(defaultValidator)));
     }

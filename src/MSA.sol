@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
 import "./interfaces/IERC4337.sol";
+import "forge-std/interfaces/IERC165.sol";
 import "./interfaces/IMSA.sol";
 import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
+contract MSA is IERC165, Execution, ModuleManager, IERC4337, IMSA, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
@@ -176,5 +179,13 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         if (!success) revert();
         // revert if bootstrap didnt initialize the linked list of ModuleManager
         if (!isAlreadyInitialized()) revert();
+    }
+
+    function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
+        if (interfaceID == type(IMSA).interfaceId) return true;
+        if (interfaceID == type(IMSA_Config).interfaceId) return true;
+        if (interfaceID == type(IERC4337).interfaceId) return true;
+        if (interfaceID == type(IERC165).interfaceId) return true;
+        return false;
     }
 }

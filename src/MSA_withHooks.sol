@@ -31,4 +31,9 @@ contract MSAHooks is MSA, HookManager {
             result = super._execute(target, value, callData);
         }
     }
+
+    function supportsInterface(bytes4 interfaceId) public pure virtual override returns (bool) {
+        return
+            interfaceId == type(IMSA_ConfigExt).interfaceId || super.supportsInterface(interfaceId);
+    }
 }
