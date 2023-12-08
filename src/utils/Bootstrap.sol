@@ -41,7 +41,6 @@ contract MSABootstrap is ModuleManager, Fallback, HookManager {
         // init fallback
         if (address(_fallback.module) != address(0)) {
             _setFallback(address(_fallback.module));
-            IFallback(address(_fallback.module)).enable(_fallback.data);
         }
     }
 

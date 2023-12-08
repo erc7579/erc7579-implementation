@@ -26,6 +26,7 @@ abstract contract Fallback is AccountBase, IMSA_Config {
         external
         onlyEntryPointOrSelf
     {
+        IFallback(fallbackHandler).enable(data);
         _enableFallback(fallbackHandler, data);
     }
 

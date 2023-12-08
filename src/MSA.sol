@@ -5,14 +5,12 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-
 contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
-     * Validator selectiion / encoding is NOT in scope of this standard.
+     * Validator selection / encoding is NOT in scope of this standard.
      * This is just an example of how it could be done.
-     *
      */
     function validateUserOp(
         UserOperation memory userOp,
@@ -64,6 +62,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyEntryPointOrSelf
         returns (bytes memory result)
@@ -79,6 +78,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyEntryPointOrSelf
         returns (bytes memory result)
@@ -95,6 +95,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes[] calldata callDatas
     )
         external
+        payable
         override
         onlyEntryPointOrSelf
         returns (bytes[] memory result)
@@ -111,6 +112,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes calldata callData
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes memory returnData)
@@ -127,6 +129,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes[] calldata callDatas
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes[] memory returnDatas)
@@ -142,6 +145,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
         bytes memory callData
     )
         external
+        payable
         override
         onlyExecutorModule
         returns (bytes memory)
@@ -157,10 +161,14 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
      * @inheritdoc IMSA
      */
     function initializeAccount(bytes calldata data) external override {
-        if (isExecutorEnabled(address(0x1))) revert();
+        // only allow initialization once
+        if (isAlreadyInitialized()) revert();
 
+        // this is just implemented for demonstration purposes. You can use any other initialization logic here.
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
+        // revert if bootstrap didnt initialize the linked list of ModuleManager
+        if (!isAlreadyInitialized()) revert();
     }
 }

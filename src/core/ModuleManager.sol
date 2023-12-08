@@ -144,4 +144,9 @@ abstract contract ModuleManager is AccountBase, IMSA_Config {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         return _executors.contains(executor);
     }
+
+    function isAlreadyInitialized() internal view returns (bool) {
+        ModuleManagerStorage storage ims = _getModuleMangerStorage();
+        return ims._validators.alreadyInitialized();
+    }
 }
