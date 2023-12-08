@@ -7,6 +7,8 @@ import "solady/utils/LibClone.sol";
 contract MSAFactory {
     address public immutable implementation;
 
+    event NewAccount(bytes32 salt, address account);
+
     constructor(address _msaImplementation) {
         implementation = _msaImplementation;
     }
@@ -26,16 +28,33 @@ contract MSAFactory {
 
         if (!alreadyDeployed) {
             IMSA(account).initializeAccount(initCode);
+            emit NewAccount(salt, account);
         }
         return account;
     }
 
-    function getAddress(bytes32 salt, bytes calldata initcode) public view returns (address) {
+    function getAddress(
+        bytes32 salt,
+        bytes calldata initcode
+    )
+        public
+        view
+        virtual
+        returns (address)
+    {
         bytes32 _salt = _getSalt(salt, initcode);
         return LibClone.predictDeterministicAddressERC1967(implementation, _salt, address(this));
     }
 
-    function _getSalt(bytes32 _salt, bytes calldata initCode) public pure returns (bytes32 salt) {
+    function _getSalt(
+        bytes32 _salt,
+        bytes calldata initCode
+    )
+        public
+        pure
+        virtual
+        returns (bytes32 salt)
+    {
         salt = keccak256(abi.encodePacked(_salt, initCode));
     }
 }
