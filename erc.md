@@ -220,7 +220,6 @@ Hooks MUST implement the `postCheck` function, which MAY validate the `hookData`
 
 ```solidity
 function postCheck(bytes calldata hookData) external returns (bool success);
-}
 ```
 
 ### ERC-165
