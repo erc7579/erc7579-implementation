@@ -30,7 +30,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ### Definitions
 
-- **Smart account** - An ERC-4337 compliant smart contract account that has a modular architecture.
+- **Smart account** - An [ERC-4337](./erc-4337.md) compliant smart contract account that has a modular architecture.
 - **Module** - A smart contract with self-contained smart account functionality.
   - Validator: A module used during the ERC-4337 validation flow to determine if a `UserOperation` is valid.
   - Executor: A module that can execute transactions on behalf of the smart account via a callback.
@@ -50,7 +50,7 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 ```solidity
-interface IExecution{
+interface IExecution {
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
     function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
@@ -144,7 +144,7 @@ interface IAccountConfig_Hook {
 
 #### ERC-1271 Forwarding
 
-The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignatureWithSender(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
+The smart account MUST implement the [ERC-1271](./erc-1271.md) interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignatureWithSender(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
 
 Should the smart account implement any validator selection encoding in the `bytes signature` parameter, the smart account MUST sanitize the parameter, before forwarding it to the validator.
 
@@ -161,7 +161,7 @@ If the account has a fallback handler enabled, it:
 
 #### ERC-165
 
-Smart accounts MUST implement ERC-165 with meta-interfaces. These will be used by wallets or dapps to discover which functionality is supported by the account.
+Smart accounts MUST implement [ERC-165](./erc-165.md) with meta-interfaces. These will be used by wallets or dapps to discover which functionality is supported by the account.
 
 ```solidity
 function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
