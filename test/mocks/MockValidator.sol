@@ -22,7 +22,8 @@ contract MockValidator is IValidator {
         return VALIDATION_SUCCESS;
     }
 
-    function isValidSignature(
+    function isValidSignatureWithSender(
+        address sender,
         bytes32 hash,
         bytes calldata data
     )

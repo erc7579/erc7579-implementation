@@ -31,7 +31,8 @@ contract ERC20SessionKey is IValidator {
         if (targetSelector != IERC20.transfer.selector) revert InvalidTargetCall();
     }
 
-    function isValidSignature(
+    function isValidSignatureWithSender(
+        address sender,
         bytes32 hash,
         bytes calldata data
     )

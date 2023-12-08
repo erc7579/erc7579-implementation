@@ -46,7 +46,7 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4) {
         address validator = address(bytes20(data[0:20]));
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        return IValidator(validator).isValidSignature(hash, data[20:]);
+        return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
     }
 
     /////////////////////////////////////////////////////

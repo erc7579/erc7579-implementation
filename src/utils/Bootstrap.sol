@@ -8,7 +8,7 @@ import "../core/HookManager.sol";
 import "../interfaces/IModule.sol";
 
 struct BootstrapConfig {
-    IModuleBase module;
+    IModule module;
     bytes data;
 }
 
