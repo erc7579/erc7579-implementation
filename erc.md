@@ -140,7 +140,7 @@ interface IAccountConfig_Hook {
 
 #### ERC-1271 Forwarding
 
-The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignature(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
+The smart account MUST implement the ERC-1271 interface. The `isValidSignature` function calls MAY be forwarded to validator. If ERC-1271 forwarding is implemented, the validator MUST be called with `isValidSignatureWithSender(address sender, bytes32 hash, bytes signature)`, where the sender is the `msg.sender` of the call to the smart account.
 
 Should the smart account implement any validator selection encoding in the `bytes signature` parameter, the smart account MUST sanitize the parameter, before forwarding it to the Validation Module.
 
@@ -203,13 +203,13 @@ Validators MUST validate that the signature is a valid signature of the userOpHa
 function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
 ```
 
-Validators MUST implement the `isValidSignature` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
+Validators MUST implement the `isValidSignatureWithSender` function. The function can call arbitrary methods to validate a given signature, which could be context dependent (e.g. time based or state based), EOA dependent (e.g. signers authorization level within smart wallet), signature scheme Dependent (e.g. ECDSA, multisig, BLS), etc.
 
 The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The Validation Module MAY utilize this parameter for validation (i.e. EIP-712 domain separators)
-Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid. (Note: validators wont be able to use `this.isValidSignature.selector` since the interface is different to the ERC-1271 interface)
+Validation Module MUST return ERC-1271 `MAGIC_VALUE` if the signature is valid.
 
 ```solidity
-function isValidSignature(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
+function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
 ```
 
 #### Executors
