@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
+/**
+ * ERC4337 AccountBase. Will be used by the MSA for authorization of EntryPoint
+ * @author zeroknots.eth | rhinestone.wtf
+ * code inspired by solady (vectorized)
+ */
+
 contract AccountBase {
     error Unauthorized();
     /////////////////////////////////////////////////////

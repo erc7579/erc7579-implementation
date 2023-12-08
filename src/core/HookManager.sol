@@ -5,6 +5,11 @@ import "./ModuleManager.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
 
+/**
+ * @title HookManager
+ * @dev This contract manages the hook module for the MSA
+ * @author zeroknots.eth | rhinestone.wtf
+ */
 abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     IHook public _hook;
 

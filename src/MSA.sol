@@ -7,6 +7,12 @@ import "./core/ModuleManager.sol";
 
 import "forge-std/interfaces/IERC165.sol";
 
+/**
+ * @title reference implementation of the minimal modular smart account
+ * @author zeroknots.eth | rhinestone.wtf
+ *
+ */
+
 contract MSA is IERC165, Execution, ModuleManager, IERC4337, IMSA_Exec, Fallback {
     using SentinelListLib for SentinelListLib.SentinelList;
 
