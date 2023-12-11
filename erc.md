@@ -22,7 +22,7 @@ To solve these problems, we need to standardize the core interfaces for smart ac
 
 The goals of this standard are:
 
-- define the most minimal interfaces for smart accounts and modules that ensure interoperability between accounts
+- Define the most minimal interfaces for smart accounts and modules that ensure interoperability between accounts
 
 ## Specification
 
