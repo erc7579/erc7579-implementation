@@ -202,7 +202,7 @@ Modules MUST revert if `onInstall` or `onUninstall` was unsuccessful.
 
 #### Validators
 
-- Validators MUST implement the `IModule` interface.
+- Validators MUST implement the `IModule` interface and have module type id: `1`.
 - Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
 - Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
 
