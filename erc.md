@@ -72,7 +72,7 @@ To comply with this standard, smart accounts MUST implement the entire interface
 
 When enabling or disabling a module on a smart account, it
 
-- MUST call the `enable` or `disable` function on the module
+- MUST call the `onInstall` or `onUninstall` function on the module
 - MUST pass the initialisation data to the module
 - SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
@@ -119,7 +119,7 @@ Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks t
 
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
-- MUST call the `enable` or `disable` function on the module when enabling or disabling a hook
+- MUST call the `onInstall` or `onUninstall` function on the module when enabling or disabling a hook
 - MUST pass the initialisation data to the module when enabling or disabling a hook
 - SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
@@ -189,13 +189,13 @@ Modules MUST implement the following interface, which is used by smart accounts 
 
 ```solidity
 interface IModule {
-    function enable(bytes calldata data) external;
-    function disable(bytes calldata data) external;
+    function onInstall(bytes calldata data) external;
+    function onUninstall(bytes calldata data) external;
     function isModuleType(uint256 typeID) external view returns(bool);
 }
 ```
 
-Modules MUST revert if `enable` or `disable` was unsuccessful.
+Modules MUST revert if `onInstall` or `onUninstall` was unsuccessful.
 
 #### Validators
 
