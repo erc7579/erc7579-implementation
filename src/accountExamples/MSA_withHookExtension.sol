@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "./MSA.sol";
-import "./core/HookManager.sol";
+import "./MSA_ValidatorInSignature.sol";
+import "../core/HookManager.sol";
 
 contract MSAHooks is MSA, HookManager {
     function _execute(
@@ -36,7 +36,7 @@ contract MSAHooks is MSA, HookManager {
         public
         pure
         virtual
-        override(MSA, HookManager)
+        override(MSABase, HookManager)
         returns (bool)
     {
         return
