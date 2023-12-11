@@ -20,20 +20,24 @@ contract MSA is MSABase {
         returns (uint256 validSignature)
     {
         // Special thanks to taek (ZeroDev) for this trick
-        bytes calldata userOpSignature;
+        bytes calldata moduleSignature;
         uint256 userOpEndOffset;
+        address validator;
         assembly {
             userOpEndOffset := add(calldataload(0x04), 0x24)
-            userOpSignature.offset :=
-                add(calldataload(add(userOpEndOffset, 0x120)), userOpEndOffset)
-            userOpSignature.length := calldataload(sub(userOpSignature.offset, 0x20))
+            moduleSignature.offset :=
+                add (
+                    add(calldataload(add(userOpEndOffset, 0x120)), userOpEndOffset),
+                    0x14
+                )
+            moduleSignature.length := sub(
+                calldataload(sub(moduleSignature.offset, 0x34)),
+                0x14
+            )
+            validator := calldataload(sub(moduleSignature.offset, 0x20))
         }
 
-        // get validator address from signature
-        address validator = address(bytes20(userOpSignature[0:20]));
-
-        // MSA MUST clean up signature encoding before sending userOp to IValidator
-        userOp.signature = userOpSignature[20:];
+        userOp.signature = moduleSignature;
 
         // check if validator is enabled
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
