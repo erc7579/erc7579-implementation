@@ -2,7 +2,8 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
-import "src/MSA.sol";
+import "src/accountExamples/MSA_ValidatorInSignature.sol";
+import "src/interfaces/IMSA.sol";
 import "src/MSAFactory.sol";
 import "./Bootstrap.t.sol";
 import { MockValidator } from "./mocks/MockValidator.sol";
@@ -75,7 +76,7 @@ contract MSATest is BootstrapUtil, Test {
     function test_execVia4337() public {
         bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
         bytes memory execFunction =
-            abi.encodeCall(MSA.execute, (address(target), 0, setValueOnTarget));
+            abi.encodeCall(IMSA_Exec.execute, (address(target), 0, setValueOnTarget));
         UserOperation memory userOp = UserOperation({
             sender: address(account),
             nonce: entrypoint.getNonce(address(account), 0),
