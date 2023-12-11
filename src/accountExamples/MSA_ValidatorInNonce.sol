@@ -9,7 +9,7 @@ contract MSA is MSABase {
      * This is just an example of how it could be done.
      */
     function validateUserOp(
-        UserOperation memory userOp,
+        UserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     )
@@ -20,10 +20,9 @@ contract MSA is MSABase {
         returns (uint256 validSignature)
     {
         address validator;
-        /// @solidity memory-safe-assembly
+        uint256 nonce = userOp.nonce;
         assembly {
-            calldatacopy(0x00, 0x00, calldatasize())
-            validator := shr(96, sload(shl(64, /*key*/ shr(64, /*nonce*/ calldataload(0x84)))))
+            validator := shr(96, nonce)
         }
 
         // check if validator is enabled
