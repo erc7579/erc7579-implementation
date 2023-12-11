@@ -6,7 +6,7 @@ discussions-to: <tbd>
 status: Draft
 type: Standards Track
 category: ERC
-created: 2023-12-06
+created: 2023-12-11
 requires: ERC-165, ERC-1271, ERC-2771, ERC-4337
 ---
 
@@ -73,7 +73,7 @@ To comply with this standard, smart accounts MUST implement the entire interface
 When enabling or disabling a module on a smart account, it
 
 - MUST call the `onInstall` or `onUninstall` function on the module
-- MUST pass the initialisation data to the module
+- MUST pass the sanitized initialisation data to the module
 - SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
@@ -120,7 +120,7 @@ Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks t
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
 - MUST call the `onInstall` or `onUninstall` function on the module when enabling or disabling a hook
-- MUST pass the initialisation data to the module when enabling or disabling a hook
+- MUST pass the sanitized initialisation data to the module when enabling or disabling a hook
 - SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
@@ -157,6 +157,7 @@ Smart accounts MAY implement a fallback function that forwards the call to a fal
 If the account has a fallback handler enabled, it:
 
 - MUST use `call` to invoke the fallback handler
+- MUST implement authorization control
 - MUST utilize [ERC-2771](./erc-2771.md) to add the original `msg.sender` to the `calldata` sent to the fallback handler
 
 #### ERC-165
@@ -300,7 +301,10 @@ Currently [here](./src/MSA.sol)
 
 ## Security Considerations
 
-Needs discussion.
+Needs more discussion. Some initial points:
+
+- Modules reverting on uninstall could lead to a modules being uninstallable
+- Lack of sufficient fallback authorization control could lead to unauthorized execution even when using only call, such as draining ERC-20s or changing validator configs
 
 ## Copyright
 
