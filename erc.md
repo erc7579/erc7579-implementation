@@ -63,7 +63,7 @@ interface IExecution {
 For each of the functions in the interface, the smart account:
 
 - MUST execute either `call` or `delegatecall` to all the provided targets with provided calldata and value (if applicable). If the function name includes `delegatecall`, the smart account MUST use `delegatecall`, otherwise the smart account MUST use `call`.
-- MUST implement authorization control. For execute functions with `fromModule` in their name, this MUST be scoped to only allow enabled modules to call the function. For all other execute functions, this MUST be scoped to allow the ERC-4337 Entrypoint to call the function and MAY be scoped to allow `msg.sender == address(this)`.
+- MUST implement authorization control. For execute functions with `fromModule` in their name, this MUST be scoped to only allow enabled executors to call the function. For all other execute functions, this MUST be scoped to allow the ERC-4337 Entrypoint to call the function and MAY be scoped to allow `msg.sender == address(this)`.
 - MUST revert if the call was not successful.
 
 #### Account configurations
@@ -78,6 +78,8 @@ When enabling or disabling a module on a smart account, it
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
 - SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
+
+When storing a module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account MUST be able to implement access control that only allows executors to call the `executeFromModule` function.
 
 ```solidity
 interface IAccountConfig {
