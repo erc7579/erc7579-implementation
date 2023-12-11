@@ -32,7 +32,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     function _enableHook(address hook, bytes calldata data) internal virtual {
-        IHook(hook).enable(data);
+        IHook(hook).onInstall(data);
         _setHook(hook);
         emit EnableHook(hook);
     }
@@ -45,7 +45,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     function _disableHook(address hook, bytes calldata data) internal virtual {
-        IHook(hook).disable(data);
+        IHook(hook).onUninstall(data);
         _setHook(address(0));
         emit DisableHook(hook);
     }

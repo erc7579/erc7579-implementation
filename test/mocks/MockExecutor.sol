@@ -5,9 +5,9 @@ import "src/interfaces/IModule.sol";
 import { IMSA } from "src/interfaces/IMSA.sol";
 
 contract MockExecutor is IExecutor {
-    function enable(bytes calldata data) external override { }
+    function onInstall(bytes calldata data) external override { }
 
-    function disable(bytes calldata data) external override { }
+    function onUninstall(bytes calldata data) external override { }
 
     function executeViaAccount(
         IMSA account,

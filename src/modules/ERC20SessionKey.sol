@@ -6,9 +6,9 @@ import "src/interfaces/IMSA.sol";
 import "forge-std/interfaces/IERC20.sol";
 
 contract ERC20SessionKey is IValidator {
-    function enable(bytes calldata data) external override { }
+    function onInstall(bytes calldata data) external override { }
 
-    function disable(bytes calldata data) external override { }
+    function onUninstall(bytes calldata data) external override { }
 
     function validateUserOp(
         IERC4337.UserOperation calldata userOp,

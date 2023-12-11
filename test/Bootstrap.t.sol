@@ -19,7 +19,7 @@ contract BootstrapUtil {
         returns (BootstrapConfig memory config)
     {
         config.module = IModule(module);
-        config.data = abi.encodeCall(IModule.enable, data);
+        config.data = abi.encodeCall(IModule.onInstall, data);
     }
 
     function makeBootstrapConfig(
@@ -32,7 +32,7 @@ contract BootstrapUtil {
     {
         config = new BootstrapConfig[](1);
         config[0].module = IModule(module);
-        config[0].data = abi.encodeCall(IModule.enable, data);
+        config[0].data = abi.encodeCall(IModule.onInstall, data);
     }
 
     function makeBootstrapConfig(

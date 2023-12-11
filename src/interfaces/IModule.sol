@@ -12,14 +12,14 @@ interface IModule {
      *  This function is called by the MSA during "enableValidator, enableExecutor, enableHook"
      * @dev this function MUST revert on error (i.e. if module is already enabled)
      */
-    function enable(bytes calldata data) external;
+    function onInstall(bytes calldata data) external;
 
     /**
      * Disable module
      *  This function is called by the MSA during "disableValidator, disableExecutor, disableHook"
      * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled later
      */
-    function disable(bytes calldata data) external;
+    function onUninstall(bytes calldata data) external;
 }
 
 interface IValidator is IModule {
