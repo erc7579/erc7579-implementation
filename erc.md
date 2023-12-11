@@ -79,7 +79,7 @@ When enabling or disabling a module on a smart account, it
 - MUST enforce authorization control on the relevant enable or disable function for the module type
 - SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
 
-When storing a module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account MUST be able to implement access control that only allows executors to call the `executeFromModule` function.
+When storing a module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account should be able to implement access control that only allows enabled executors, but not other enabled modules, to call the `executeFromModule` function.
 
 ```solidity
 interface IAccountConfig {
