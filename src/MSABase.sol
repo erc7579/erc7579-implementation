@@ -8,12 +8,12 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
-contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
-    using SentinelListLib for SentinelListLib.SentinelList;
-
+abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     /**
      * Validator selection / encoding is NOT in scope of this standard.
-     * This is just an example of how it could be done.
+     * Refer to the examples in this repo for different approaches.
+     *      - ./accountExamples/MSA_ValidatorInSignature.sol (validator address is encoded in signature) - Kernel style
+     *      - ./accountExamples/MSA_ValidatorInNonce.sol (validator address is encoded in nonce) - Inspired by ross (z0r0z)
      */
     function validateUserOp(
         UserOperation memory userOp,
@@ -22,36 +22,19 @@ contract MSA is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     )
         external
         virtual
-        payPrefund(missingAccountFunds)
-        returns (uint256 validSignature)
-    {
-        // Special thanks to taek (ZeroDev) for this trick
-        bytes calldata userOpSignature;
-        uint256 userOpEndOffset;
-        assembly {
-            userOpEndOffset := add(calldataload(0x04), 0x24)
-            userOpSignature.offset :=
-                add(calldataload(add(userOpEndOffset, 0x120)), userOpEndOffset)
-            userOpSignature.length := calldataload(sub(userOpSignature.offset, 0x20))
-        }
+        returns (uint256 validSignature);
 
-        // get validator address from signature
-        address validator = address(bytes20(userOpSignature[0:20]));
-
-        // MSA MUST clean up signature encoding before sending userOp to IValidator
-        userOp.signature = userOpSignature[20:];
-
-        // check if validator is enabled
-        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        validSignature =
-            IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
-    }
-
-    function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4) {
-        address validator = address(bytes20(data[0:20]));
-        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
-    }
+    /**
+     * ERC-1271
+     */
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata data
+    )
+        external
+        view
+        virtual
+        returns (bytes4);
 
     /////////////////////////////////////////////////////
     // Executions
