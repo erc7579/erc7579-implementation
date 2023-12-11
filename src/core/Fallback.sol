@@ -27,7 +27,7 @@ abstract contract Fallback is AccountBase, IMSA_Config {
         virtual
         onlyEntryPointOrSelf
     {
-        IFallback(fallbackHandler).enable(data);
+        IFallback(fallbackHandler).onInstall(data);
         _enableFallback(fallbackHandler, data);
     }
 
@@ -55,7 +55,7 @@ abstract contract Fallback is AccountBase, IMSA_Config {
 
     function _enableFallback(address fallbackHandler, bytes calldata data) internal virtual {
         _setFallback(fallbackHandler);
-        IFallback(fallbackHandler).enable(data);
+        IFallback(fallbackHandler).onInstall(data);
         emit FallbackHandlerChanged(fallbackHandler);
     }
 

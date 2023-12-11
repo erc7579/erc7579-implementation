@@ -71,7 +71,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
 
     function _enableValidator(address validator, bytes calldata data) internal virtual {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
-        IValidator(validator).enable(data);
+        IValidator(validator).onInstall(data);
         _validators.push(validator);
         emit EnableValidator(validator);
     }
@@ -90,7 +90,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
-        IValidator(validator).disable(disableModuleData);
+        IValidator(validator).onUninstall(disableModuleData);
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }
@@ -120,7 +120,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
 
     function _enableExecutor(address validator, bytes calldata data) internal {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
-        IExecutor(validator).enable(data);
+        IExecutor(validator).onInstall(data);
         _executors.push(validator);
 
         emit EnableExecutor(validator);
@@ -138,7 +138,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
         onlyEntryPointOrSelf
     {
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
-        IExecutor(validator).disable(disableModuleData);
+        IExecutor(validator).onUninstall(disableModuleData);
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         _executors.pop(prevValidator, validator);
 
