@@ -220,7 +220,7 @@ function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata
 
 #### Executors
 
-Executors MUST implement the `IModule` interface.
+Executors MUST implement the `IModule` interface and have module type id: `2`.
 
 #### Fallback Handlers
 
