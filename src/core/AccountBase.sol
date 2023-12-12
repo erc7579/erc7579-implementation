@@ -2,8 +2,8 @@
 pragma solidity ^0.8.21;
 
 /**
- * @dev 4337 AccountBase for access control and payPrefund
- * Code is based on Solady's 4337
+ * @title reference implementation of the minimal modular smart account with Hook Extension
+ * @author zeroknots.eth | rhinestone.wtf
  */
 contract AccountBase {
     error Unauthorized();

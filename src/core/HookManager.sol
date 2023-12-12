@@ -4,6 +4,10 @@ pragma solidity ^0.8.21;
 import "./ModuleManager.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
+/**
+ * @title reference implementation of the minimal modular smart account with Hook Extension
+ * @author zeroknots.eth | rhinestone.wtf
+ */
 
 abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     /// @custom:storage-location erc7201:hookmanager.storage.msa

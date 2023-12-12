@@ -8,12 +8,19 @@ import "./core/Execution.sol";
 import "./core/Fallback.sol";
 import "./core/ModuleManager.sol";
 
+/**
+ * @title MSABase
+ * @author zeroknots.eth | rhinestone.wtf
+ * @dev This contract is the base contract for Minimal Modular Smart Accounts.
+ * Validator selection / encoding is NOT in scope of this standard.
+ * Refer to the examples in this repo for different approaches.
+ *      - ./accountExamples/MSA_ValidatorInSignature.sol (validator address is encoded in signature) - Kernel style
+ *      - ./accountExamples/MSA_ValidatorInNonce.sol (validator address is encoded in nonce) - Inspired by ross (z0r0z)
+ *
+ */
 abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback {
     /**
-     * Validator selection / encoding is NOT in scope of this standard.
-     * Refer to the examples in this repo for different approaches.
-     *      - ./accountExamples/MSA_ValidatorInSignature.sol (validator address is encoded in signature) - Kernel style
-     *      - ./accountExamples/MSA_ValidatorInNonce.sol (validator address is encoded in nonce) - Inspired by ross (z0r0z)
+     * ERC-4337 validation function
      */
     function validateUserOp(
         UserOperation memory userOp,
