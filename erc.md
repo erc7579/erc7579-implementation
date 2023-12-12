@@ -117,7 +117,6 @@ When enabling or disabling a module on a smart account, it
 
 - MUST call the `onInstall` or `onUninstall` function on the module
 - MUST pass the sanitized initialisation data to the module
-- SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
 
@@ -165,10 +164,8 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 
 - MUST call the `onInstall` or `onUninstall` function on the module when enabling or disabling a hook
 - MUST pass the sanitized initialisation data to the module when enabling or disabling a hook
-- SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
-- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
 - MUST call the `preCheck` function before a smart account execution with the execution parameters, passing the `msg.sender` and `msg.data` as parameters
 - MUST call the `postCheck` function after a smart account execution with the return value of `preCheck`
 
@@ -206,18 +203,7 @@ If the account has a fallback handler enabled, it:
 
 #### ERC-165
 
-Smart accounts MUST implement [ERC-165](./erc-165.md) with meta-interfaces. These will be used by wallets or dapps to discover which functionality is supported by the account.
-
-```solidity
-function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
-    if(interfaceID == type(IERC165).interfaceID) return true;
-    else if (interfaceID == type(IExecution).interfaceId) return true;
-    else if (interfaceID == type(IAccountConfig).interfaceId) return true;
-    // Only if Hook extension is supported
-    else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
-    else return false;
-}
-```
+Smart accounts MUST implement [ERC-165](./erc-165.md) with meta-interfaces. An example of a meta-interface is: `type(IExecution).interfaceId`.
 
 ### Modules
 
@@ -227,6 +213,7 @@ This standard separates modules into the following different types that each has
 - Execution (type id: 2)
 - Fallback (type id: 3)
 - Hooks (type id: 4)
+
 Note: A single module can be of multiple types.
 
 Modules MUST implement the following interface, which is used by smart accounts to enable and disable modules:
@@ -243,20 +230,23 @@ Modules MUST revert if `onInstall` or `onUninstall` was unsuccessful.
 
 #### Validators
 
-- Validators MUST implement the `IModule` interface and have module type id: `1`.
-- Validators are called during the ERC-4337 validation phase and MUST implement the ERC-4337 `validateUserOp` method.
-- Validators MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch.
+Validators MUST implement the `IModule` and the `IValidator` interface and have module type id: `1`.
 
 ```solidity
-function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
-```
+interface IValidator {
+    /**
+    * MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch
+    */
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
 
-Validators MUST also implement the `isValidSignatureWithSender` function. The validator MUST return the ERC-1271 `MAGIC_VALUE` if the signature is valid and MUST NOT modify state.
-
-The parameter `address sender` is the contract that sent the ERC-1271 request to the smart account. The validator MAY utilize this parameter for validation (i.e. EIP-712 domain separators).
-
-```solidity
-function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
+    /**
+    * @dev `sender` is the contract that sent the ERC-1271 request to the smart account
+    *
+    * MUST return the ERC-1271 `MAGIC_VALUE` if the signature is valid
+    * MUST NOT modify state
+    */
+    function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata signature) external view returns (bytes4);
+}
 ```
 
 #### Executors
@@ -271,21 +261,21 @@ Fallback handlers that implement sensitive functions require authorization contr
 
 #### Hooks
 
-Hooks MUST implement the `IModule` interface and have module type id: `4`.
-
-Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
+Hooks MUST implement the `IModule` and the `IHook` interface and have module type id: `4`.
 
 ```solidity
-function preCheck(address msgSender, bytes calldata msgData) external returns (bytes memory hookData);
+interface IHook {
+    /**
+    *  MAY return arbitrary data in the `hookData` return value
+    */
+    function preCheck(address msgSender, bytes calldata msgData) external returns (bytes memory hookData);
+
+    /**
+    * MAY validate the `hookData` to validate transaction context of the `preCheck` function
+    */
+    function postCheck(bytes calldata hookData) external returns (bool success);
+}
 ```
-
-Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
-
-```solidity
-function postCheck(bytes calldata hookData) external returns (bool success);
-```
-
-preCheck(address sender, address target, uint256 value, bytes calldata data)
 
 ## Rationale
 
@@ -308,19 +298,19 @@ Our approach has been twofold:
 
 ### Extensions
 
-While we want to be minimal, we also want to allow for innovation and opinionated features. Some of these features might also need to be standardized (for similar reasons as the core interfaces) even if not all smart accounts will implement them. To ensure that this is possible, we have outlined a system for extending the standard with more opinionated features in a backwards-compatible way. Outlining this system is important to ensure that the core interfaces are not overriden by extensions that prevent backwards compatibility and disadvantage accounts that choose not to use these extensions.
+While we want to be minimal, we also want to allow for innovation and opinionated features. Some of these features might also need to be standardized (for similar reasons as the core interfaces) even if not all smart accounts will implement them. To ensure that this is possible, we suggest for future standardisation efforts to be done as extensions to this standard. This means that the core interfaces will not change, but that new interfaces can be added as extensions. These should be proposed as separate ERCs, for example with the title `XXX Extension to ERC-XXXX`.
 
 ### Specifications
 
 #### Multiple execution functions
 
-The ERC-4337 validation phase validates calls to execution functions. Modular validation requires the validation module to know the specific function being validated, especially for Session Key Validators. It needs to know:
+The ERC-4337 validation phase validates calls to execution functions. Modular validation requires the validation module to know the specific function being validated, especially for session key based Validators. It needs to know:
 
 1. The function called by Entrypoint on the account.
 2. The target address if it is an execution function.
 3. Whether it is a `call` or `delegatecall`.
 4. Whether it is a single or batched transaction.
-5. The function signature used in the interaction with the external contract (e.g. ERC20 transfer).
+5. The function signature used in the interaction with the external contract.
 
 For a flourishing module ecosystem, compatibility across accounts is crucial. However, if smart accounts implement custom execute functions with different parameters and calldata offsets, it becomes much harder to build reusable modules across accounts.
 
