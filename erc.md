@@ -47,30 +47,67 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 
 #### Execution Behavior
 
-To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
+To comply with this standard, smart accounts MUST implement the two interfaces below. If an account implementation elects to not support any of the execution methods, it MUST implement the function, but revert instead of complying with the specifications below. This is in order to avoid unpredictable behavior with fallbacks.
 
 ```solidity
 interface IExecution {
-    // packing batched transactions in a struct saves gas on both ERC-4337 and Executor Module flows
+    /**
+    * @dev packing batched transactions in a struct saves gas on both ERC-4337 and Executor Module flows
+    */
     struct Execution {
         address target;
         uint256 value;
         bytes callData;
     }
+
+    /**
+    * MUST execute a `call` to the target with the provided data and value
+    * MUST allow ERC-4337 Entrypoint to be the sender and MAY allow `msg.sender == address(this)`
+    * MUST revert if the call was not successful
+    */
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
-    function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
+
+    /**
+    * MUST execute a `call` to all the targets with the provided data and value for each target
+    * MUST allow ERC-4337 Entrypoint to be the sender and MAY allow `msg.sender == address(this)`
+    * MUST revert if any call was not successful
+    */
     function executeBatch(Execution[] calldata executions) external returns (bytes memory result);
+
+    /**
+    * MUST execute a `call` to the target with the provided data and value
+    * MUST only allow enabled executors to call this function
+    * MUST revert if the call was not successful
+    */
     function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);
-    function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
+
+    /**
+    * MUST execute a `call` to all the targets with the provided data and value for each target
+    * MUST only allow enabled executors to call this function
+    * MUST revert if any call was not successful
+    */
     function executeBatchFromModule(Execution[] calldata executions) external returns (bytes memory result);
 }
+
+/**
+* @dev implementing delegatecall execution on a smart account must be considered carefully and is not recommended in most cases
+*/
+interface IExecutionUnsafe {
+    /**
+    * MUST execute a `delegatecall` to the target with the provided data
+    * MUST allow ERC-4337 Entrypoint to be the sender and MAY allow `msg.sender == address(this)`
+    * MUST revert if the call was not successful
+    */
+    function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
+
+    /**
+    * MUST execute a `delegatecall` to the target with the provided data and value
+    * MUST only allow enabled executors to call this function
+    * MUST revert if the call was not successful
+    */
+    function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
+}
 ```
-
-For each of the functions in the interface, the smart account:
-
-- MUST execute either `call` or `delegatecall` to all the provided targets with provided calldata and value (if applicable). If the function name includes `delegatecall`, the smart account MUST use `delegatecall`, otherwise the smart account MUST use `call`.
-- MUST implement authorization control. For execute functions with `fromModule` in their name, this MUST be scoped to only allow enabled executors to call the function. For all other execute functions, this MUST be scoped to allow the ERC-4337 Entrypoint to call the function and MAY be scoped to allow `msg.sender == address(this)`.
-- MUST revert if the call was not successful.
 
 #### Account configurations
 
@@ -83,7 +120,6 @@ When enabling or disabling a module on a smart account, it
 - SHOULD store the module address during the enable process and remove it during the disable process
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
-- SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
 
 When storing a module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account should be able to implement access control that only allows enabled executors, but not other enabled modules, to call the `executeFromModule` function.
 
@@ -133,7 +169,7 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
 - SHOULD allow for the relevant enable or disable function for the module type to be called by the account as part of a batch
-- MUST call the `preCheck` function before a smart account execution with the execution parameters
+- MUST call the `preCheck` function before a smart account execution with the execution parameters, passing the `msg.sender` and `msg.data` as parameters
 - MUST call the `postCheck` function after a smart account execution with the return value of `preCheck`
 
 ```solidity
@@ -181,7 +217,6 @@ function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
     else if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
     else return false;
 }
-
 ```
 
 ### Modules
@@ -241,7 +276,7 @@ Hooks MUST implement the `IModule` interface and have module type id: `4`.
 Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
 
 ```solidity
-function preCheck(address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
+function preCheck(address msgSender, bytes calldata msgData) external returns (bytes memory hookData);
 ```
 
 Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
@@ -249,6 +284,8 @@ Hooks MUST implement the `postCheck` function, which MAY validate the `hookData`
 ```solidity
 function postCheck(bytes calldata hookData) external returns (bool success);
 ```
+
+preCheck(address sender, address target, uint256 value, bytes calldata data)
 
 ## Rationale
 
@@ -283,9 +320,9 @@ The ERC-4337 validation phase validates calls to execution functions. Modular va
 2. The target address if it is an execution function.
 3. Whether it is a `call` or `delegatecall`.
 4. Whether it is a single or batched transaction.
-5. The function signature used in the interaction with the external contract (e.g., ERC20 transfer).
+5. The function signature used in the interaction with the external contract (e.g. ERC20 transfer).
 
-For a flourishing module ecosystem, compatibility across accounts is crucial. However, if smart accounts implement custom execute functions with different parameters and calldata offsets, it becomes impossible to build reusable modules across accounts.
+For a flourishing module ecosystem, compatibility across accounts is crucial. However, if smart accounts implement custom execute functions with different parameters and calldata offsets, it becomes much harder to build reusable modules across accounts.
 
 #### Differentiating module types
 
@@ -309,10 +346,13 @@ Currently [here](./src/MSA.sol)
 
 ## Security Considerations
 
-Needs more discussion. Some initial points:
+Needs more discussion. Some initial considerations:
 
-- Modules reverting on uninstall could lead to a modules being uninstallable
-- Lack of sufficient fallback authorization control could lead to unauthorized execution even when using only call, such as draining ERC-20s or changing validator configs
+- Implementing `delegatecall` executions on a smart account must be considered carefully. Note that smart accounts implementing `delegatecall` must ensure that the target contract is safe, otherwise catastrophic outcomes are to be expected.
+- The `onInstall` and `onUninstall` functions on modules may lead to unexpected callbacks (i.e. reentrancy). Account implementations should consider this by implementing adequate protection routines. Furthermore, Modules could maliciously revert on `onUninstall` to stop the account from disabling a module and removing it from the account.
+- Insufficient authorization control in fallback handlers can lead to unauthorized executions.
+- Malicious Hooks may revert on `preCheck` or `postCheck`, adding untrusted hooks may lead to a denial of service of the account.
+- Currently account configuration functions (e.g. enableValidator) are designed for single operations. An account could allow these to be called from `address(this)`, creating the possibility to batch configuration operations. However, if an account implements greater authorization control for these functions since they are more sensitive, then these measures can be bypassed by nesting calls to configuration options in calls to self.
 
 ## Copyright
 
