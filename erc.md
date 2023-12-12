@@ -191,7 +191,7 @@ This standard separates modules into the following different types that each has
 - Validation (type id: 1)
 - Execution (type id: 2)
 - Fallback (type id: 3)
-
+- Hooks (type id: 4)
 Note: A single module can be of multiple types.
 
 Modules MUST implement the following interface, which is used by smart accounts to enable and disable modules:
