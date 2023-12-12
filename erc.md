@@ -246,13 +246,9 @@ Hooks MUST implement the `preCheck` function. After checking the transaction dat
 ```solidity
     /**
      * This function MUST be called BEFORE the an account action (i.e. execute, enableValidator, enableExecutor)
-     * @param msgSig The signature of the function (msg.sig) that was called on the smart account.
-     * @param sender The msg.sender of the transaction
-     * @param target the target of the transaction that is being hooked
-     * @param value the value of the transaction
-     * param data the calldata of the transaction
+     * @param msgData the account should forward the entire "msg.data" to the hook
      */
-function preCheck(bytes4 msgSig, address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
+function preCheck(bytes calldata msgData) external returns (bytes memory hookData);
 ```
 
 Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
@@ -260,6 +256,8 @@ Hooks MUST implement the `postCheck` function, which MAY validate the `hookData`
 ```solidity
 function postCheck(bytes calldata hookData) external returns (bool success);
 ```
+
+preCheck(address sender, address target, uint256 value, bytes calldata data)
 
 ## Rationale
 
