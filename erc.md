@@ -51,12 +51,18 @@ To comply with this standard, smart accounts MUST implement the entire interface
 
 ```solidity
 interface IExecution {
+    // packing batched transactions in a struct saves gas on both ERC-4337 and Executor Module flows
+    struct Execution {
+        address target;
+        uint256 value;
+        bytes callData;
+    }
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
-    function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
+    function executeBatch(Execution[] calldata executions) external returns (bytes memory result);
     function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);
     function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
-    function executeBatchFromModule(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
+    function executeBatchFromModule(Execution[] calldata executions) external returns (bytes memory result);
 }
 ```
 
