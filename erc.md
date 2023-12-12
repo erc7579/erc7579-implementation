@@ -51,12 +51,21 @@ To comply with this standard, smart accounts MUST implement the entire interface
 
 ```solidity
 interface IExecution {
+    // packing batched transactions in a struct saves gas on both ERC-4337 and Executor Module flows
+    struct Execution {
+        address target;
+        uint256 value;
+        bytes callData;
+    }
     function execute(address target, uint256 value, bytes data) external returns (bytes memory result);
-    function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
-    function executeBatch(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
+    function executeBatch(Execution[] calldata executions) external returns (bytes memory result);
     function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);
+    function executeBatchFromModule(Execution[] calldata executions) external returns (bytes memory result);
+}
+
+interface IExecutionUnsafe {
+    function executeDelegateCall(address target, bytes data) external returns (bytes memory result);
     function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
-    function executeBatchFromModule(address[] targets, uint256[] values, bytes[] data) external returns (bytes memory result);
 }
 ```
 
@@ -235,7 +244,15 @@ Hooks MUST implement the `IModule` interface and have module type id: `4`.
 Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
 
 ```solidity
-function preCheck(address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
+    /**
+     * This funciont MUST be called BEFORE the transaction is executed
+     * @param msgSig The signature of the function (msg.sig) that was called on the smart account.
+     * @param sender The msg.sender of the transaction
+     * @param target the target of the transaction that is being hooked
+     * @param value the value of the transaction
+     * param data the calldata of the transaction
+     */
+function preCheck(bytes4 msgSig, address sender, address target, uint256 value, bytes calldata data) external returns (bytes memory hookData);
 ```
 
 Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
@@ -303,10 +320,12 @@ Currently [here](./src/MSA.sol)
 
 ## Security Considerations
 
-Needs more discussion. Some initial points:
+Implementing `delegatecall` executions on a smart account must be considered carefully.
+Note that smart accounts implementing `delegatecall` MUST ensure that the target contract is safe, otherwise catastrophic outcomes are to be expected.
 
-- Modules reverting on uninstall could lead to a modules being uninstallable
-- Lack of sufficient fallback authorization control could lead to unauthorized execution even when using only call, such as draining ERC-20s or changing validator configs
+The `onInstall` and `onUninstall` functions on modules may lead to unexpected callbacks (i.e. reentrancy). Account implementations SHOULD consider this by implementing adequate protection routines. Furthermore, Modules could maliciously revert on `onUninstall` to stop the account from disabling a module and removing it from the account.
+
+Insufficient authorization control in fallback handlers can lead to unauthorized executions.
 
 ## Copyright
 
