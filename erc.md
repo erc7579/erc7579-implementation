@@ -244,11 +244,12 @@ Hooks MUST implement the `IModule` interface and have module type id: `4`.
 Hooks MUST implement the `preCheck` function. After checking the transaction data, `preCheck` MAY return arbitrary data in the `hookData` return value.
 
 ```solidity
-    /**
-     * This function MUST be called BEFORE the an account action (i.e. execute, enableValidator, enableExecutor)
-     * @param msgData the account should forward the entire "msg.data" to the hook
-     */
-function preCheck(bytes calldata msgData) external returns (bytes memory hookData);
+/**
+ * This function MUST be called BEFORE the an account action (i.e. execute, enableValidator, enableExecutor)
+ * @param msgSender the message sender of the execution
+ * @param msgData the account should forward the entire "msg.data" to the hook
+ */
+function preCheck(address msgSender, bytes calldata msgData) external returns (bytes memory hookData);
 ```
 
 Hooks MUST implement the `postCheck` function, which MAY validate the `hookData` to validate transaction context of the `preCheck` function.
