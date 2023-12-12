@@ -7,6 +7,12 @@ pragma solidity ^0.8.21;
 interface IMSA_Exec {
     error Unsupported();
 
+    struct Execution {
+        address target;
+        uint256 value;
+        bytes callData;
+    }
+
     /**
      *
      * @dev Executes a transaction on behalf of the account.
@@ -51,16 +57,10 @@ interface IMSA_Exec {
      *         This function is intended to be called by ERC-4337 EntryPoint.sol
      * @dev This function MUST revert if the call fails.
      * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
-     * @param targets The addresses of the contract to call.
-     * @param values The valuees in wei to be sent to the contract.
-     * @param callDatas The call datas to be sent to the contract.
+     * @param executions An array of struct Execution (address target, uint value, bytes callData)
      * @return results The return data of the executed contract call.
      */
-    function executeBatch(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata callDatas
-    )
+    function executeBatch(Execution[] calldata executions)
         external
         payable // gas bad
         returns (bytes[] memory results);
@@ -91,16 +91,10 @@ interface IMSA_Exec {
      *         This function is intended to be called by an Executor module.
      * @dev This function MUST revert if the call fails.
      * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
-     * @param targets The addresses of the contract to call.
-     * @param values The valuees in wei to be sent to the contract.
-     * @param callDatas The call datas to be sent to the contract.
+     * @param executions An array of struct Execution (address target, uint value, bytes callData)
      * @return results The return data of the executed contract call.
      */
-    function executeBatchFromModule(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata callDatas
-    )
+    function executeBatchFromModule(Execution[] calldata executions)
         external
         payable // gas bad
         returns (bytes[] memory results);
