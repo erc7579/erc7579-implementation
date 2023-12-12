@@ -245,7 +245,7 @@ Hooks MUST implement the `preCheck` function. After checking the transaction dat
 
 ```solidity
     /**
-     * This funciont MUST be called BEFORE the transaction is executed
+     * This function MUST be called BEFORE the an account action (i.e. execute, enableValidator, enableExecutor)
      * @param msgSig The signature of the function (msg.sig) that was called on the smart account.
      * @param sender The msg.sender of the transaction
      * @param target the target of the transaction that is being hooked
