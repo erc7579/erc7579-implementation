@@ -47,7 +47,7 @@ The smart account's `validateUserOp` function SHOULD return the return value of 
 
 #### Execution Behavior
 
-To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
+To comply with this standard, smart accounts MUST implement the two interfaces below. If an account implementation elects to not support any of the execution methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
 ```solidity
 interface IExecution {
