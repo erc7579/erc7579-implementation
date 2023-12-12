@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
+import "src/interfaces/IMSA.sol";
+
 /**
  * @title Execution
  * @dev This contract executes calls in the context of this contract.
@@ -9,22 +11,17 @@ pragma solidity ^0.8.23;
  * https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol
  */
 contract Execution {
-    function _execute(
-        address[] calldata target,
-        uint256[] calldata value,
-        bytes[] calldata callData
-    )
+    function _execute(IMSA_Exec.Execution[] calldata executions)
         internal
         returns (bytes[] memory result)
     {
-        uint256 length = target.length;
+        uint256 length = executions.length;
 
         // ensure that provided arrays are the same length
-        if (length != value.length || length != callData.length) revert();
 
         result = new bytes[](length);
         for (uint256 i; i < length; i++) {
-            result[i] = _execute(target[i], value[i], callData[i]);
+            result[i] = _execute(executions[i].target, executions[i].value, executions[i].callData);
         }
     }
 
