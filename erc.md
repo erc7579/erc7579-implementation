@@ -327,6 +327,8 @@ The `onInstall` and `onUninstall` functions on modules may lead to unexpected ca
 
 Insufficient authorization control in fallback handlers can lead to unauthorized executions.
 
+Malicious Hooks may revert on `preCheck` or `postCheck`, adding untrusted hooks may lead to a denial of service of the account.
+
 ## Copyright
 
 Copyright and related rights waived via [CC0](../LICENSE.md).
