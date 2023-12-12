@@ -21,7 +21,8 @@ contract Execution {
 
         result = new bytes[](length);
         for (uint256 i; i < length; i++) {
-            result[i] = _execute(executions[i].target, executions[i].value, executions[i].callData);
+            IMSA_Exec.Execution calldata _exec = executions[i];
+            result[i] = _execute(_exec.target, _exec.value, _exec.callData);
         }
     }
 
