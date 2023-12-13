@@ -67,23 +67,6 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IExecutionUnsafe
-     */
-    function executeDelegateCall(
-        address target,
-        bytes calldata callData
-    )
-        external
-        payable
-        virtual
-        override
-        onlyEntryPointOrSelf
-        returns (bytes memory result)
-    {
-        return _executeDelegatecall(target, callData);
-    }
-
-    /**
      * @inheritdoc IExecution
      */
     function executeBatch(Execution[] calldata executions)
@@ -128,9 +111,29 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
         returnDatas = _execute(executions);
     }
 
+    /////////////////////////////////////////////////////
+    // Unsafe Executions - Implement this with care!
+    ////////////////////////////////////////////////////
     /**
      * @inheritdoc IExecutionUnsafe
      */
+    function executeDelegateCall(
+        address target,
+        bytes calldata callData
+    )
+        external
+        payable
+        virtual
+        override
+        onlyEntryPointOrSelf
+        returns (bytes memory result)
+    {
+        return _executeDelegatecall(target, callData);
+    }
+    /**
+     * @inheritdoc IExecutionUnsafe
+     */
+
     function executeDelegateCallFromModule(
         address target,
         bytes memory callData
