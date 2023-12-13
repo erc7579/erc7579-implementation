@@ -69,6 +69,9 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
         if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
+        if (interfaceID == IAccountConfig_Hook.enableHook.selector) return true;
+        if (interfaceID == IAccountConfig_Hook.disableHook.selector) return true;
+        if (interfaceID == IAccountConfig_Hook.isHookEnabled.selector) return true;
         return super.supportsInterface(interfaceID);
     }
 }

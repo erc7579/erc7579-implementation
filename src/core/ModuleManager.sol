@@ -97,6 +97,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
+        // TODO add check here not to remove the last validator, otherwise the account will be locked forever
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }
@@ -169,8 +170,10 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         if (interfaceID == type(IERC165).interfaceId) return true;
         if (interfaceID == IAccountConfig.enableExecutor.selector) return true;
         if (interfaceID == IAccountConfig.disableExecutor.selector) return true;
+        if (interfaceID == IAccountConfig.isExecutorEnabled.selector) return true;
         if (interfaceID == IAccountConfig.enableValidator.selector) return true;
         if (interfaceID == IAccountConfig.disableValidator.selector) return true;
+        if (interfaceID == IAccountConfig.isValidatorEnabled.selector) return true;
         return false;
     }
 }

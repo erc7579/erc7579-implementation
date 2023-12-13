@@ -28,6 +28,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
         uint256 missingAccountFunds
     )
         external
+        payable
         virtual
         returns (uint256 validSignature);
 
@@ -165,6 +166,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
         if (interfaceID == type(IMSA).interfaceId) return true;
+        if (interfaceID == IMSA.initializeAccount.selector) return true;
         return super.supportsInterface(interfaceID);
     }
 }
