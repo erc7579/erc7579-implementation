@@ -170,7 +170,7 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 - MUST call the `preCheck` function on a single and batched execution and on every enable function
 - MAY call the `preCheck` function on disable functions
 - MUST call the `postCheck` function after a single or batched execution as well as every enable function
-- MAY call the `postCheck` function on disbable functions
+- MAY call the `postCheck` function on disable functions
 
 ```solidity
 interface IAccountConfig_Hook {
