@@ -158,7 +158,7 @@ interface IAccountConfig {
 
 #### Hooks
 
-Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks to execute custom logic and checks before and/or after the smart accounts performs a single or batched execution.
 
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
@@ -166,8 +166,10 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 - MUST pass the sanitized initialisation data to the module when enabling or disabling a hook
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
-- MUST call the `preCheck` function before a smart account execution with the execution parameters, passing the `msg.sender` and `msg.data` as parameters
-- MUST call the `postCheck` function after a smart account execution with the return value of `preCheck`
+- MUST call the `preCheck` function on a single and batched execution and on every enable function
+- MAY call the `preCheck` function on disable functions
+- MUST call the `postCheck` function after a single or batched execution as well as every enable function
+- MAY call the `postCheck` function on disable functions
 
 ```solidity
 interface IAccountConfig_Hook {
