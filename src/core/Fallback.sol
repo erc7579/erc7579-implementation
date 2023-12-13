@@ -6,7 +6,7 @@ import { IMSA_Config } from "../interfaces/IMSA.sol";
 import { IFallback } from "../interfaces/IModule.sol";
 
 /**
- * Fallback handler by Gnosis Safe
+ * Fallback Manager inpired by Safe
  * https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol
  */
 
