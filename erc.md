@@ -76,17 +76,17 @@ interface IExecution {
 
     /**
     * MUST execute a `call` to the target with the provided data and value
-    * MUST only allow enabled executors to call this function
+    * MUST only allow installed executors to call this function
     * MUST revert if the call was not successful
     */
-    function executeFromModule(address target, uint256 value, bytes data) external returns (bytes memory result);
+    function executeFromExecutor(address target, uint256 value, bytes data) external returns (bytes memory result);
 
     /**
     * MUST execute a `call` to all the targets with the provided data and value for each target
-    * MUST only allow enabled executors to call this function
+    * MUST only allow installed executors to call this function
     * MUST revert if any call was not successful
     */
-    function executeBatchFromModule(Execution[] calldata executions) external returns (bytes memory result);
+    function executeBatchFromExecutor(Execution[] calldata executions) external returns (bytes memory result);
 }
 
 /**
@@ -102,10 +102,10 @@ interface IExecutionUnsafe {
 
     /**
     * MUST execute a `delegatecall` to the target with the provided data and value
-    * MUST only allow enabled executors to call this function
+    * MUST only allow installed executors to call this function
     * MUST revert if the call was not successful
     */
-    function executeDelegateCallFromModule(address target, bytes data) external returns (bytes memory result);
+    function executeDelegateCallFromExecutor(address target, bytes data) external returns (bytes memory result);
 }
 ```
 
@@ -113,46 +113,46 @@ interface IExecutionUnsafe {
 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the configuration methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
-When enabling or disabling a module on a smart account, it
+When installing or uninstalling a module on a smart account, it
 
 - MUST call the `onInstall` or `onUninstall` function on the module
 - MUST pass the sanitized initialisation data to the module
 - MUST emit the relevant event for the module type
-- MUST enforce authorization control on the relevant enable or disable function for the module type
+- MUST enforce authorization control on the relevant install or uninstall function for the module type
 
-When storing a module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account should be able to implement access control that only allows enabled executors, but not other enabled modules, to call the `executeFromModule` function.
+When storing an installed module, the smart account MUST ensure that there is a way to differentiate between module types. For example, the smart account should be able to implement access control that only allows installed executors, but not other installed modules, to call the `executeFromExecutor` function.
 
 ```solidity
 interface IAccountConfig {
     // VALIDATORS
     // Functions
-    function enableValidator(address validator, bytes calldata data) external;
-    function disableValidator(address validator, bytes calldata data) external;
-    function isValidatorEnabled(address validator) external view returns (bool);
+    function installValidator(address validator, bytes calldata data) external;
+    function uninstallValidator(address validator, bytes calldata data) external;
+    function isValidatorInstalled(address validator) external view returns (bool);
 
     // Events
-    event EnableValidatorModule(address validator);
-    event DisableValidatorModule(address validator);
+    event InstallValidatorModule(address validator);
+    event UninstallValidatorModule(address validator);
 
     // EXECUTORS
     // Functions
-    function enableExecutor(address executor, bytes calldata data) external;
-    function disableExecutor(address executor, bytes calldata data) external;
-    function isExecutorEnabled(address executor) external view returns (bool);
+    function installExecutor(address executor, bytes calldata data) external;
+    function uninstallExecutor(address executor, bytes calldata data) external;
+    function isExecutorInstalled(address executor) external view returns (bool);
 
     // Events
-    event EnableExecutorModule(address executor);
-    event DisableExecutorModule(address executor);
+    event InstallExecutorModule(address executor);
+    event UninstallExecutorModule(address executor);
 
     // FALLBACK HANDLERS
     // Functions
-    function enableFallback(address fallbackHandler, bytes calldata data) external;
-    function disableFallback(address fallbackHandler, bytes calldata data) external;
-    function isFallbackEnabled(address fallbackHandler) external view returns (bool);
+    function installFallback(address fallbackHandler, bytes calldata data) external;
+    function uninstallFallback(address fallbackHandler, bytes calldata data) external;
+    function isFallbackInstalled(address fallbackHandler) external view returns (bool);
 
     // Events
-    event EnableFallbackHandler(address fallbackHandler);
-    event DisableFallbackHandler(address fallbackHandler);
+    event InstallFallbackHandler(address fallbackHandler);
+    event UninstallFallbackHandler(address fallbackHandler);
 }
 ```
 
@@ -162,26 +162,26 @@ Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks t
 
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
-- MUST call the `onInstall` or `onUninstall` function on the module when enabling or disabling a hook
-- MUST pass the sanitized initialisation data to the module when enabling or disabling a hook
+- MUST call the `onInstall` or `onUninstall` function on the module when installing or uninstalling a hook
+- MUST pass the sanitized initialisation data to the module when installing or uninstalling a hook
 - MUST emit the relevant event for the module type
-- MUST enforce authorization control on the relevant enable or disable function for the module type
-- MUST call the `preCheck` function on a single and batched execution and on every enable function
-- MAY call the `preCheck` function on disable functions
-- MUST call the `postCheck` function after a single or batched execution as well as every enable function
-- MAY call the `postCheck` function on disable functions
+- MUST enforce authorization control on the relevant install or uninstall function for the module type
+- MUST call the `preCheck` function on a single and batched execution and on every install function
+- MAY call the `preCheck` function on uninstall functions
+- MUST call the `postCheck` function after a single or batched execution as well as every install function
+- MAY call the `postCheck` function on uninstall functions
 
 ```solidity
 interface IAccountConfig_Hook {
     // HOOKS
     // Functions
-    function enableHook(address hook, bytes calldata data) external;
-    function disableHook(address hook, bytes calldata data) external;
-    function isHookEnabled(address hook) external view returns (bool);
+    function installHook(address hook, bytes calldata data) external;
+    function uninstallHook(address hook, bytes calldata data) external;
+    function isHookInstalled(address hook) external view returns (bool);
 
     // Events
-    event EnableHook(address hook);
-    event DisableHook(address hook);
+    event InstallHook(address hook);
+    event UninstallHook(address hook);
 }
 ```
 
@@ -197,7 +197,7 @@ The smart account's ERC-1271 `isValidSignature` function SHOULD return the retur
 
 Smart accounts MAY implement a fallback function that forwards the call to a fallback handler.
 
-If the account has a fallback handler enabled, it:
+If the account has a fallback handler installed, it:
 
 - MUST use `call` to invoke the fallback handler
 - MUST implement authorization control
@@ -218,7 +218,7 @@ This standard separates modules into the following different types that each has
 
 Note: A single module can be of multiple types.
 
-Modules MUST implement the following interface, which is used by smart accounts to enable and disable modules:
+Modules MUST implement the following interface, which is used by smart accounts to install and uninstall modules:
 
 ```solidity
 interface IModule {
@@ -239,7 +239,7 @@ interface IValidator {
     /**
     * MUST validate that the signature is a valid signature of the userOpHash, and SHOULD return SIG_VALIDATION_FAILED (and not revert) on signature mismatch
     */
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) external returns (uint256);
+    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash) external returns (uint256);
 
     /**
     * @dev `sender` is the contract that sent the ERC-1271 request to the smart account
@@ -341,10 +341,10 @@ Currently [here](./src/MSA.sol)
 Needs more discussion. Some initial considerations:
 
 - Implementing `delegatecall` executions on a smart account must be considered carefully. Note that smart accounts implementing `delegatecall` must ensure that the target contract is safe, otherwise catastrophic outcomes are to be expected.
-- The `onInstall` and `onUninstall` functions on modules may lead to unexpected callbacks (i.e. reentrancy). Account implementations should consider this by implementing adequate protection routines. Furthermore, Modules could maliciously revert on `onUninstall` to stop the account from disabling a module and removing it from the account.
+- The `onInstall` and `onUninstall` functions on modules may lead to unexpected callbacks (i.e. reentrancy). Account implementations should consider this by implementing adequate protection routines. Furthermore, Modules could maliciously revert on `onUninstall` to stop the account from uninstalling a module and removing it from the account.
 - Insufficient authorization control in fallback handlers can lead to unauthorized executions.
 - Malicious Hooks may revert on `preCheck` or `postCheck`, adding untrusted hooks may lead to a denial of service of the account.
-- Currently account configuration functions (e.g. enableValidator) are designed for single operations. An account could allow these to be called from `address(this)`, creating the possibility to batch configuration operations. However, if an account implements greater authorization control for these functions since they are more sensitive, then these measures can be bypassed by nesting calls to configuration options in calls to self.
+- Currently account configuration functions (e.g. installValidator) are designed for single operations. An account could allow these to be called from `address(this)`, creating the possibility to batch configuration operations. However, if an account implements greater authorization control for these functions since they are more sensitive, then these measures can be bypassed by nesting calls to configuration options in calls to self.
 
 ## Copyright
 
