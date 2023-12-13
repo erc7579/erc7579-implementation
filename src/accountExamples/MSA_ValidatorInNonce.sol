@@ -14,6 +14,7 @@ contract MSA is MSABase {
         uint256 missingAccountFunds
     )
         external
+        payable
         virtual
         override
         payPrefund(missingAccountFunds)
@@ -37,9 +38,14 @@ contract MSA is MSABase {
     )
         external
         view
+        virtual
         override
         returns (bytes4)
     {
+        return _isValidSignature(hash, data);
+    }
+
+    function _isValidSignature(bytes32 hash, bytes calldata data) internal view returns (bytes4) {
         address validator = address(bytes20(data[0:20]));
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
         return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
