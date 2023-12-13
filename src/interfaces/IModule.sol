@@ -61,10 +61,8 @@ interface IExecutor is IModule { }
 
 interface IHook is IModule {
     function preCheck(
-        address sender,
-        address target,
-        uint256 value,
-        bytes calldata data
+        address msgSender,
+        bytes calldata msgData
     )
         external
         returns (bytes memory hookData);

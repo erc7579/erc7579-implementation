@@ -27,7 +27,7 @@ contract MSAHooks is MSA, HookManager {
 
         if (isHookSet) {
             // if hook is set, execute preCheck, then execute call, then execute postCheck
-            bytes memory hookData = hook.preCheck(msg.sender, target, value, callData);
+            bytes memory hookData = hook.preCheck(msg.sender, msg.data);
             result = super._execute(target, value, callData);
             if (!hook.postCheck(hookData)) revert HookPostCheckFailed();
         } else {
