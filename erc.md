@@ -158,7 +158,7 @@ interface IAccountConfig {
 
 #### Hooks
 
-Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks to execute custom logic and checks before and/or after the smart accounts performs an execution.
+Hooks are an OPTIONAL extension of this standard. Smart accounts MAY use hooks to execute custom logic and checks before and/or after the smart accounts performs a single or batched execution.
 
 To comply with this OPTIONAL extension, smart accounts MUST implement the entire interface below and they
 
@@ -166,7 +166,6 @@ To comply with this OPTIONAL extension, smart accounts MUST implement the entire
 - MUST pass the sanitized initialisation data to the module when enabling or disabling a hook
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant enable or disable function for the module type
-- MUST call the `preCheck` function on the beginning of an execution or batched execution
 - MUST call the `preCheck` function on a single and batched execution and on every enable function
 - MAY call the `preCheck` function on disable functions
 - MUST call the `postCheck` function after a single or batched execution as well as every enable function
@@ -184,15 +183,6 @@ interface IAccountConfig_Hook {
     event EnableHook(address hook);
     event DisableHook(address hook);
 }
-
-modifier withHook {
-    bytes memory hookRetData = hook.preCheck(msg.sender, msg.data);
-    _;
-    if(!hook.postCheck(hookRetData)) revert();
-
-}
-function execute(address target, uint256 value, bytes calldata callData) external withHook;
-function executeBatch(Execution[] calldata executions) external withHook;
 ```
 
 #### ERC-1271 Forwarding
