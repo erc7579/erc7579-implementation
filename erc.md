@@ -1,7 +1,7 @@
 ---
 title: Minimal Modular Smart Accounts
 description: Minimally required interfaces and behavior for modular smart accounts and modules
-author: #Todo
+author: zeroknots (@zeroknots), Konrad Kopp (@kopy-kat), Taek Lee (@leekt), Fil Makarov (@filmakarov), Felix Fan (felix.fan@okx.com)
 discussions-to: <tbd>
 status: Draft
 type: Standards Track
@@ -41,7 +41,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 #### Validation
 
-This Standard does not dictate how validator selection is implemented. However, should a smart account encode validator selection mechanisms in ERC-4337 `UserOperation` fields (i.e. `userOp.signature`), the smart account MUST sanitize the affected values before invoking the validator.
+This standard does not dictate how validator selection is implemented. However, should a smart account encode validator selection mechanisms in ERC-4337 `UserOperation` fields (i.e. `userOp.signature`), the smart account MUST sanitize the affected values before invoking the validator.
 
 The smart account's `validateUserOp` function SHOULD return the return value of the validator.
 
@@ -113,9 +113,9 @@ interface IExecutionUnsafe {
 
 To comply with this standard, smart accounts MUST implement the entire interface below. If an account implementation elects to not support any of the configuration methods, it MUST revert, in order to avoid unpredictable behavior with fallbacks.
 
-When installing or uninstalling a module on a smart account, it
+When installing or uninstalling a module on a smart account, the smart account
 
-- MUST call the `onInstall` or `onUninstall` function on the module
+- MUST call the relevant `onInstall` or `onUninstall` function on the module
 - MUST pass the sanitized initialisation data to the module
 - MUST emit the relevant event for the module type
 - MUST enforce authorization control on the relevant install or uninstall function for the module type
@@ -197,7 +197,7 @@ The smart account's ERC-1271 `isValidSignature` function SHOULD return the retur
 
 Smart accounts MAY implement a fallback function that forwards the call to a fallback handler.
 
-If the account has a fallback handler installed, it:
+If the smart account has a fallback handler installed, it:
 
 - MUST use `call` to invoke the fallback handler
 - MUST implement authorization control
