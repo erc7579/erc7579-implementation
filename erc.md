@@ -257,7 +257,7 @@ Executors MUST implement the `IModule` interface and have module type id: `2`.
 
 Fallback handlers MUST implement the `IModule` interface and have module type id: `3`.
 
-Fallback handlers that implement sensitive functions require authorization control, MUST NOT rely on `msg.sender` for authorization control. Authorization control MUST use ERC-2771 checks to validate, that the `_msgSender() == msg.sender`.
+Fallback handlers that implement authorization control, MUST NOT rely on `msg.sender` for authorization control but MUST use ERC-2771 `_msgSender()` instead.
 
 #### Hooks
 
