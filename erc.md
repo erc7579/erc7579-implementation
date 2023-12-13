@@ -20,9 +20,7 @@ Contract accounts are gaining adoption with many new accounts being built in a m
 
 To solve these problems, we need to standardize the core interfaces for smart accounts and modules. However, it is highly important that this standardization is done with minimal impact on the implementation logic of the accounts, so that smart account vendors can innovate and compete, while also allowing a flourishing, multi-account-compatible module ecosystem.
 
-The goals of this standard are:
-
-- Define the most minimal interfaces for smart accounts and modules that ensure interoperability between accounts
+The goal of this standard is to define the smart account and module interfaces and behavior that is as minimal as possible while ensuring interoperability between accounts and modules.
 
 ## Specification
 
