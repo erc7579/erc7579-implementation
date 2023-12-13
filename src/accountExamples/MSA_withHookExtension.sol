@@ -43,7 +43,7 @@ contract MSAHooks is MSA, HookManager {
         override(MSABase, HookManager)
         returns (bool)
     {
-        return
-            interfaceId == type(IMSA_ConfigExt).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IAccountConfig_Hook).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 }

@@ -11,7 +11,7 @@ import "src/interfaces/IMSA.sol";
  * https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol
  */
 contract Execution {
-    function _execute(IMSA_Exec.Execution[] calldata executions)
+    function _execute(IExecution.Execution[] calldata executions)
         internal
         returns (bytes[] memory result)
     {
@@ -21,7 +21,7 @@ contract Execution {
 
         result = new bytes[](length);
         for (uint256 i; i < length; i++) {
-            IMSA_Exec.Execution calldata _exec = executions[i];
+            IExecution.Execution calldata _exec = executions[i];
             result[i] = _execute(_exec.target, _exec.value, _exec.callData);
         }
     }

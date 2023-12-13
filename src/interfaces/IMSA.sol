@@ -4,7 +4,7 @@ pragma solidity ^0.8.21;
 /**
  * @dev Execution Interface of the minimal Modular Smart Account standard
  */
-interface IMSA_Exec {
+interface IExecution {
     error Unsupported();
 
     struct Execution {
@@ -17,6 +17,7 @@ interface IMSA_Exec {
      *
      * @dev Executes a transaction on behalf of the account.
      *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     *
      * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
      * @dev This function MUST revert if the call fails.
      * @param target The address of the contract to call.
@@ -35,26 +36,9 @@ interface IMSA_Exec {
 
     /**
      *
-     * @dev Executes a transaction via delegatecall on behalf of the account.
-     *         This function is intended to be called by ERC-4337 EntryPoint.sol
-     * @dev This function MUST revert if the call fails.
-     * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
-     * @param target The address of the contract to call.
-     * @param callData The call data to be sent to the contract.
-     * @return result The return data of the executed contract call.
-     */
-    function executeDelegateCall(
-        address target,
-        bytes calldata callData
-    )
-        external
-        payable // gas bad
-        returns (bytes memory result);
-
-    /**
-     *
      * @dev Executes a batched transaction via 'call' on behalf of the account.
      *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     *
      * @dev This function MUST revert if the call fails.
      * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
      * @param executions An array of struct Execution (address target, uint value, bytes callData)
@@ -89,6 +73,7 @@ interface IMSA_Exec {
      *
      * @dev Executes a transaction via delegatecall on behalf of the account.
      *         This function is intended to be called by an Executor module.
+     *
      * @dev This function MUST revert if the call fails.
      * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
      * @param executions An array of struct Execution (address target, uint value, bytes callData)
@@ -98,9 +83,38 @@ interface IMSA_Exec {
         external
         payable // gas bad
         returns (bytes[] memory results);
+}
+/**
+ * @dev implementing delegatecall execution on a smart account must be considered carefully and is not recommended in most cases
+ */
+
+interface IExecutionUnsafe {
+    /**
+     * Executes a Delegatecall on behalf of the account.
+     * MUST execute a `delegatecall` to the target with the provided data
+     * MUST allow ERC-4337 Entrypoint to be the sender and MAY allow `msg.sender == address(this)`
+     * MUST revert if the call was not successful
+     * @dev Executes a transaction via delegatecall on behalf of the account.
+     *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     * @dev This function MUST revert if the call fails.
+     * @dev MSA MUST implement this function signature. If functionality should not be supported, revert "Unsupported"!
+     * @param target The address of the contract to call.
+     * @param callData The call data to be sent to the contract.
+     * @return result The return data of the executed contract call.
+     */
+    function executeDelegateCall(
+        address target,
+        bytes calldata callData
+    )
+        external
+        payable // gas bad
+        returns (bytes memory result);
 
     /**
-     *
+     * Executes a Delegatecall on behalf of the account, triggered by an Executor Module.
+     * MUST execute a `delegatecall` to the target with the provided data and value
+     * MUST only allow enabled executors to call this function
+     * MUST revert if the call was not successful
      * @dev Executes a transaction via delegatecall on behalf of the account.
      *         This function is intended to be called by an Executor module.
      * @dev This function MUST revert if the call fails.
@@ -115,13 +129,13 @@ interface IMSA_Exec {
     )
         external
         payable // gas bad
-        returns (bytes memory);
+        returns (bytes memory result);
 }
 
 /**
  * @dev Configuration Interface of the minimal Modular Smart Account standard
  */
-interface IMSA_Config {
+interface IAccountConfig {
     event EnableValidator(address module);
     event DisableValidator(address module);
 
@@ -200,23 +214,10 @@ interface IMSA_Config {
     function isFallbackEnabled(address fallbackHandler) external view returns (bool);
 }
 
-interface IMSA is IMSA_Exec, IMSA_Config {
-    /////////////////////////////////////////////////////
-    //  Account Initialization
-    ////////////////////////////////////////////////////
-
-    /**
-     * @dev initializes a MSA
-     * @dev implement checks  that account can only be initialized once
-     * @param data abi encoded init params
-     */
-    function initializeAccount(bytes calldata data) external;
-}
-
 /**
  * @dev Configuration Interface of the minimal Modular Smart Account Hook extention standard
  */
-interface IMSA_ConfigExt is IMSA_Config {
+interface IAccountConfig_Hook {
     event EnableHook(address module);
     event DisableHook(address module);
     /////////////////////////////////////////////////////
@@ -245,4 +246,17 @@ interface IMSA_ConfigExt is IMSA_Config {
      * returns bool if hook is enabled
      */
     function isHookEnabled(address hook) external view returns (bool);
+}
+
+interface IMSA is IExecution, IExecutionUnsafe, IAccountConfig {
+    /////////////////////////////////////////////////////
+    //  Account Initialization
+    ////////////////////////////////////////////////////
+
+    /**
+     * @dev initializes a MSA
+     * @dev implement checks  that account can only be initialized once
+     * @param data abi encoded init params
+     */
+    function initializeAccount(bytes calldata data) external;
 }

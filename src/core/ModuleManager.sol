@@ -13,7 +13,7 @@ import "forge-std/interfaces/IERC165.sol";
  * @dev This contract manages Validator and Executor modules for the MSA
  * @dev it uses SentinelList to manage the linked list of modules
  */
-abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
+abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     error InvalidModule(address module);
@@ -61,7 +61,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function enableValidator(
         address validator,
@@ -83,7 +83,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function disableValidator(
         address validator,
@@ -102,7 +102,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function isValidatorEnabled(address validator) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
@@ -110,7 +110,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function enableExecutor(
         address validator,
@@ -133,7 +133,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function disableExecutor(
         address validator,
@@ -152,7 +152,7 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     /**
-     * @inheritdoc IMSA_Config
+     * @inheritdoc IAccountConfig
      */
     function isExecutorEnabled(address executor) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
@@ -165,12 +165,12 @@ abstract contract ModuleManager is AccountBase, IMSA_Config, IERC165 {
     }
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
-        if (interfaceID == type(IMSA_Config).interfaceId) return true;
+        if (interfaceID == type(IAccountConfig).interfaceId) return true;
         if (interfaceID == type(IERC165).interfaceId) return true;
-        if (interfaceID == IMSA_Config.enableExecutor.selector) return true;
-        if (interfaceID == IMSA_Config.disableExecutor.selector) return true;
-        if (interfaceID == IMSA_Config.enableValidator.selector) return true;
-        if (interfaceID == IMSA_Config.disableValidator.selector) return true;
+        if (interfaceID == IAccountConfig.enableExecutor.selector) return true;
+        if (interfaceID == IAccountConfig.disableExecutor.selector) return true;
+        if (interfaceID == IAccountConfig.enableValidator.selector) return true;
+        if (interfaceID == IAccountConfig.disableValidator.selector) return true;
         return false;
     }
 }

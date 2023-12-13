@@ -48,7 +48,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     ////////////////////////////////////////////////////
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecution
      */
     function execute(
         address target,
@@ -66,7 +66,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecutionUnsafe
      */
     function executeDelegateCall(
         address target,
@@ -83,7 +83,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecution
      */
     function executeBatch(Execution[] calldata executions)
         external
@@ -96,7 +96,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecution
      */
     function executeFromModule(
         address target,
@@ -114,7 +114,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecution
      */
     function executeBatchFromModule(Execution[] calldata executions)
         external
@@ -128,7 +128,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     }
 
     /**
-     * @inheritdoc IMSA_Exec
+     * @inheritdoc IExecutionUnsafe
      */
     function executeDelegateCallFromModule(
         address target,

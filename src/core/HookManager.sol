@@ -9,7 +9,7 @@ import "../interfaces/IModule.sol";
  * @author zeroknots.eth | rhinestone.wtf
  */
 
-abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
+abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
     /// @custom:storage-location erc7201:hookmanager.storage.msa
     struct HookManagerStorage {
         IHook _hook;
@@ -29,7 +29,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     /**
-     * @inheritdoc IMSA_ConfigExt
+     * @inheritdoc IAccountConfig_Hook
      */
     function enableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
         _enableHook(hook, data);
@@ -42,7 +42,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     /**
-     * @inheritdoc IMSA_ConfigExt
+     * @inheritdoc IAccountConfig_Hook
      */
     function disableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
         _disableHook(hook, data);
@@ -55,7 +55,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     /**
-     * @inheritdoc IMSA_ConfigExt
+     * @inheritdoc IAccountConfig_Hook
      */
     function isHookEnabled(address hook) public view virtual returns (bool isEnabled) {
         address _hook;
@@ -68,7 +68,7 @@ abstract contract HookManager is ModuleManager, IMSA_ConfigExt {
     }
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
-        if (interfaceID == type(IMSA_ConfigExt).interfaceId) return true;
+        if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
         return super.supportsInterface(interfaceID);
     }
 }

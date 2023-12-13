@@ -58,11 +58,11 @@ contract MSATest is BootstrapUtil, Test {
     }
 
     function test_AccountFeatureDetectionConfig() public {
-        assertTrue(account.supportsInterface(type(IMSA_Config).interfaceId));
+        assertTrue(account.supportsInterface(type(IAccountConfig).interfaceId));
     }
 
     function test_AccountFeatureDetectionConfigWHooks() public {
-        assertFalse(account.supportsInterface(type(IMSA_ConfigExt).interfaceId));
+        assertFalse(account.supportsInterface(type(IAccountConfig_Hook).interfaceId));
     }
 
     function test_checkValidatorEnabled() public {
@@ -76,7 +76,7 @@ contract MSATest is BootstrapUtil, Test {
     function test_execVia4337() public {
         bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
         bytes memory execFunction =
-            abi.encodeCall(IMSA_Exec.execute, (address(target), 0, setValueOnTarget));
+            abi.encodeCall(IExecution.execute, (address(target), 0, setValueOnTarget));
         UserOperation memory userOp = UserOperation({
             sender: address(account),
             nonce: entrypoint.getNonce(address(account), 0),

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import "./AccountBase.sol";
-import { IMSA_Config } from "../interfaces/IMSA.sol";
+import { IAccountConfig } from "../interfaces/IMSA.sol";
 import { IFallback } from "../interfaces/IModule.sol";
 
 /**
@@ -10,7 +10,7 @@ import { IFallback } from "../interfaces/IModule.sol";
  * https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol
  */
 
-abstract contract Fallback is AccountBase, IMSA_Config {
+abstract contract Fallback is AccountBase, IAccountConfig {
     error InvalidAddress(address addr);
 
     event FallbackHandlerChanged(address handler);
