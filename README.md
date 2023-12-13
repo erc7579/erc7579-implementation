@@ -10,7 +10,7 @@ The contracts in this repository are - at this point - not audited. We advice ag
 
 - [Validator Encoding in Signature](./src/accountExamples/MSA_ValidatorInSignature.sol): MSA_ValidatorInSignature is inspiried by [taek's (ZeroDev) Kernel](https://github.com/zerodevapp/kernel/blob/main/src/Kernel.sol)
 
-- [Validator Encoding in Nonce](./src/accountExamples/MSA_ValidatorInNonce.sol): Implementation of validator encoding in userOp nonce is inspired by [ross'](https://github.com/NaniDAO/accounts/blob/65b08c39ca2859ddec35472ba4698b0d446f84ea/src/Account.sol#L27C1-L68) NaniDAO Account
+- [Validator Encoding in Nonce](./src/accountExamples/MSA_ValidatorInNonce.sol): Implementation of validator encoding in userOp nonce is inspired by [ross' (Nani) Account](https://github.com/NaniDAO/accounts/blob/65b08c39ca2859ddec35472ba4698b0d446f84ea/src/Account.sol#L27C1-L68)
 
 - [Fallback Manager](./src/core/Fallback.sol): Fallback Manager is inspiried by [Richard's (Safe)](https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol) Fallback Manager
 
