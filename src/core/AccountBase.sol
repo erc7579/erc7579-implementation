@@ -6,14 +6,14 @@ pragma solidity ^0.8.21;
  * @author zeroknots.eth | rhinestone.wtf
  */
 contract AccountBase {
-    error Unauthorized();
+    error AccountAccessUnauthorized();
     /////////////////////////////////////////////////////
     // Access Control
     ////////////////////////////////////////////////////
 
     modifier onlyEntryPointOrSelf() virtual {
         if (!(msg.sender == entryPoint() || msg.sender == address(this))) {
-            revert Unauthorized();
+            revert AccountAccessUnauthorized();
         }
         _;
     }

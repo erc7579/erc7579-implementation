@@ -151,7 +151,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     /**
      * @inheritdoc IMSA
      */
-    function initializeAccount(bytes calldata data) external virtual override {
+    function initializeAccount(bytes calldata data) public virtual override {
         // only allow initialization once
         if (isAlreadyInitialized()) revert();
 
