@@ -9,31 +9,110 @@ import "../core/HookManager.sol";
  * @author zeroknots.eth | rhinestone.wtf
  */
 contract MSAHooks is MSA, HookManager {
-    function _execute(
+    /**
+     * @inheritdoc IExecution
+     */
+    function execute(
         address target,
         uint256 value,
         bytes calldata callData
     )
-        internal
+        external
+        payable
+        virtual
         override
+        onlyEntryPointOrSelf
+        withHook
         returns (bytes memory result)
     {
-        bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
-        IHook hook;
-        assembly {
-            hook := sload(slot)
-        }
-        bool isHookSet = address(hook) != address(0);
+        return _execute(target, value, callData);
+    }
 
-        if (isHookSet) {
-            // if hook is set, execute preCheck, then execute call, then execute postCheck
-            bytes memory hookData = hook.preCheck(msg.sender, msg.data);
-            result = super._execute(target, value, callData);
-            if (!hook.postCheck(hookData)) revert HookPostCheckFailed();
-        } else {
-            // if hook is not set, execute call
-            result = super._execute(target, value, callData);
-        }
+    /**
+     * @inheritdoc IExecution
+     */
+    function executeBatch(Execution[] calldata executions)
+        external
+        payable
+        override
+        onlyEntryPointOrSelf
+        withHook
+        returns (bytes[] memory result)
+    {
+        result = _execute(executions);
+    }
+
+    /**
+     * @inheritdoc IExecution
+     */
+    function executeFromExecutor(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
+        external
+        payable
+        virtual
+        override
+        onlyExecutorModule
+        withHook
+        returns (bytes memory returnData)
+    {
+        returnData = _execute(target, value, callData);
+    }
+
+    /**
+     * @inheritdoc IExecution
+     */
+    function executeBatchFromExecutor(Execution[] calldata executions)
+        external
+        payable
+        virtual
+        override
+        onlyExecutorModule
+        withHook
+        returns (bytes[] memory returnDatas)
+    {
+        returnDatas = _execute(executions);
+    }
+
+    /////////////////////////////////////////////////////
+    // Unsafe Executions - Implement this with care!
+    ////////////////////////////////////////////////////
+    /**
+     * @inheritdoc IExecutionUnsafe
+     */
+    function executeDelegateCall(
+        address target,
+        bytes calldata callData
+    )
+        external
+        payable
+        virtual
+        override
+        onlyEntryPointOrSelf
+        withHook
+        returns (bytes memory result)
+    {
+        return _executeDelegatecall(target, callData);
+    }
+    /**
+     * @inheritdoc IExecutionUnsafe
+     */
+
+    function executeDelegateCallFromExecutor(
+        address target,
+        bytes memory callData
+    )
+        external
+        payable
+        virtual
+        override
+        onlyExecutorModule
+        withHook
+        returns (bytes memory)
+    {
+        revert Unsupported();
     }
 
     function supportsInterface(bytes4 interfaceId)

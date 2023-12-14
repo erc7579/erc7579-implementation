@@ -25,17 +25,17 @@ contract Bootstrap is ModuleManager, Fallback, HookManager {
 
         // init validators
         for (uint256 i; i < _validators.length; i++) {
-            _enableValidator(address(_validators[i].module), _validators[i].data);
+            _installValidator(address(_validators[i].module), _validators[i].data);
         }
 
         // init executors
         for (uint256 i; i < _executors.length; i++) {
-            _enableExecutor(address(_executors[i].module), _executors[i].data);
+            _installExecutor(address(_executors[i].module), _executors[i].data);
         }
 
         // init hook
         if (address(_hook.module) != address(0)) {
-            _enableHook(address(_hook.module), _hook.data);
+            _installHook(address(_hook.module), _hook.data);
         }
 
         // init fallback

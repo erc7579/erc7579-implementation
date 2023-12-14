@@ -72,6 +72,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     function executeBatch(Execution[] calldata executions)
         external
         payable
+        virtual
         override
         onlyEntryPointOrSelf
         returns (bytes[] memory result)
@@ -82,7 +83,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     /**
      * @inheritdoc IExecution
      */
-    function executeFromModule(
+    function executeFromExecutor(
         address target,
         uint256 value,
         bytes calldata callData
@@ -100,7 +101,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     /**
      * @inheritdoc IExecution
      */
-    function executeBatchFromModule(Execution[] calldata executions)
+    function executeBatchFromExecutor(Execution[] calldata executions)
         external
         payable
         virtual
@@ -134,7 +135,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
      * @inheritdoc IExecutionUnsafe
      */
 
-    function executeDelegateCallFromModule(
+    function executeDelegateCallFromExecutor(
         address target,
         bytes memory callData
     )

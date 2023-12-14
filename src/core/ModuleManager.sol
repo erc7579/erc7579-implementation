@@ -63,7 +63,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function enableValidator(
+    function installValidator(
         address validator,
         bytes calldata data
     )
@@ -72,10 +72,10 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         override
         onlyEntryPointOrSelf
     {
-        _enableValidator(validator, data);
+        _installValidator(validator, data);
     }
 
-    function _enableValidator(address validator, bytes calldata data) internal virtual {
+    function _installValidator(address validator, bytes calldata data) internal virtual {
         SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
         IValidator(validator).onInstall(data);
         _validators.push(validator);
@@ -85,7 +85,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function disableValidator(
+    function uninstallValidator(
         address validator,
         bytes calldata data
     )
@@ -113,7 +113,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function enableExecutor(
+    function installExecutor(
         address validator,
         bytes calldata data
     )
@@ -122,10 +122,10 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         override
         onlyEntryPointOrSelf
     {
-        _enableExecutor(validator, data);
+        _installExecutor(validator, data);
     }
 
-    function _enableExecutor(address validator, bytes calldata data) internal {
+    function _installExecutor(address validator, bytes calldata data) internal {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         IExecutor(validator).onInstall(data);
         _executors.push(validator);
@@ -136,7 +136,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function disableExecutor(
+    function uninstallExecutor(
         address validator,
         bytes calldata data
     )
@@ -149,7 +149,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
         _executors.pop(prevValidator, validator);
 
-        emit DisableExecutor(validator);
+        emit DisableValidator(validator);
     }
 
     /**
@@ -168,11 +168,11 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
         if (interfaceID == type(IAccountConfig).interfaceId) return true;
         if (interfaceID == type(IERC165).interfaceId) return true;
-        if (interfaceID == IAccountConfig.enableExecutor.selector) return true;
-        if (interfaceID == IAccountConfig.disableExecutor.selector) return true;
+        if (interfaceID == IAccountConfig.installExecutor.selector) return true;
+        if (interfaceID == IAccountConfig.uninstallExecutor.selector) return true;
         if (interfaceID == IAccountConfig.isExecutorEnabled.selector) return true;
-        if (interfaceID == IAccountConfig.enableValidator.selector) return true;
-        if (interfaceID == IAccountConfig.disableValidator.selector) return true;
+        if (interfaceID == IAccountConfig.installValidator.selector) return true;
+        if (interfaceID == IAccountConfig.uninstallValidator.selector) return true;
         if (interfaceID == IAccountConfig.isValidatorEnabled.selector) return true;
         return false;
     }
