@@ -14,10 +14,9 @@ abstract contract Fallback is AccountBase, IAccountConfig {
     error InvalidAddress(address addr);
 
     event FallbackHandlerChanged(address handler);
-    // keccak256("fallback_manager.handler.address")
-
+    // keccak256("fallbackmanager.storage.msa")
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
-        0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5;
+        0x9c63439e8db454cdf22fd3d05d35ed5ea662f6ebbc519905ab830d38464df094;
 
     function enableFallback(
         address fallbackHandler,
