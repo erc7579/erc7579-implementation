@@ -31,7 +31,7 @@ interface IExecution {
         bytes calldata callData
     )
         external
-        payable 
+        payable
         returns (bytes memory result);
 
     /**
@@ -46,7 +46,7 @@ interface IExecution {
      */
     function executeBatch(Execution[] calldata executions)
         external
-        payable 
+        payable
         returns (bytes[] memory results);
 
     /**
@@ -60,13 +60,13 @@ interface IExecution {
      * @param callData The call data to be sent to the contract.
      * @return result The return data of the executed contract call.
      */
-    function executeFromModule(
+    function executeFromExecutor(
         address target,
         uint256 value,
         bytes calldata callData
     )
         external
-        payable 
+        payable
         returns (bytes memory);
 
     /**
@@ -79,9 +79,9 @@ interface IExecution {
      * @param executions An array of struct Execution (address target, uint value, bytes callData)
      * @return results The return data of the executed contract call.
      */
-    function executeBatchFromModule(Execution[] calldata executions)
+    function executeBatchFromExecutor(Execution[] calldata executions)
         external
-        payable 
+        payable
         returns (bytes[] memory results);
 }
 /**
@@ -107,7 +107,7 @@ interface IExecutionUnsafe {
         bytes calldata callData
     )
         external
-        payable 
+        payable
         returns (bytes memory result);
 
     /**
@@ -123,7 +123,7 @@ interface IExecutionUnsafe {
      * @param callData The call data to be sent to the contract.
      * @return result The return data of the executed contract call.
      */
-    function executeDelegateCallFromModule(
+    function executeDelegateCallFromExecutor(
         address target,
         bytes memory callData
     )
