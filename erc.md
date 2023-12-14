@@ -178,8 +178,8 @@ interface IAccountConfig_Hook {
     function isHookInstalled(address hook) external view returns (bool);
 
     // Events
-    event EnableHook(address hook);
-    event DisableHook(address hook);
+    event InstallHook(address hook);
+    event UninstallHook(address hook);
 }
 ```
 
