@@ -72,6 +72,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     function executeBatch(Execution[] calldata executions)
         external
         payable
+        virtual
         override
         onlyEntryPointOrSelf
         returns (bytes[] memory result)

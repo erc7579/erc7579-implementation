@@ -21,6 +21,13 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
 
     error HookPostCheckFailed();
 
+    modifier withHook() {
+        address hook = getHook();
+        bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
+        _;
+        if (IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+    }
+
     function _setHook(address hook) internal virtual {
         bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
         assembly {
@@ -58,13 +65,14 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
      * @inheritdoc IAccountConfig_Hook
      */
     function isHookEnabled(address hook) public view virtual returns (bool isEnabled) {
-        address _hook;
+        return getHook() == hook;
+    }
+
+    function getHook() internal view returns (address _hook) {
         bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
         assembly {
             _hook := sload(slot)
         }
-
-        return _hook == hook;
     }
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
