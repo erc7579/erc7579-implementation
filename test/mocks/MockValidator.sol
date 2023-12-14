@@ -4,9 +4,9 @@ import "src/interfaces/IModule.sol";
 import "src/interfaces/IMSA.sol";
 
 contract MockValidator is IValidator {
-    function enable(bytes calldata data) external override { }
+    function onInstall(bytes calldata data) external override { }
 
-    function disable(bytes calldata data) external override { }
+    function onUninstall(bytes calldata data) external override { }
 
     function validateUserOp(
         IERC4337.UserOperation calldata userOp,
@@ -22,7 +22,8 @@ contract MockValidator is IValidator {
         return VALIDATION_SUCCESS;
     }
 
-    function isValidSignature(
+    function isValidSignatureWithSender(
+        address sender,
         bytes32 hash,
         bytes calldata data
     )

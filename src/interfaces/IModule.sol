@@ -6,21 +6,23 @@ import "./IERC4337.sol";
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
 
-interface IModuleBase {
+interface IModule {
     /**
      * Enable module
      *  This function is called by the MSA during "enableValidator, enableExecutor, enableHook"
+     * @dev this function MUST revert on error (i.e. if module is already enabled)
      */
-    function enable(bytes calldata data) external;
+    function onInstall(bytes calldata data) external;
 
     /**
      * Disable module
      *  This function is called by the MSA during "disableValidator, disableExecutor, disableHook"
+     * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled later
      */
-    function disable(bytes calldata data) external;
+    function onUninstall(bytes calldata data) external;
 }
 
-interface IValidator is IModuleBase {
+interface IValidator is IModule {
     error InvalidExecution(bytes4 functionSig);
     error InvalidTargetAddress(address target);
     error InvalidTargetCall();
@@ -45,22 +47,26 @@ interface IValidator is IModuleBase {
     /**
      * Validator can be used for ERC-1271 validation
      */
-    function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4);
-}
-
-interface IExecutor is IModuleBase {
-// function supportsDelegateCall() external view returns (bool);
-// function supportsBatchedCall() external view returns (bool);
-}
-
-interface IHook is IModuleBase {
-    function preCheck(
+    function isValidSignatureWithSender(
         address sender,
-        address target,
-        uint256 value,
+        bytes32 hash,
         bytes calldata data
+    )
+        external
+        view
+        returns (bytes4);
+}
+
+interface IExecutor is IModule { }
+
+interface IHook is IModule {
+    function preCheck(
+        address msgSender,
+        bytes calldata msgData
     )
         external
         returns (bytes memory hookData);
     function postCheck(bytes calldata hookData) external returns (bool success);
 }
+
+interface IFallback is IModule { }

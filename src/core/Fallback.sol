@@ -1,16 +1,63 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
+
+import "./AccountBase.sol";
+import { IAccountConfig } from "../interfaces/IMSA.sol";
+import { IFallback } from "../interfaces/IModule.sol";
+
 /**
- * Fallback handler by Gnosis Safe
+ * Fallback Manager inpired by Safe
  * https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol
  */
 
-abstract contract Fallback {
+abstract contract Fallback is AccountBase, IAccountConfig {
     error InvalidAddress(address addr);
+
+    event FallbackHandlerChanged(address handler);
     // keccak256("fallback_manager.handler.address")
 
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5;
+
+    function enableFallback(
+        address fallbackHandler,
+        bytes calldata data
+    )
+        public
+        virtual
+        onlyEntryPointOrSelf
+    {
+        IFallback(fallbackHandler).onInstall(data);
+        _enableFallback(fallbackHandler, data);
+    }
+
+    function disableFallback(
+        address fallbackHandler,
+        bytes calldata data
+    )
+        public
+        virtual
+        onlyEntryPointOrSelf
+    {
+        _setFallback(address(0));
+    }
+
+    function isFallbackEnabled(address fallbackHandler) public view returns (bool enabled) {
+        bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
+
+        address _handler;
+        assembly {
+            _handler := sload(slot)
+        }
+
+        enabled = _handler == fallbackHandler;
+    }
+
+    function _enableFallback(address fallbackHandler, bytes calldata data) internal virtual {
+        _setFallback(fallbackHandler);
+        IFallback(fallbackHandler).onInstall(data);
+        emit FallbackHandlerChanged(fallbackHandler);
+    }
 
     /**
      *  @notice Internal function to set the fallback handler.

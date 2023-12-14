@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
-import "src/accountExamples/MSA_ValidatorInSignature.sol";
+import "src/accountExamples/MSA_ValidatorInNonce.sol";
 import "src/interfaces/IMSA.sol";
 import "src/MSAFactory.sol";
 import "./Bootstrap.t.sol";
@@ -12,7 +12,7 @@ import { MockTarget } from "./mocks/MockTarget.sol";
 
 import "./dependencies/EntryPoint.sol";
 
-contract MSATest is BootstrapUtil, Test {
+contract MSANonceTest is BootstrapUtil, Test {
     // singletons
     MSA implementation;
     MSAFactory factory;
@@ -77,9 +77,13 @@ contract MSATest is BootstrapUtil, Test {
         bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
         bytes memory execFunction =
             abi.encodeCall(IExecution.execute, (address(target), 0, setValueOnTarget));
+
+        uint192 key = uint192(bytes24(bytes20(address(defaultValidator))));
+        uint256 nonce = entrypoint.getNonce(address(account), key);
+
         UserOperation memory userOp = UserOperation({
             sender: address(account),
-            nonce: entrypoint.getNonce(address(account), 0),
+            nonce: nonce,
             initCode: "",
             callData: execFunction,
             callGasLimit: 2e6,
@@ -88,7 +92,7 @@ contract MSATest is BootstrapUtil, Test {
             maxFeePerGas: 1,
             maxPriorityFeePerGas: 1,
             paymasterAndData: bytes(""),
-            signature: abi.encodePacked(address(defaultValidator), hex"41414141")
+            signature: hex"41414141"
         });
         UserOperation[] memory userOps = new UserOperation[](1);
         userOps[0] = userOp;
