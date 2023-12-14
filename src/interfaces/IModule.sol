@@ -9,14 +9,14 @@ uint256 constant VALIDATION_FAILED = 1;
 interface IModule {
     /**
      * Enable module
-     *  This function is called by the MSA during "enableValidator, enableExecutor, enableHook"
+     *  This function is called by the MSA during "installValidator, installExecutor, installHook"
      * @dev this function MUST revert on error (i.e. if module is already enabled)
      */
     function onInstall(bytes calldata data) external;
 
     /**
      * Disable module
-     *  This function is called by the MSA during "disableValidator, disableExecutor, disableHook"
+     *  This function is called by the MSA during "uninstallValidator, uninstallExecutor, uninstallHook"
      * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled later
      */
     function onUninstall(bytes calldata data) external;

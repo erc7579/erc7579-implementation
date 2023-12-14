@@ -151,7 +151,7 @@ interface IAccountConfig {
      * @param validator The address of the Validator module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function enableValidator(address validator, bytes calldata data) external;
+    function installValidator(address validator, bytes calldata data) external;
 
     /**
      * @dev Disables a Validator Module on the account.
@@ -159,7 +159,7 @@ interface IAccountConfig {
      * @param validator The address of the Validator module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function disableValidator(address validator, bytes calldata data) external;
+    function uninstallValidator(address validator, bytes calldata data) external;
 
     /**
      * @dev checks if specific validator module is enabled on the account
@@ -177,7 +177,7 @@ interface IAccountConfig {
      * @param executor The address of the Validator module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function enableExecutor(address executor, bytes calldata data) external;
+    function installExecutor(address executor, bytes calldata data) external;
 
     /**
      * @dev Disable a Executor module on the account.
@@ -185,7 +185,7 @@ interface IAccountConfig {
      * @param executor The address of the Validator module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function disableExecutor(address executor, bytes calldata data) external;
+    function uninstallExecutor(address executor, bytes calldata data) external;
 
     /**
      * @dev checks if specific executor module is enabled on the account
@@ -202,7 +202,7 @@ interface IAccountConfig {
      */
     function enableFallback(address fallbackHandler, bytes calldata data) external;
     /**
-     * @dev DisableExecutor
+     * @dev uninstallExecutor
      *
      */
     function disableFallback(address fallbackHandler, bytes calldata data) external;
@@ -230,7 +230,7 @@ interface IAccountConfig_Hook {
      * @param hook The address of the Hook module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function enableHook(address hook, bytes calldata data) external;
+    function installHook(address hook, bytes calldata data) external;
 
     /**
      * @dev Disable a Hook module on the account.
@@ -238,7 +238,7 @@ interface IAccountConfig_Hook {
      * @param hook The address of the hook module to enable.
      * @param data any abi encoded further paramters needed
      */
-    function disableHook(address hook, bytes calldata data) external;
+    function uninstallHook(address hook, bytes calldata data) external;
 
     /**
      * @dev checks if specific hook module is enabled on the account

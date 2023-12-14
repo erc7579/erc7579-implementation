@@ -31,11 +31,11 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
     /**
      * @inheritdoc IAccountConfig_Hook
      */
-    function enableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
-        _enableHook(hook, data);
+    function installHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
+        _installHook(hook, data);
     }
 
-    function _enableHook(address hook, bytes calldata data) internal virtual {
+    function _installHook(address hook, bytes calldata data) internal virtual {
         IHook(hook).onInstall(data);
         _setHook(hook);
         emit EnableHook(hook);
@@ -44,11 +44,11 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
     /**
      * @inheritdoc IAccountConfig_Hook
      */
-    function disableHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
-        _disableHook(hook, data);
+    function uninstallHook(address hook, bytes calldata data) public virtual onlyEntryPointOrSelf {
+        _uninstallHook(hook, data);
     }
 
-    function _disableHook(address hook, bytes calldata data) internal virtual {
+    function _uninstallHook(address hook, bytes calldata data) internal virtual {
         IHook(hook).onUninstall(data);
         _setHook(address(0));
         emit DisableHook(hook);
@@ -69,8 +69,8 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
 
     function supportsInterface(bytes4 interfaceID) public pure virtual override returns (bool) {
         if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
-        if (interfaceID == IAccountConfig_Hook.enableHook.selector) return true;
-        if (interfaceID == IAccountConfig_Hook.disableHook.selector) return true;
+        if (interfaceID == IAccountConfig_Hook.installHook.selector) return true;
+        if (interfaceID == IAccountConfig_Hook.uninstallHook.selector) return true;
         if (interfaceID == IAccountConfig_Hook.isHookEnabled.selector) return true;
         return super.supportsInterface(interfaceID);
     }
