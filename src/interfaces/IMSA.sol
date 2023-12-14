@@ -31,7 +31,7 @@ interface IExecution {
         bytes calldata callData
     )
         external
-        payable // gas bad
+        payable 
         returns (bytes memory result);
 
     /**
@@ -46,7 +46,7 @@ interface IExecution {
      */
     function executeBatch(Execution[] calldata executions)
         external
-        payable // gas bad
+        payable 
         returns (bytes[] memory results);
 
     /**
@@ -66,7 +66,7 @@ interface IExecution {
         bytes calldata callData
     )
         external
-        payable // gas bad
+        payable 
         returns (bytes memory);
 
     /**
@@ -81,7 +81,7 @@ interface IExecution {
      */
     function executeBatchFromModule(Execution[] calldata executions)
         external
-        payable // gas bad
+        payable 
         returns (bytes[] memory results);
 }
 /**
@@ -107,7 +107,7 @@ interface IExecutionUnsafe {
         bytes calldata callData
     )
         external
-        payable // gas bad
+        payable 
         returns (bytes memory result);
 
     /**
