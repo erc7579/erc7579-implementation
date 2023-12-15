@@ -1,4 +1,4 @@
-# miniMSA
+# ERC-7579 Reference Implementation
 
 Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://erc7579.com/)).
 
