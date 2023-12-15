@@ -1,6 +1,6 @@
 # miniMSA
 
-Reference Implementation to Minimal Modular Smart Account ([ERC-xxxx](./erc.md)).
+Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://erc7579.com/)).
 
 ## Security Note
 
