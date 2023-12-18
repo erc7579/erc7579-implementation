@@ -9,12 +9,10 @@ import { IFallback } from "../interfaces/IModule.sol";
  * Fallback Manager inpired by Safe
  * https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol
  */
-
 abstract contract Fallback is AccountBase, IAccountConfig {
     error InvalidAddress(address addr);
 
     event FallbackHandlerChanged(address handler);
-    /// @custom:storage-location erc7201:fallbackmanager.storage.msa
 
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x9c63439e8db454cdf22fd3d05d35ed5ea662f6ebbc519905ab830d38464df094;
@@ -28,7 +26,8 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         onlyEntryPointOrSelf
     {
         IFallback(fallbackHandler).onInstall(data);
-        _enableFallback(fallbackHandler, data);
+        _setFallback(fallbackHandler);
+        emit FallbackHandlerChanged(fallbackHandler);
     }
 
     function uninstallFallback(
@@ -39,6 +38,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         virtual
         onlyEntryPointOrSelf
     {
+        IFallback(fallbackHandler).onUninstall(data);
         _setFallback(address(0));
     }
 
@@ -51,12 +51,6 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         }
 
         enabled = _handler == fallbackHandler;
-    }
-
-    function _enableFallback(address fallbackHandler, bytes calldata data) internal virtual {
-        _setFallback(fallbackHandler);
-        IFallback(fallbackHandler).onInstall(data);
-        emit FallbackHandlerChanged(fallbackHandler);
     }
 
     /**

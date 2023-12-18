@@ -17,6 +17,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     error InvalidModule(address module);
+    error CannotRemoveLastValidator();
 
     /// @custom:storage-location erc7201:modulemanager.storage.msa
     struct ModuleManagerStorage {
@@ -97,7 +98,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
-        // TODO add check here not to remove the last validator, otherwise the account will be locked forever
+        if (prevValidator == SENTINEL) revert CannotRemoveLastValidator();
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }

@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "src/interfaces/IModule.sol";
-import "src/interfaces/IMSA.sol";
+import { IValidator, IERC4337, VALIDATION_SUCCESS } from "src/interfaces/IModule.sol";
 
 contract MockValidator is IValidator {
     function onInstall(bytes calldata data) external override { }
@@ -10,8 +10,7 @@ contract MockValidator is IValidator {
 
     function validateUserOp(
         IERC4337.UserOperation calldata userOp,
-        bytes32 userOpHash,
-        uint256 missingAccountFunds
+        bytes32 userOpHash
     )
         external
         override

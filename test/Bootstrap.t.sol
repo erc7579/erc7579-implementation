@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
 
-import "src/utils/Bootstrap.sol";
-import "src/interfaces/IModule.sol";
+import { Bootstrap, BootstrapConfig } from "src/utils/Bootstrap.sol";
+import { IModule } from "src/interfaces/IModule.sol";
 
 contract BootstrapUtil {
     Bootstrap bootstrapSingleton;

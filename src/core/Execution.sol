@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {IExecution} from "../interfaces/IMSA.sol";
+import { IExecution } from "../interfaces/IMSA.sol";
 
 /**
  * @title Execution
@@ -16,10 +16,8 @@ contract Execution {
         returns (bytes[] memory result)
     {
         uint256 length = executions.length;
-
-        // ensure that provided arrays are the same length
-
         result = new bytes[](length);
+
         for (uint256 i; i < length; i++) {
             IExecution.Execution calldata _exec = executions[i];
             result[i] = _execute(_exec.target, _exec.value, _exec.callData);

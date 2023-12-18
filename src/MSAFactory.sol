@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import "./interfaces/IMSA.sol";
-import "solady/utils/LibClone.sol";
+import { IMSA } from "./interfaces/IMSA.sol";
+import { LibClone } from "solady/utils/LibClone.sol";
 
 contract MSAFactory {
     address public immutable implementation;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "src/interfaces/IModule.sol";
+import { IExecutor } from "src/interfaces/IModule.sol";
 import { IMSA } from "src/interfaces/IMSA.sol";
 
 contract MockExecutor is IExecutor {

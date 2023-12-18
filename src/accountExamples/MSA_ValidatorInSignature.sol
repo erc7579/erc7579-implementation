@@ -2,6 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "../MSABase.sol";
+import { IValidator } from "../interfaces/IModule.sol";
 
 contract MSA is MSABase {
     /**
@@ -36,8 +37,7 @@ contract MSA is MSABase {
 
         // check if validator is enabled
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        validSignature =
-            IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
+        validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
     function isValidSignature(

@@ -9,6 +9,7 @@ import "./Bootstrap.t.sol";
 import { MockValidator } from "./mocks/MockValidator.sol";
 import { MockExecutor } from "./mocks/MockExecutor.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
+import { ECDSAValidator } from "src/modules/ECDSAValidator.sol";
 
 import "./dependencies/EntryPoint.sol";
 
@@ -20,6 +21,8 @@ contract MSASignatureTest is BootstrapUtil, Test {
 
     MockValidator defaultValidator;
     MockExecutor defaultExecutor;
+
+    ECDSAValidator ecdsaValidator;
 
     MockTarget target;
 
@@ -34,6 +37,7 @@ contract MSASignatureTest is BootstrapUtil, Test {
         defaultExecutor = new MockExecutor();
         defaultValidator = new MockValidator();
         target = new MockTarget();
+        ecdsaValidator = new ECDSAValidator();
 
         // setup account init config
         BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
@@ -85,6 +89,48 @@ contract MSASignatureTest is BootstrapUtil, Test {
             sender: address(account),
             nonce: entrypoint.getNonce(address(account), 0),
             initCode: "",
+            callData: execFunction,
+            callGasLimit: 2e6,
+            verificationGasLimit: 2e6,
+            preVerificationGas: 2e6,
+            maxFeePerGas: 1,
+            maxPriorityFeePerGas: 1,
+            paymasterAndData: bytes(""),
+            signature: abi.encodePacked(address(defaultValidator), hex"41414141")
+        });
+
+        UserOperation[] memory userOps = new UserOperation[](1);
+        userOps[0] = userOp;
+
+        entrypoint.handleOps(userOps, payable(address(0x69)));
+
+        assertTrue(target.value() == 1337);
+    }
+
+    function test_execVia4337__WithInitCode() public {
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
+        bytes memory execFunction =
+            abi.encodeCall(IExecution.execute, (address(target), 0, setValueOnTarget));
+
+        uint192 key = uint192(bytes24(bytes20(address(defaultValidator))));
+        uint256 nonce = entrypoint.getNonce(address(account), key);
+
+        bytes memory initCode = abi.encode(
+            address(bootstrapSingleton),
+            abi.encodeCall(
+                Bootstrap.singleInitMSA, (defaultValidator, abi.encodePacked(address(0)))
+            )
+        );
+
+        address newAccount = factory.getAddress(0, initCode);
+        vm.deal(newAccount, 1 ether);
+
+        UserOperation memory userOp = UserOperation({
+            sender: address(newAccount),
+            nonce: entrypoint.getNonce(address(account), 0),
+            initCode: abi.encodePacked(
+                address(factory), abi.encodeWithSelector(factory.createAccount.selector, 0, initCode)
+                ),
             callData: execFunction,
             callGasLimit: 2e6,
             verificationGasLimit: 2e6,

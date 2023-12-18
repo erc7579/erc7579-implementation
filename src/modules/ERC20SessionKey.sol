@@ -12,8 +12,7 @@ contract ERC20SessionKey is IValidator {
 
     function validateUserOp(
         IERC4337.UserOperation calldata userOp,
-        bytes32 userOpHash,
-        uint256 missingAccountFunds
+        bytes32 userOpHash
     )
         external
         override

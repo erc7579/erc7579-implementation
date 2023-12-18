@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {MSABase} from "../MSABase.sol";
-import {IValidator} from "../interfaces/IModule.sol";
+import { MSABase } from "../MSABase.sol";
+import { IValidator } from "../interfaces/IModule.sol";
 
 contract MSA is MSABase {
     /**
@@ -29,8 +29,7 @@ contract MSA is MSABase {
 
         // check if validator is enabled
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        validSignature =
-            IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
+        validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
     function isValidSignature(
