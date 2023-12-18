@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "../MSABase.sol";
+import {MSABase} from "../MSABase.sol";
+import {IValidator} from "../interfaces/IModule.sol";
 
 contract MSA is MSABase {
     /**

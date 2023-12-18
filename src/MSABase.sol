@@ -3,10 +3,10 @@ pragma solidity ^0.8.23;
 
 import "./interfaces/IERC4337.sol";
 import "forge-std/interfaces/IERC165.sol";
-import "./interfaces/IMSA.sol";
-import "./core/Execution.sol";
-import "./core/Fallback.sol";
-import "./core/ModuleManager.sol";
+import {IMSA, IExecutionUnsafe} from "./interfaces/IMSA.sol";
+import {Execution, IExecution} from "./core/Execution.sol";
+import {Fallback} from "./core/Fallback.sol";
+import {ModuleManager} from "./core/ModuleManager.sol";
 
 /**
  * @title MSABase
@@ -69,7 +69,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     /**
      * @inheritdoc IExecution
      */
-    function executeBatch(Execution[] calldata executions)
+    function executeBatch(IExecution.Execution[] calldata executions)
         external
         payable
         virtual
@@ -101,7 +101,7 @@ abstract contract MSABase is Execution, ModuleManager, IERC4337, IMSA, Fallback 
     /**
      * @inheritdoc IExecution
      */
-    function executeBatchFromExecutor(Execution[] calldata executions)
+    function executeBatchFromExecutor(IExecution.Execution[] calldata executions)
         external
         payable
         virtual

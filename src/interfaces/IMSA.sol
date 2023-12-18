@@ -200,12 +200,12 @@ interface IAccountConfig {
      * @dev Enables a Fallback module on the account.
      * @dev Implement Authorization control of your chosing
      */
-    function enableFallback(address fallbackHandler, bytes calldata data) external;
+    function installFallback(address fallbackHandler, bytes calldata data) external;
     /**
      * @dev uninstallExecutor
      *
      */
-    function disableFallback(address fallbackHandler, bytes calldata data) external;
+    function uninstallFallback(address fallbackHandler, bytes calldata data) external;
     /**
      * @dev checks if specific fallback handler is enabled on the account
      * @param fallbackHandler The address of the fallback handler module

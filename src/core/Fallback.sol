@@ -19,7 +19,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x9c63439e8db454cdf22fd3d05d35ed5ea662f6ebbc519905ab830d38464df094;
 
-    function enableFallback(
+    function installFallback(
         address fallbackHandler,
         bytes calldata data
     )
@@ -31,7 +31,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         _enableFallback(fallbackHandler, data);
     }
 
-    function disableFallback(
+    function uninstallFallback(
         address fallbackHandler,
         bytes calldata data
     )

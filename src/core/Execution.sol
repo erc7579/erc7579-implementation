@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "src/interfaces/IMSA.sol";
+import {IExecution} from "../interfaces/IMSA.sol";
 
 /**
  * @title Execution
