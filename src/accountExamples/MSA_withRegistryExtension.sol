@@ -3,12 +3,16 @@ pragma solidity ^0.8.23;
 
 import { MSA as MSA_ValidatorInSignature, MSABase } from "./MSA_ValidatorInSignature.sol";
 import "../core/RegistryAdapter.sol";
+import { ModuleManager } from "../core/ModuleManager.sol";
+import { IAccountConfig } from "../interfaces/IMSA.sol";
+import { Fallback } from "../core/Fallback.sol";
 
 /**
  * @title reference implementation of the minimal modular smart account with registry extension
  * @author @kopy-kat | rhinestone.wtf
  */
 contract MSA is MSA_ValidatorInSignature, RegistryAdapter {
+    // EXECUTE FUNCTIONS
     function executeFromExecutor(
         address target,
         uint256 value,
@@ -53,6 +57,46 @@ contract MSA is MSA_ValidatorInSignature, RegistryAdapter {
         returns (bytes memory)
     {
         revert Unsupported();
+    }
+
+    // ACCOUNT CONFIG FUNCTIONS
+    function installValidator(
+        address validator,
+        bytes calldata data
+    )
+        public
+        virtual
+        override(ModuleManager, IAccountConfig)
+        onlyEntryPointOrSelf
+        onlySecureModule(validator)
+    {
+        _installValidator(validator, data);
+    }
+
+    function installExecutor(
+        address executor,
+        bytes calldata data
+    )
+        public
+        virtual
+        override(ModuleManager, IAccountConfig)
+        onlyEntryPointOrSelf
+        onlySecureModule(executor)
+    {
+        _installExecutor(executor, data);
+    }
+
+    function installFallback(
+        address fallbackHandler,
+        bytes calldata data
+    )
+        public
+        virtual
+        override(Fallback, IAccountConfig)
+        onlyEntryPointOrSelf
+        onlySecureModule(fallbackHandler)
+    {
+        super.installFallback(fallbackHandler, data);
     }
 
     function supportsInterface(bytes4 interfaceId)

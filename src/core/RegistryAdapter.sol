@@ -23,7 +23,7 @@ abstract contract RegistryAdapter {
     IERC7484Registry registry;
     address trustedAttester;
 
-    function setRegistry(IERC7484Registry _registry) external {
+    function _setRegistry(IERC7484Registry _registry) internal {
         registry = _registry;
     }
 

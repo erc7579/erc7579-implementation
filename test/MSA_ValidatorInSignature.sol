@@ -13,7 +13,7 @@ import { ECDSAValidator } from "src/modules/ECDSAValidator.sol";
 
 import "./dependencies/EntryPoint.sol";
 
-contract MSASignatureTest is BootstrapUtil, Test {
+contract MSA_ValidatorInSignatureTest is BootstrapUtil, Test {
     // singletons
     MSA implementation;
     MSAFactory factory;

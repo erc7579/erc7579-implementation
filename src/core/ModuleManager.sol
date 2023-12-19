@@ -115,7 +115,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
      * @inheritdoc IAccountConfig
      */
     function installExecutor(
-        address validator,
+        address executor,
         bytes calldata data
     )
         public
@@ -123,34 +123,34 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         override
         onlyEntryPointOrSelf
     {
-        _installExecutor(validator, data);
+        _installExecutor(executor, data);
     }
 
-    function _installExecutor(address validator, bytes calldata data) internal {
+    function _installExecutor(address executor, bytes calldata data) internal {
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
-        IExecutor(validator).onInstall(data);
-        _executors.push(validator);
+        IExecutor(executor).onInstall(data);
+        _executors.push(executor);
 
-        emit EnableExecutor(validator);
+        emit EnableExecutor(executor);
     }
 
     /**
      * @inheritdoc IAccountConfig
      */
     function uninstallExecutor(
-        address validator,
+        address executor,
         bytes calldata data
     )
         external
         override
         onlyEntryPointOrSelf
     {
-        (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
-        IExecutor(validator).onUninstall(disableModuleData);
+        (address prevExecutor, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IExecutor(executor).onUninstall(disableModuleData);
         SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
-        _executors.pop(prevValidator, validator);
+        _executors.pop(prevExecutor, executor);
 
-        emit DisableValidator(validator);
+        emit DisableValidator(executor);
     }
 
     /**
