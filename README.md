@@ -21,7 +21,7 @@ The contracts in this repository are - at this point - not audited. We advice ag
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://twitter.com/zeroknotsETH/"><img src="https://pbs.twimg.com/profile_images/1639062011387715590/bNmZ5Gpf_400x400.jpg" width="100px;" alt=""/><br /><sub><b>zeroknots (rhinestone)</b></sub></a><br /><a href="https://github.com/rhinestonewtf/miniMSA/commits?author=zeroknots" title="Code/Spec">💻📝</a></td>
+    <td align="center"><a href="http://twitter.com/zeroknotsETH/"><img src="https://pbs.twimg.com/profile_images/1639062011387715590/bNmZ5Gpf_400x400.jpg" width="100px;" alt=""/><br /><sub><b>zeroknots (rhinestone)</b></sub></a><br /><a href="https://github.com/zeroknots" title="Spec">📝</a></td>
 
 <td align="center"><a href="https://twitter.com/abstractooor"><img src="https://avatars.githubusercontent.com/u/26718079" width="100px;" alt=""/><br /><sub><b>Konrad (rhinestone)</b></sub></a><br /><a href="https://github.com/kopy-kat" title="Spec">📝</a> </td>
 
