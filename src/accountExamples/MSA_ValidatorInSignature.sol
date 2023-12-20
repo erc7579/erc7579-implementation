@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "../MSABase.sol";
-import {IValidator} from "../interfaces/IModule.sol";
+import { IValidator } from "../interfaces/IModule.sol";
 
 contract MSA is MSABase {
     /**
