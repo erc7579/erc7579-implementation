@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { MSA as MSA_validatorInNonce } from "./MSA_ValidatorInNonce.sol";
+import { MSA as MSA_ValidatorInNonce } from "./MSA_ValidatorInNonce.sol";
 
-contract MSA is MSA_validatorInNonce {
+contract MSA is MSA_ValidatorInNonce {
     mapping(bytes32 hash => uint256 signed) _signedMessages;
 
     event SignedMessage(bytes32 hash);

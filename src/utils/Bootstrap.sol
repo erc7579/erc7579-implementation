@@ -13,6 +13,13 @@ struct BootstrapConfig {
 }
 
 contract Bootstrap is ModuleManager, Fallback, HookManager {
+    function singleInitMSA(IModule validator, bytes calldata data) external {
+        _initModuleManager();
+
+        // init validator
+        _installValidator(address(validator), data);
+    }
+
     function initMSA(
         BootstrapConfig[] calldata _validators,
         BootstrapConfig[] calldata _executors,

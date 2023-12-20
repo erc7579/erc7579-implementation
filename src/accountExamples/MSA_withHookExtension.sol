@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "./MSA_ValidatorInNonce.sol";
+import { MSA as MSA_ValidatorInSignature, MSABase } from "./MSA_ValidatorInSignature.sol";
 import "../core/HookManager.sol";
 
 /**
  * @title reference implementation of the minimal modular smart account with Hook Extension
  * @author zeroknots.eth | rhinestone.wtf
  */
-contract MSAHooks is MSA, HookManager {
+contract MSA is MSA_ValidatorInSignature, HookManager {
     /**
      * @inheritdoc IExecution
      */

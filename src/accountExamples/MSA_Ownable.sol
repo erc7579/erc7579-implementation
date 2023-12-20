@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { MSA } from "./MSA_ValidatorInNonce.sol";
-import "solady/src/auth/Ownable.sol";
+import { MSA as MSA_ValidatorInNonce } from "./MSA_ValidatorInNonce.sol";
+import "solady/auth/Ownable.sol";
 
-contract MSAOwnable is MSA, Ownable {
+contract MSA is MSA_ValidatorInNonce, Ownable {
     function execute(
         address target,
         uint256 value,

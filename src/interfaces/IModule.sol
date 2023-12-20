@@ -33,13 +33,11 @@ interface IValidator is IModule {
      *         Note: solely relying on bytes32 hash and signature is not suffcient for some validation implementations (i.e. SessionKeys often need access to userOp.calldata)
      * @param userOp The user operation to be validated. The userOp MUST NOT contain any metadata. The MSA MUST clean up the userOp before sending it to the validator.
      * @param userOpHash The hash of the user operation to be validated
-     * @param missingAccountFunds. See ERC-4337
      * @return return value according to ERC-4337
      */
     function validateUserOp(
         IERC4337.UserOperation calldata userOp,
-        bytes32 userOpHash,
-        uint256 missingAccountFunds
+        bytes32 userOpHash
     )
         external
         returns (uint256);

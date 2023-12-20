@@ -17,6 +17,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     error InvalidModule(address module);
+    error CannotRemoveLastValidator();
 
     /// @custom:storage-location erc7201:modulemanager.storage.msa
     struct ModuleManagerStorage {
@@ -97,7 +98,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
-        // TODO add check here not to remove the last validator, otherwise the account will be locked forever
+        if (prevValidator == SENTINEL) revert CannotRemoveLastValidator();
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }
@@ -131,7 +132,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
      * @inheritdoc IAccountConfig
      */
     function installExecutor(
-        address validator,
+        address executor,
         bytes calldata data
     )
         public
@@ -139,34 +140,34 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         override
         onlyEntryPointOrSelf
     {
-        _installExecutor(validator, data);
+        _installExecutor(executor, data);
     }
 
-    function _installExecutor(address validator, bytes calldata data) internal {
+    function _installExecutor(address executor, bytes calldata data) internal {
         SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
-        IExecutor(validator).onInstall(data);
-        _executors.push(validator);
+        IExecutor(executor).onInstall(data);
+        _executors.push(executor);
 
-        emit EnableExecutor(validator);
+        emit EnableExecutor(executor);
     }
 
     /**
      * @inheritdoc IAccountConfig
      */
     function uninstallExecutor(
-        address validator,
+        address executor,
         bytes calldata data
     )
         external
         override
         onlyEntryPointOrSelf
     {
-        (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
-        IExecutor(validator).onUninstall(disableModuleData);
+        (address prevExecutor, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IExecutor(executor).onUninstall(disableModuleData);
         SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
-        _executors.pop(prevValidator, validator);
+        _executors.pop(prevExecutor, executor);
 
-        emit DisableValidator(validator);
+        emit DisableValidator(executor);
     }
 
     /**

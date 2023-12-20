@@ -16,10 +16,8 @@ contract Execution {
         returns (bytes[] memory result)
     {
         uint256 length = executions.length;
-
-        // ensure that provided arrays are the same length
-
         result = new bytes[](length);
+
         for (uint256 i; i < length; i++) {
             IExecution.Execution calldata _exec = executions[i];
             result[i] = _execute(_exec.target, _exec.value, _exec.callData);

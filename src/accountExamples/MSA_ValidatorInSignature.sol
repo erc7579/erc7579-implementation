@@ -37,8 +37,7 @@ contract MSA is MSABase {
 
         // check if validator is enabled
         if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
-        validSignature =
-            IValidator(validator).validateUserOp(userOp, userOpHash, missingAccountFunds);
+        validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
     function isValidSignature(
