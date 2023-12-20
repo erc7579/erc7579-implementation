@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import "./interfaces/IMSA.sol";
-import "solady/utils/LibClone.sol";
+import "solady/src/utils/LibClone.sol";
 
 contract MSAFactory {
     address public immutable implementation;
