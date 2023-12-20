@@ -7,8 +7,6 @@ import { LibClone } from "solady/utils/LibClone.sol";
 contract MSAFactory {
     address public immutable implementation;
 
-    event NewAccount(bytes32 salt, address account);
-
     constructor(address _msaImplementation) {
         implementation = _msaImplementation;
     }
@@ -28,7 +26,6 @@ contract MSAFactory {
 
         if (!alreadyDeployed) {
             IMSA(account).initializeAccount(initCode);
-            emit NewAccount(salt, account);
         }
         return account;
     }

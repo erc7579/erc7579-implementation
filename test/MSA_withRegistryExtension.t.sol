@@ -57,9 +57,6 @@ contract MSA_withRegistryExtensionTest is BootstrapUtil, Test {
         bytes memory execFunction =
             abi.encodeCall(IExecution.execute, (address(target), 0, setValueOnTarget));
 
-        uint192 key = uint192(bytes24(bytes20(address(defaultValidator))));
-        uint256 nonce = entrypoint.getNonce(address(account), key);
-
         // setup account init config
         BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
         BootstrapConfig[] memory executors = makeBootstrapConfig(address(defaultExecutor), "");
@@ -72,9 +69,12 @@ contract MSA_withRegistryExtensionTest is BootstrapUtil, Test {
         address newAccount = factory.getAddress(0, initCode);
         vm.deal(newAccount, 1 ether);
 
+        uint192 key = uint192(bytes24(bytes20(address(defaultValidator))));
+        uint256 nonce = entrypoint.getNonce(address(account), key);
+
         UserOperation memory userOp = UserOperation({
             sender: address(newAccount),
-            nonce: entrypoint.getNonce(address(account), 0),
+            nonce: nonce,
             initCode: abi.encodePacked(
                 address(factory), abi.encodeWithSelector(factory.createAccount.selector, 0, initCode)
                 ),
@@ -85,7 +85,7 @@ contract MSA_withRegistryExtensionTest is BootstrapUtil, Test {
             maxFeePerGas: 1,
             maxPriorityFeePerGas: 1,
             paymasterAndData: bytes(""),
-            signature: abi.encodePacked(address(defaultValidator), hex"41414141")
+            signature: hex"41414141"
         });
 
         UserOperation[] memory userOps = new UserOperation[](1);

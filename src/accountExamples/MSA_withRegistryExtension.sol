@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { MSA as MSA_ValidatorInSignature, MSABase } from "./MSA_ValidatorInSignature.sol";
+import { MSA as MSA_ValidatorInNonce, MSABase } from "./MSA_ValidatorInNonce.sol";
 import "../core/RegistryAdapter.sol";
 import { ModuleManager } from "../core/ModuleManager.sol";
 import { IAccountConfig } from "../interfaces/IMSA.sol";
@@ -11,7 +11,7 @@ import { Fallback } from "../core/Fallback.sol";
  * @title reference implementation of the minimal modular smart account with registry extension
  * @author @kopy-kat | rhinestone.wtf
  */
-contract MSA is MSA_ValidatorInSignature, RegistryAdapter {
+contract MSA is MSA_ValidatorInNonce, RegistryAdapter {
     // EXECUTE FUNCTIONS
     function executeFromExecutor(
         address target,
