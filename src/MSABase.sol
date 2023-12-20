@@ -3,10 +3,10 @@ pragma solidity ^0.8.23;
 
 import "./interfaces/IERC4337.sol";
 import "forge-std/interfaces/IERC165.sol";
-import {IMSA, IExecutionUnsafe} from "./interfaces/IMSA.sol";
-import {Execution, IExecution} from "./core/Execution.sol";
-import {Fallback} from "./core/Fallback.sol";
-import {ModuleManager} from "./core/ModuleManager.sol";
+import { IMSA, IExecutionUnsafe } from "./interfaces/IMSA.sol";
+import { Execution, IExecution } from "./core/Execution.sol";
+import { Fallback } from "./core/Fallback.sol";
+import { ModuleManager } from "./core/ModuleManager.sol";
 
 /**
  * @title MSABase

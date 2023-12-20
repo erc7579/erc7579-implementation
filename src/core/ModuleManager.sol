@@ -30,7 +30,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
         0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
-    function _getModuleMangerStorage()
+    function _getModuleManagerStorage()
         internal
         pure
         virtual
@@ -43,19 +43,19 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     }
 
     modifier onlyExecutorModule() {
-        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         if (!_executors.contains(msg.sender)) revert InvalidModule(msg.sender);
         _;
     }
 
     modifier onlyValidatorModule(address validator) {
-        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         if (!_validators.contains(validator)) revert InvalidModule(validator);
         _;
     }
 
     function _initModuleManager() internal virtual {
-        ModuleManagerStorage storage ims = _getModuleMangerStorage();
+        ModuleManagerStorage storage ims = _getModuleManagerStorage();
         ims._executors.init();
         ims._validators.init();
     }
@@ -76,7 +76,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     }
 
     function _installValidator(address validator, bytes calldata data) internal virtual {
-        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         IValidator(validator).onInstall(data);
         _validators.push(validator);
         emit EnableValidator(validator);
@@ -93,7 +93,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         override
         onlyEntryPointOrSelf
     {
-        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
@@ -106,8 +106,25 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
      * @inheritdoc IAccountConfig
      */
     function isValidatorEnabled(address validator) public view virtual returns (bool) {
-        SentinelListLib.SentinelList storage _validators = _getModuleMangerStorage()._validators;
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         return _validators.contains(validator);
+    }
+    /**
+     * THIS IS NOT PART OF THE STANDARD
+     * Helper Function to access linked list
+     */
+
+    function getValidatorPaginated(
+        address cursor,
+        uint256 size
+    )
+        external
+        view
+        virtual
+        returns (address[] memory array, address next)
+    {
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
+        return _validators.getEntriesPaginated(cursor, size);
     }
 
     /**
@@ -126,7 +143,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     }
 
     function _installExecutor(address validator, bytes calldata data) internal {
-        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         IExecutor(validator).onInstall(data);
         _executors.push(validator);
 
@@ -146,7 +163,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     {
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IExecutor(validator).onUninstall(disableModuleData);
-        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         _executors.pop(prevValidator, validator);
 
         emit DisableValidator(validator);
@@ -156,12 +173,29 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
      * @inheritdoc IAccountConfig
      */
     function isExecutorEnabled(address executor) public view virtual returns (bool) {
-        SentinelListLib.SentinelList storage _executors = _getModuleMangerStorage()._executors;
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         return _executors.contains(executor);
     }
 
+    /**
+     * THIS IS NOT PART OF THE STANDARD
+     * Helper Function to access linked list
+     */
+    function getExecutorsPaginated(
+        address cursor,
+        uint256 size
+    )
+        external
+        view
+        virtual
+        returns (address[] memory array, address next)
+    {
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
+        return _executors.getEntriesPaginated(cursor, size);
+    }
+
     function isAlreadyInitialized() internal view virtual returns (bool) {
-        ModuleManagerStorage storage ims = _getModuleMangerStorage();
+        ModuleManagerStorage storage ims = _getModuleManagerStorage();
         return ims._validators.alreadyInitialized();
     }
 
