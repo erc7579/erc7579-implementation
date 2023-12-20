@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import { MSA } from "./MSA_ValidatorInNonce.sol";
-import "solady/auth/Ownable.sol";
+import "solady/src/auth/Ownable.sol";
 
 contract MSAOwnable is MSA, Ownable {
     function execute(
