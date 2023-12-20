@@ -109,11 +109,11 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         return _validators.contains(validator);
     }
+
     /**
      * THIS IS NOT PART OF THE STANDARD
      * Helper Function to access linked list
      */
-
     function getValidatorPaginated(
         address cursor,
         uint256 size
