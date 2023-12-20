@@ -23,9 +23,13 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
 
     modifier withHook() {
         address hook = getHook();
-        bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
-        _;
-        if (IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
+            _;
+            if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+        }
     }
 
     function _setHook(address hook) internal virtual {

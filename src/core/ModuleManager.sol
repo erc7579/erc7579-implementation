@@ -112,6 +112,23 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     }
 
     /**
+     * THIS IS NOT PART OF THE STANDARD
+     * Helper Function to access linked list
+     */
+    function getValidatorPaginated(
+        address cursor,
+        uint256 size
+    )
+        external
+        view
+        virtual
+        returns (address[] memory array, address next)
+    {
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
+        return _validators.getEntriesPaginated(cursor, size);
+    }
+
+    /**
      * @inheritdoc IAccountConfig
      */
     function installExecutor(
@@ -159,6 +176,23 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     function isExecutorEnabled(address executor) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         return _executors.contains(executor);
+    }
+
+    /**
+     * THIS IS NOT PART OF THE STANDARD
+     * Helper Function to access linked list
+     */
+    function getExecutorsPaginated(
+        address cursor,
+        uint256 size
+    )
+        external
+        view
+        virtual
+        returns (address[] memory array, address next)
+    {
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
+        return _executors.getEntriesPaginated(cursor, size);
     }
 
     function isAlreadyInitialized() internal view virtual returns (bool) {
