@@ -21,13 +21,17 @@ The contracts in this repository are - at this point - not audited. We advice ag
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://twitter.com/zeroknotsETH/"><img src="https://pbs.twimg.com/profile_images/1639062011387715590/bNmZ5Gpf_400x400.jpg" width="100px;" alt=""/><br /><sub><b>zeroknots</b></sub></a><br /><a href="https://github.com/rhinestonewtf/miniMSA/commits?author=zeroknots" title="Code/Spec">💻📝</a></td>
+    <td align="center"><a href="http://twitter.com/zeroknotsETH/"><img src="https://pbs.twimg.com/profile_images/1639062011387715590/bNmZ5Gpf_400x400.jpg" width="100px;" alt=""/><br /><sub><b>zeroknots (rhinestone)</b></sub></a><br /><a href="https://github.com/rhinestonewtf/miniMSA/commits?author=zeroknots" title="Code/Spec">💻📝</a></td>
 
-<td align="center"><a href="https://twitter.com/abstractooor"><img src="https://avatars.githubusercontent.com/u/26718079" width="100px;" alt=""/><br /><sub><b>Konrad</b></sub></a><br /><a href="https://github.com/kopy-kat" title="Spec">📝</a> </td>
+<td align="center"><a href="https://twitter.com/abstractooor"><img src="https://avatars.githubusercontent.com/u/26718079" width="100px;" alt=""/><br /><sub><b>Konrad (rhinestone)</b></sub></a><br /><a href="https://github.com/kopy-kat" title="Spec">📝</a> </td>
 
 <td align="center"><a href="https://twitter.com/leekt216"><img src="https://avatars.githubusercontent.com/u/15259621" width="100px;" alt=""/><br /><sub><b>taek (ZeroDev)</b></sub></a><br /><a href="https://github.com/leekt" title="Spec">📝</a> </td>
 
 <td align="center"><a href="https://twitter.com/filmakarov"><img src="https://avatars.githubusercontent.com/u/3930375" width="100px;" alt=""/><br /><sub><b>filmakarov (Biconomy)</b></sub></a><br /><a href="https://github.com/filmakarov" title="Spec">📝</a> </td>
+
+<td align="center"><a href="https://twitter.com/YaonamP"><img src="https://avatars.githubusercontent.com/u/43309015" width="100px;" alt=""/><br /><sub><b>Elim (OKX)</b></sub></a><br /><a href="https://github.com/yaonam" title="Spec">📝</a> </td>
+
+<td align="center"><a href=""><img src="https://avatars.githubusercontent.com/u/49302884" width="100px;" alt=""/><br /><sub><b>Lyu (OKX)</b></sub></a><br /><a href="https://github.com/rockmin216" title="Spec">📝</a> </td>
 
   </tr>
 </table>
