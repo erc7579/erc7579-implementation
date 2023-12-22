@@ -28,7 +28,7 @@ contract MSA is MSABase {
         }
 
         // check if validator is enabled
-        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
+        if (!isValidatorInstalled(validator)) revert InvalidModule(validator);
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
@@ -47,7 +47,7 @@ contract MSA is MSABase {
 
     function _isValidSignature(bytes32 hash, bytes calldata data) internal view returns (bytes4) {
         address validator = address(bytes20(data[0:20]));
-        if (!isValidatorEnabled(validator)) revert InvalidModule(validator);
+        if (!isValidatorInstalled(validator)) revert InvalidModule(validator);
         return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
     }
 }

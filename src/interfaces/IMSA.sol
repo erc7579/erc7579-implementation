@@ -162,11 +162,11 @@ interface IAccountConfig {
     function uninstallValidator(address validator, bytes calldata data) external;
 
     /**
-     * @dev checks if specific validator module is enabled on the account
+     * @dev checks if specific validator module is installed on the account
      * @param validator The address of the Validator module to enable.
      * returns bool if validator is enabled
      */
-    function isValidatorEnabled(address validator) external view returns (bool);
+    function isValidatorInstalled(address validator) external view returns (bool);
     /////////////////////////////////////////////////////
     //  Executor Modules
     ////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ interface IAccountConfig {
      * @param executor The address of the Executort module
      * returns bool if executor is enabled
      */
-    function isExecutorEnabled(address executor) external view returns (bool);
+    function isExecutorInstalled(address executor) external view returns (bool);
     /////////////////////////////////////////////////////
     //  Fallback Modules
     ////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ interface IAccountConfig {
      * @param fallbackHandler The address of the fallback handler module
      * returns bool if fallbackhandler is enabled
      */
-    function isFallbackEnabled(address fallbackHandler) external view returns (bool);
+    function isFallbackInstalled(address fallbackHandler) external view returns (bool);
 }
 
 /**
@@ -245,7 +245,7 @@ interface IAccountConfig_Hook {
      * @param hook The address of the Executort module to enable.
      * returns bool if hook is enabled
      */
-    function isHookEnabled(address hook) external view returns (bool);
+    function isHookInstalled(address hook) external view returns (bool);
 }
 
 interface IMSA is IExecution, IExecutionUnsafe, IAccountConfig {

@@ -70,11 +70,11 @@ contract MSA_ValidatorInSignatureTest is BootstrapUtil, Test {
     }
 
     function test_checkValidatorEnabled() public {
-        assertTrue(account.isValidatorEnabled(address(defaultValidator)));
+        assertTrue(account.isValidatorInstalled(address(defaultValidator)));
     }
 
     function test_checkExecutorEnabled() public {
-        assertTrue(account.isExecutorEnabled(address(defaultExecutor)));
+        assertTrue(account.isExecutorInstalled(address(defaultExecutor)));
     }
 
     function test_execVia4337() public {

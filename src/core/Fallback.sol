@@ -42,7 +42,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         _setFallback(address(0));
     }
 
-    function isFallbackEnabled(address fallbackHandler) public view returns (bool enabled) {
+    function isFallbackInstalled(address fallbackHandler) public view returns (bool enabled) {
         bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
 
         address _handler;
