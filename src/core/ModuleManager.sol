@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import "sentinellist/SentinelList.sol";
-import "./AccountBase.sol";
-import "../interfaces/IMSA.sol";
-import "../interfaces/IModule.sol";
+import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { AccountBase } from "./AccountBase.sol";
+import { IAccountConfig } from "../interfaces/IMSA.sol";
+import { IValidator, IExecutor } from "../interfaces/IModule.sol";
 import "forge-std/interfaces/IERC165.sol";
 
 /**
@@ -98,6 +98,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
+        // check if this is the last validator
         if (prevValidator == SENTINEL) revert CannotRemoveLastValidator();
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
@@ -106,7 +107,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function isValidatorEnabled(address validator) public view virtual returns (bool) {
+    function isValidatorInstalled(address validator) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         return _validators.contains(validator);
     }
@@ -173,7 +174,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
     /**
      * @inheritdoc IAccountConfig
      */
-    function isExecutorEnabled(address executor) public view virtual returns (bool) {
+    function isExecutorInstalled(address executor) public view virtual returns (bool) {
         SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         return _executors.contains(executor);
     }
@@ -205,10 +206,10 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         if (interfaceID == type(IERC165).interfaceId) return true;
         if (interfaceID == IAccountConfig.installExecutor.selector) return true;
         if (interfaceID == IAccountConfig.uninstallExecutor.selector) return true;
-        if (interfaceID == IAccountConfig.isExecutorEnabled.selector) return true;
+        if (interfaceID == IAccountConfig.isExecutorInstalled.selector) return true;
         if (interfaceID == IAccountConfig.installValidator.selector) return true;
         if (interfaceID == IAccountConfig.uninstallValidator.selector) return true;
-        if (interfaceID == IAccountConfig.isValidatorEnabled.selector) return true;
+        if (interfaceID == IAccountConfig.isValidatorInstalled.selector) return true;
         return false;
     }
 }

@@ -68,7 +68,7 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
     /**
      * @inheritdoc IAccountConfig_Hook
      */
-    function isHookEnabled(address hook) public view virtual returns (bool isEnabled) {
+    function isHookInstalled(address hook) public view virtual returns (bool isEnabled) {
         return getHook() == hook;
     }
 
@@ -83,7 +83,7 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
         if (interfaceID == type(IAccountConfig_Hook).interfaceId) return true;
         if (interfaceID == IAccountConfig_Hook.installHook.selector) return true;
         if (interfaceID == IAccountConfig_Hook.uninstallHook.selector) return true;
-        if (interfaceID == IAccountConfig_Hook.isHookEnabled.selector) return true;
+        if (interfaceID == IAccountConfig_Hook.isHookInstalled.selector) return true;
         return super.supportsInterface(interfaceID);
     }
 }
