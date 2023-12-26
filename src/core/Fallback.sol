@@ -14,6 +14,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
 
     event FallbackHandlerChanged(address handler);
 
+    // keccak256("fallbackmanager.storage.msa");
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x9c63439e8db454cdf22fd3d05d35ed5ea662f6ebbc519905ab830d38464df094;
 
@@ -83,7 +84,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
     }
     // @notice Forwards all calls to the fallback handler if set. Returns 0 if no handler is set.
     // @dev Appends the non-padded caller address to the calldata to be optionally used in the handler
-    //      The handler can make us of `HandlerContext.sol` to extract the address.
+    //      The handler can make use of `HandlerContext.sol` to extract the address.
     //      This is done because in the next call frame the `msg.sender` will be FallbackManager's address
     //      and having the original caller address may enable additional verification scenarios.
     // solhint-disable-next-line payable-fallback,no-complex-fallback

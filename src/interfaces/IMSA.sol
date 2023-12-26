@@ -71,7 +71,7 @@ interface IExecution {
 
     /**
      *
-     * @dev Executes a transaction via delegatecall on behalf of the account.
+     * @dev Executes a batched transaction via 'call' on behalf of the account.
      *         This function is intended to be called by an Executor module.
      *
      * @dev This function MUST revert if the call fails.
