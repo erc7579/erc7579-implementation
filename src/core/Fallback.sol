@@ -20,12 +20,22 @@ abstract contract Fallback is AccountBase, IAccountConfig {
 
     function installFallback(
         address fallbackHandler,
-        bytes calldata data
+        bytes memory data
     )
         public
         virtual
         onlyEntryPointOrSelf
     {
+        // Uninstall current fallback handler if it is set
+        // This is done to ensure that the fallback handler is not left in an inconsistent state
+        address currentFallbackHandler = getActiveFallbackHandler();
+        if (currentFallbackHandler != address(0)) {
+            (bytes memory uninstallData, bytes memory _installData) =
+                abi.decode(data, (bytes, bytes));
+            data = _installData;
+            IFallback(currentFallbackHandler).onUninstall(uninstallData);
+        }
+
         IFallback(fallbackHandler).onInstall(data);
         _setFallback(fallbackHandler);
         emit FallbackHandlerChanged(fallbackHandler);
@@ -52,6 +62,14 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         }
 
         enabled = _handler == fallbackHandler;
+    }
+
+    function getActiveFallbackHandler() public view returns (address fallbackHandler) {
+        bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
+
+        assembly {
+            fallbackHandler := sload(slot)
+        }
     }
 
     /**
