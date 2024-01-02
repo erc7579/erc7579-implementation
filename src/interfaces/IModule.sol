@@ -20,6 +20,11 @@ interface IModule {
      * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled later
      */
     function onUninstall(bytes calldata data) external;
+
+    /**
+     * @dev Returns boolean value if Module is a certain ERC7579 T0y
+     */
+    function isModuleType(uint256 typeID) external view returns (bool);
 }
 
 interface IValidator is IModule {
