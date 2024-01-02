@@ -50,4 +50,8 @@ contract ECDSAValidator is IValidator {
         override
         returns (bytes4)
     { }
+
+    function isModuleType(uint256 typeID) external view returns (bool) {
+        return typeID == 1;
+    }
 }

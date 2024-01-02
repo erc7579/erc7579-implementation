@@ -20,4 +20,8 @@ contract MockExecutor is IExecutor {
     {
         return account.execute(target, value, callData);
     }
+
+    function isModuleType(uint256 typeID) external view returns (bool) {
+        return typeID == 2;
+    }
 }
