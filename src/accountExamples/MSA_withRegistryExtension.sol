@@ -88,7 +88,7 @@ contract MSA is MSA_ValidatorInNonce, RegistryAdapter {
 
     function installFallback(
         address fallbackHandler,
-        bytes calldata data
+        bytes memory data
     )
         public
         virtual
