@@ -22,7 +22,7 @@ interface IModule {
     function onUninstall(bytes calldata data) external;
 
     /**
-     * @dev Returns boolean value if Module is a certain ERC7579 T0y
+     * @dev Returns boolean value if Module is a certain ERC7579 Type
      */
     function isModuleType(uint256 typeID) external view returns (bool);
 }
