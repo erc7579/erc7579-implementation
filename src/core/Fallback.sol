@@ -11,12 +11,20 @@ import { IFallback } from "../interfaces/IModule.sol";
  */
 abstract contract Fallback is AccountBase, IAccountConfig {
     error InvalidAddress(address addr);
+    error fallbackHandlerAlreadyInstalled(address currentHandler);
 
     event FallbackHandlerChanged(address handler);
 
     // keccak256("fallbackmanager.storage.msa");
     bytes32 internal constant FALLBACK_HANDLER_STORAGE_SLOT =
         0x9c63439e8db454cdf22fd3d05d35ed5ea662f6ebbc519905ab830d38464df094;
+
+    function _getFallbackHandler() internal view returns (address handler) {
+        bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
+        assembly {
+            handler := sload(slot)
+        }
+    }
 
     function installFallback(
         address fallbackHandler,
@@ -26,6 +34,11 @@ abstract contract Fallback is AccountBase, IAccountConfig {
         virtual
         onlyEntryPointOrSelf
     {
+        address currentHandler = _getFallbackHandler();
+        if (currentHandler != address(0)) {
+            revert fallbackHandlerAlreadyInstalled(currentHandler);
+        }
+
         IFallback(fallbackHandler).onInstall(data);
         _setFallback(fallbackHandler);
         emit FallbackHandlerChanged(fallbackHandler);
@@ -44,13 +57,7 @@ abstract contract Fallback is AccountBase, IAccountConfig {
     }
 
     function isFallbackInstalled(address fallbackHandler) public view returns (bool enabled) {
-        bytes32 slot = FALLBACK_HANDLER_STORAGE_SLOT;
-
-        address _handler;
-        assembly {
-            _handler := sload(slot)
-        }
-
+        address _handler = _getFallbackHandler();
         enabled = _handler == fallbackHandler;
     }
 
