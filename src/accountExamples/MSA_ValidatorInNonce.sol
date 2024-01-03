@@ -28,7 +28,7 @@ contract MSA is MSABase {
         }
 
         // check if validator is enabled
-        if (!isValidatorInstalled(validator)) revert InvalidModule(validator);
+        if (!isValidatorInstalled(validator)) return 0;
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 

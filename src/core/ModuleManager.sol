@@ -98,8 +98,7 @@ abstract contract ModuleManager is AccountBase, IAccountConfig, IERC165 {
         // decode prev validator cause this is a linked list (optional)
         (address prevValidator, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         IValidator(validator).onUninstall(disableModuleData);
-        // check if this is the last validator
-        if (prevValidator == SENTINEL) revert CannotRemoveLastValidator();
+        // TODO: check if this is the last validator
         _validators.pop(prevValidator, validator);
         emit DisableValidator(validator);
     }
