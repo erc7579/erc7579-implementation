@@ -20,6 +20,7 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
         0x36e05829dd1b9a4411d96a3549582172d7f071c1c0db5c573fcf94eb28431608;
 
     error HookPostCheckFailed();
+    error HookAlreadyInstalled(address currentHook);
 
     modifier withHook() {
         address hook = getHook();
@@ -47,6 +48,10 @@ abstract contract HookManager is ModuleManager, IAccountConfig_Hook {
     }
 
     function _installHook(address hook, bytes calldata data) internal virtual {
+        address currentHook = getHook();
+        if (currentHook != address(0)) {
+            revert HookAlreadyInstalled(currentHook);
+        }
         IHook(hook).onInstall(data);
         _setHook(hook);
         emit EnableHook(hook);
