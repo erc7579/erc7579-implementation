@@ -1,0 +1,5 @@
+sentinellist/=node_modules/sentinellist/src/
+solady/=node_modules/solady/
+solarray/=node_modules/solarray/src/
+ds-test/=node_modules/ds-test/src/
+forge-std/=node_modules/forge-std/src/

@@ -1,0 +1,55 @@
+{
+  "name": "micro msa",
+  "description": "super mini modular smart account",
+  "license": "MIT",
+  "version": "0.3.1",
+  "author": {
+    "name": "zeroknots.eth",
+    "url": "https://rhinestone.wtf"
+  },
+  "bugs": {
+    "url": "https://github.com/rhinestonewtf/modulekit/issues"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.1"
+  },
+  "devDependencies": {
+    "ds-test": "github:dapphub/ds-test",
+    "forge-std": "github:foundry-rs/forge-std",
+    "prettier": "^2.8.8",
+    "sentinellist": "github:zeroknots/sentinellist",
+    "solady": "github:vectorized/solady",
+    "solhint": "^4.1.1"
+  },
+  "files": ["artifacts", "src", "test/utils", "CHANGELOG.md", "LICENSE-GPL.md"],
+  "homepage": "https://github.com/rhinestonewtf/modulekit/#readme",
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "foundry",
+    "smart-contracts",
+    "solidity",
+    "web3"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "github.com/rhinestonewtf/modulekit",
+  "scripts": {
+    "build": "forge build",
+    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
+    "build:smt": "FOUNDRY_PROFILE=smt forge build",
+    "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
+    "gas:report": "forge test --gas-report --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "lint": "pnpm run lint:sol && bun run prettier:check",
+    "lint:sol": "forge fmt --check && pnpm solhint \"{script,src,test}/**/*.sol\"",
+    "prepack": "pnpm install",
+    "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
+    "test": "forge test",
+    "test:lite": "FOUNDRY_PROFILE=lite forge test",
+    "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+  }
+}
