@@ -3,11 +3,11 @@ pragma solidity ^0.8.23;
 
 /**
  * @title ModeLib
- * |----------------------------------------------------|
- * | CALLTYPE  | EXECTYPE  |   MODESELECTOR      | MODE_PAYLOAD |
- * |----------------------------------------------------|
- * | 1 byte    | 1 byte    |   4 bytes   |   26-bytes   |
- * |----------------------------------------------------|
+ * |--------------------------------------------------------------------|
+ * | CALLTYPE  | EXECTYPE  |   UNUSED   | MODESELECTOR  |  MODE_PAYLOAD |
+ * |--------------------------------------------------------------------|
+ * | 1 byte    | 1 byte    |   4 bytes  | 4 bytes       |   22 bytes    |
+ * |--------------------------------------------------------------------|
  *
  * CALLTYPE: 1 byte
  * CallType is used to determine how the data should be decoded.
@@ -18,12 +18,15 @@ pragma solidity ^0.8.23;
  * ExecType is used to determine how the account should handle the execution.
  * It can indicate if the execution should revert on failure or continue execution.
  *
+ * UNUSED: 4 bytes
+ * Unused bytes are reserved for future use.
+ *
  * MODESELECTOR: bytes4
  * Exec mode is used to determine how the account should handle the execution.
  * Validator Modules do not have to interpret this value.
  * It can indicate if the execution should revert on failure or continue execution.
  *
- * MODESELECTOR_PAYLOAD: 26 bytes
+ * MODESELECTOR_PAYLOAD: 22 bytes
  * Mode payload is used to pass additional data to the smart account execution, this may be interpreted depending on the mode
  * It can be used to decode additional context data that the smart account may interpret to change the execution behavior.
  *
@@ -31,14 +34,12 @@ pragma solidity ^0.8.23;
  * single, delegatecall or batch exec encoded as bytes
  */
 import {Execution} from "../interfaces/IMSA.sol";
-import "forge-std/console2.sol";
 
-bytes1 constant CALLTYPE_SINGLE = hex"00";
-bytes1 constant CALLTYPE_BATCH = hex"01";
-bytes1 constant CALLTYPE_DELEGATE = hex"02";
+bytes1 constant CALLTYPE_SINGLE = hex"01";
+bytes1 constant CALLTYPE_BATCH = hex"02";
 
-bytes1 constant EXECTYPE_REVERT = hex"00";
-bytes1 constant EXECTYPE_TRY = hex"01";
+bytes1 constant EXECTYPE_REVERT = hex"01";
+bytes1 constant EXECTYPE_TRY = hex"02";
 
 type MODESELECTOR is bytes4;
 
