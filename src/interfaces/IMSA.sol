@@ -16,6 +16,7 @@ interface IMSA is IERC4337 {
     error Unsupported();
 
     function execute(bytes32 encodedMode, bytes calldata executionCalldata) external payable;
+    function executeFromExecutor(bytes32 encodedMode, bytes calldata executionCalldata) external payable;
     function executeUserOp(UserOperation calldata userOp) external payable;
     function initializeAccount(bytes calldata data) external payable;
     function installModule(uint256 moduleType, address module, bytes calldata initData) external payable;

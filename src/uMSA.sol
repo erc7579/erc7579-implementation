@@ -26,6 +26,22 @@ contract uMSA is Executor, IMSA, ModuleManager {
         }
     }
 
+    function executeFromExecutor(bytes32 encodedMode, bytes calldata executionCalldata)
+        external
+        payable
+        onlyExecutorModule
+    {
+        bytes1 callType = bytes1(encodedMode >> 248);
+
+        if (callType == CALLTYPE_BATCH) {
+            Execution[] calldata executions = executionCalldata.decodeBatch();
+            _execute(executions);
+        } else if (callType == CALLTYPE_SINGLE) {
+            (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
+            _execute(target, value, callData);
+        }
+    }
+
     function executeUserOp(UserOperation calldata userOp) external payable onlyEntryPointOrSelf {
         // skip function sig of executeUserOp
         bytes calldata callData = userOp.callData[4:];
