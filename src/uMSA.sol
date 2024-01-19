@@ -11,6 +11,7 @@ import {ModuleManager} from "./core/ModuleManager.sol";
 
 contract uMSA is Executor, IMSA, ModuleManager {
     using DecodeLib for bytes;
+
     error UnsupportedModuleType(uint256 moduleType);
 
     function execute(bytes32 encodedMode, bytes calldata executionCalldata) external payable onlyEntryPointOrSelf {
@@ -66,6 +67,15 @@ contract uMSA is Executor, IMSA, ModuleManager {
         if (!isValidatorInstalled(validator)) return 0;
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
-    function initializeAccount(bytes calldata data) external payable {
+
+    function initializeAccount(bytes calldata data) public payable virtual override {
+        // only allow initialization once
+        if (isAlreadyInitialized()) revert();
+        _initModuleManager();
+
+        // this is just implemented for demonstration purposes. You can use any other initialization logic here.
+        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        (bool success,) = bootstrap.delegatecall(bootstrapCall);
+        if (!success) revert();
     }
 }
