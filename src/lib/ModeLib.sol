@@ -62,7 +62,7 @@ library ModeLib {
     function decode(bytes32 mode)
         internal
         pure
-        returns (bytes1 _calltype, bytes1 _execType, MODESELECTOR _mode, bytes26 _context)
+        returns (bytes1 _calltype, bytes1 _execType, MODESELECTOR _mode, bytes22 _context)
     {
         assembly {
             _calltype := mode
@@ -72,7 +72,7 @@ library ModeLib {
         }
     }
 
-    function encode(bytes1 calltype, bytes1 execType, MODESELECTOR mode, bytes26 context)
+    function encode(bytes1 calltype, bytes1 execType, MODESELECTOR mode, bytes22 context)
         internal
         pure
         returns (bytes32 _mode)
@@ -85,7 +85,7 @@ library ModeLib {
         pure
         returns (bytes32 mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_BATCH, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes26(0));
+        mode = encode(CALLTYPE_BATCH, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes22(0));
         data = abi.encode(executions);
     }
 
@@ -94,7 +94,7 @@ library ModeLib {
         pure
         returns (bytes32 mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_SINGLE, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes26(0));
+        mode = encode(CALLTYPE_SINGLE, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes22(0));
         data = abi.encode(target, value, callData);
     }
 
