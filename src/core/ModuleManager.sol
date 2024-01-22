@@ -60,9 +60,21 @@ abstract contract ModuleManager is AccountBase {
         _validators.push(validator);
     }
 
+    function _uninstallValidator(address executor, bytes calldata data) internal {
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._executors;
+        (address prev, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IExecutor(executor).onUninstall(disableModuleData);
+        _validators.pop(prev, executor);
+    }
+
     function isValidatorInstalled(address validator) internal view virtual returns (bool) {
         SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         return _validators.contains(validator);
+    }
+
+    function isExecutorInstalled(address executor) internal view virtual returns (bool) {
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
+        return _executors.contains(executor);
     }
 
     /**
@@ -83,6 +95,13 @@ abstract contract ModuleManager is AccountBase {
         SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
         IExecutor(executor).onInstall(data);
         _executors.push(executor);
+    }
+
+    function _uninstallExecutor(address executor, bytes calldata data) internal {
+        SentinelListLib.SentinelList storage _executors = _getModuleManagerStorage()._executors;
+        (address prev, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
+        IExecutor(executor).onUninstall(disableModuleData);
+        _executors.pop(prev, executor);
     }
 
     /**

@@ -30,4 +30,6 @@ interface IMSA is IERC4337 {
         external
         payable
         returns (uint256 validSignature);
+
+    function accountId() external view returns (string memory);
 }

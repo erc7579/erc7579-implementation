@@ -19,11 +19,11 @@ contract SimpleExecutionValidator is IValidator {
         bytes4 execFunction = bytes4(userOp.callData[:4]);
         if (execFunction != IMSA.execute.selector) revert InvalidExec();
         bytes32 mode = bytes32(userOp.callData[4:36]);
-        if (callType == CALLTYPE_BATCH) {
-            Execution[] calldata executions = executionCalldata.decodeBatch();
-        } else if (callType == CALLTYPE_SINGLE) {
-            (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
-        }
+        // if (callType == CALLTYPE_BATCH) {
+        //     Execution[] calldata executions = executionCalldata.decodeBatch();
+        // } else if (callType == CALLTYPE_SINGLE) {
+        //     (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
+        // }
     }
 
     function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata data)

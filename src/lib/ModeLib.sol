@@ -67,8 +67,8 @@ library ModeLib {
         assembly {
             _calltype := mode
             _execType := shl(8, mode)
-            _mode := shl(16, mode)
-            _context := shl(48, mode)
+            _mode := shl(48, mode)
+            _context := shl(80, mode)
         }
     }
 
@@ -77,7 +77,7 @@ library ModeLib {
         pure
         returns (bytes32 _mode)
     {
-        return bytes32(abi.encodePacked(calltype, execType, MODESELECTOR.unwrap(mode), context));
+        return bytes32(abi.encodePacked(calltype, execType, bytes4(0), MODESELECTOR.unwrap(mode), context));
     }
 
     function encodeSimpleBatch(Execution[] calldata executions)

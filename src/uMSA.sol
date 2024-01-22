@@ -43,7 +43,8 @@ contract uMSA is Executor, IMSA, ModuleManager {
     }
 
     function executeUserOp(UserOperation calldata userOp) external payable onlyEntryPointOrSelf {
-        // skip function sig of executeUserOp
+        // TODO: how should we implement this?
+        // @dev: while this is minimalistic, I think this will break Hooks. caue msgSender used in hooks will now be address(this)
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).call(callData);
         require(success, "executeUserOp failed");
@@ -58,6 +59,19 @@ contract uMSA is Executor, IMSA, ModuleManager {
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
         // else if (moduleType == MODULE_TYPE_FALLBACK) _installFallback(module, initData);
         // else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
+        else revert UnsupportedModuleType(moduleType);
+    }
+
+    function uninstallModule(uint256 moduleType, address module, bytes calldata deInitData)
+        external
+        payable
+        onlyEntryPointOrSelf
+    {
+        // TODO: check if this is the last validator
+        if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
+        else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
+        // else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallback(module, deInitData);
+        // else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
         else revert UnsupportedModuleType(moduleType);
     }
 
@@ -93,5 +107,24 @@ contract uMSA is Executor, IMSA, ModuleManager {
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
+    }
+
+    function isModuleModuleInstalled(uint256 moduleType, address module, bytes calldata additionalContext)
+        external
+        view
+        override
+        returns (bool)
+    {
+        if (moduleType == MODULE_TYPE_VALIDATOR) return isValidatorInstalled(module);
+        else if (moduleType == MODULE_TYPE_EXECUTOR) return isExecutorInstalled(module);
+        else revert UnsupportedModuleType(moduleType);
+    }
+
+    function accountId() external view virtual override returns (string memory) {
+        return "uMSA.demo.v0.1";
+    }
+
+    function executeDelegateCall(address, bytes calldata) external payable {
+        revert Unsupported();
     }
 }
