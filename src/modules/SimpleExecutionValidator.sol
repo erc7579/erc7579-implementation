@@ -1,8 +1,11 @@
 import "../interfaces/IModule.sol";
 import "../interfaces/IMSA.sol";
 import "../lib/ModeLib.sol";
+import "../lib/DecodeLib.sol";
 
 contract SimpleExecutionValidator is IValidator {
+    using DecodeLib for bytes;
+
     error InvalidExec();
 
     function onInstall(bytes calldata data) external override {}
@@ -16,14 +19,17 @@ contract SimpleExecutionValidator is IValidator {
         override
         returns (uint256)
     {
+        // get the function selector that will be called by EntryPoint
         bytes4 execFunction = bytes4(userOp.callData[:4]);
-        if (execFunction != IMSA.execute.selector) revert InvalidExec();
-        bytes32 mode = bytes32(userOp.callData[4:36]);
-        // if (callType == CALLTYPE_BATCH) {
-        //     Execution[] calldata executions = executionCalldata.decodeBatch();
-        // } else if (callType == CALLTYPE_SINGLE) {
-        //     (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
-        // }
+
+        // get the mode
+        bytes1 callType = bytes1(userOp.callData[4]);
+        bytes calldata executionCalldata = userOp.callData[36:];
+        if (callType == CALLTYPE_BATCH) {
+            Execution[] calldata executions = executionCalldata.decodeBatch();
+        } else if (callType == CALLTYPE_SINGLE) {
+            (address target, uint256 value, bytes calldata callData) = executionCalldata.decodeSingle();
+        }
     }
 
     function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata data)
