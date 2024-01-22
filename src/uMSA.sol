@@ -57,6 +57,7 @@ contract uMSA is Executor, IMSA, ModuleManager {
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
+        // TODO: implement fallback and hook
         // else if (moduleType == MODULE_TYPE_FALLBACK) _installFallback(module, initData);
         // else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
         else revert UnsupportedModuleType(moduleType);
@@ -70,6 +71,7 @@ contract uMSA is Executor, IMSA, ModuleManager {
         // TODO: check if this is the last validator
         if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
+        // TODO: implement fallback and hook
         // else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallback(module, deInitData);
         // else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
         else revert UnsupportedModuleType(moduleType);
