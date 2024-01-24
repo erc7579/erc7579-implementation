@@ -4,14 +4,15 @@ pragma solidity ^0.8.23;
 /**
  * @title ModeLib
  * |--------------------------------------------------------------------|
- * | CALLTYPE  | EXECTYPE  |   UNUSED   | MODESELECTOR  |  MODE_PAYLOAD |
+ * | CALLTYPE  | EXECTYPE  |   UNUSED   | ModeSelector  |  ModePayload  |
  * |--------------------------------------------------------------------|
  * | 1 byte    | 1 byte    |   4 bytes  | 4 bytes       |   22 bytes    |
  * |--------------------------------------------------------------------|
  *
  * CALLTYPE: 1 byte
  * CallType is used to determine how the data should be decoded.
- * It can be either single, batch or delegatecall. In the future different calls could be added. i.e. staticcall
+ * It can be either single, batch or delegatecall. In the future different calls could be added. i.e.
+ * staticcall
  * calltype can be used by a validation module to determine how to decode <bytes data>.
  *
  * EXECTYPE: 1 byte
@@ -21,85 +22,128 @@ pragma solidity ^0.8.23;
  * UNUSED: 4 bytes
  * Unused bytes are reserved for future use.
  *
- * MODESELECTOR: bytes4
+ * ModeSelector: bytes4
  * Exec mode is used to determine how the account should handle the execution.
  * Validator Modules do not have to interpret this value.
  * It can indicate if the execution should revert on failure or continue execution.
  *
- * MODESELECTOR_PAYLOAD: 22 bytes
- * Mode payload is used to pass additional data to the smart account execution, this may be interpreted depending on the mode
- * It can be used to decode additional context data that the smart account may interpret to change the execution behavior.
+ * ModePayload: 22 bytes
+ * Mode payload is used to pass additional data to the smart account execution, this may be
+ * interpreted depending on the mode
+ * It can be used to decode additional context data that the smart account may interpret to change
+ * the execution behavior.
  *
  * CALLDATA: n bytes
  * single, delegatecall or batch exec encoded as bytes
  */
-import {Execution} from "../interfaces/IMSA.sol";
+import { Execution } from "../interfaces/IMSA.sol";
 
-bytes1 constant CALLTYPE_SINGLE = hex"01";
-bytes1 constant CALLTYPE_BATCH = hex"02";
+type ModeCode is bytes32;
 
-bytes1 constant EXECTYPE_REVERT = hex"01";
-bytes1 constant EXECTYPE_TRY = hex"02";
+type CallType is bytes1;
 
-type MODESELECTOR is bytes4;
+type ExecType is bytes1;
 
-MODESELECTOR constant MODE_EXEC = MODESELECTOR.wrap(0x65786563);
-MODESELECTOR constant MODE_TRY_EXEC = MODESELECTOR.wrap(0x74727900);
-MODESELECTOR constant MODE_CONTEXT = MODESELECTOR.wrap(0xAAAAAAAA);
-MODESELECTOR constant MODE_OFFSET = MODESELECTOR.wrap(0xBBBBBBBB);
+type ModeSelector is bytes4;
 
-function eq(MODESELECTOR a, MODESELECTOR b) pure returns (bool) {
-    return MODESELECTOR.unwrap(a) == MODESELECTOR.unwrap(b);
-}
+using { eqModeSelector as == } for ModeSelector global;
+using { eqCallType as == } for CallType global;
+using { eqExecType as == } for ExecType global;
 
-using {eq as ==} for MODESELECTOR global;
+type ModePayload is bytes22;
+
+/**
+ *
+ */
+CallType constant CALLTYPE_SINGLE = CallType.wrap(0x01);
+CallType constant CALLTYPE_BATCH = CallType.wrap(0x02);
+CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+
+// @dev default behavior is to revert on failure
+ExecType constant EXECTYPE_REVERT = ExecType.wrap(0x00);
+// @dev account may elect to change execution behavior. For example "try exec" / "allow fail"
+ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
+
+ModeSelector constant MODE_DEFAULT = ModeSelector.wrap(bytes4(0x00000000));
+ModeSelector constant MODE_OFFSET = ModeSelector.wrap(bytes4(keccak256("default.mode.offset")));
 
 /**
  * this enum informs how the execution should be handled in the execution phase.
  * it should be out of scope for most validation modules
  */
 library ModeLib {
-    function decode(bytes32 mode)
+    function decode(ModeCode mode)
         internal
         pure
-        returns (bytes1 _calltype, bytes1 _execType, MODESELECTOR _mode, bytes22 _context)
+        returns (
+            CallType _calltype,
+            ExecType _execType,
+            ModeSelector _modeSelector,
+            ModePayload _modePayload
+        )
     {
         assembly {
             _calltype := mode
             _execType := shl(8, mode)
-            _mode := shl(48, mode)
-            _context := shl(80, mode)
+            _modeSelector := shl(48, mode)
+            _modePayload := shl(80, mode)
         }
     }
 
-    function encode(bytes1 calltype, bytes1 execType, MODESELECTOR mode, bytes22 context)
+    function encode(
+        CallType calltype,
+        ExecType execType,
+        ModeSelector mode,
+        ModePayload context
+    )
         internal
         pure
-        returns (bytes32 _mode)
+        returns (ModeCode _mode)
     {
-        return bytes32(abi.encodePacked(calltype, execType, bytes4(0), MODESELECTOR.unwrap(mode), context));
+        return ModeCode.wrap(
+            bytes32(
+                abi.encodePacked(calltype, execType, bytes4(0), ModeSelector.unwrap(mode), context)
+            )
+        );
     }
 
     function encodeSimpleBatch(Execution[] calldata executions)
         internal
         pure
-        returns (bytes32 mode, bytes memory data)
+        returns (ModeCode mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_BATCH, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes22(0));
+        mode = encode(CALLTYPE_BATCH, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0x00));
         data = abi.encode(executions);
     }
 
-    function encodeSimpleSingle(address target, uint256 value, bytes calldata callData)
+    function encodeSimpleSingle(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
         internal
         pure
-        returns (bytes32 mode, bytes memory data)
+        returns (ModeCode mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_SINGLE, bytes1(0), MODESELECTOR.wrap(bytes4(0)), bytes22(0));
+        mode = encode(CALLTYPE_SINGLE, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0));
         data = abi.encode(target, value, callData);
     }
 
-    function getCallType(bytes32 mode) internal pure returns (bytes1) {
-        (bytes1 callType,,,) = decode(mode);
-        return callType;
+    function getCallType(ModeCode mode) internal pure returns (CallType calltype) {
+        assembly {
+            calltype := shr(mode, 248)
+        }
     }
+}
+
+function eqCallType(CallType a, CallType b) pure returns (bool) {
+    return CallType.unwrap(a) == CallType.unwrap(b);
+}
+
+function eqExecType(ExecType a, ExecType b) pure returns (bool) {
+    return ExecType.unwrap(a) == ExecType.unwrap(b);
+}
+
+function eqModeSelector(ModeSelector a, ModeSelector b) pure returns (bool) {
+    return ModeSelector.unwrap(a) == ModeSelector.unwrap(b);
 }

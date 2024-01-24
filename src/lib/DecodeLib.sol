@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {Execution} from "../interfaces/IMSA.sol";
+import { Execution } from "../interfaces/IMSA.sol";
 
 library DecodeLib {
-    function decodeBatch(bytes calldata callData) internal pure returns (Execution[] calldata executionBatch) {
+    function decodeBatch(bytes calldata callData)
+        internal
+        pure
+        returns (Execution[] calldata executionBatch)
+    {
         /*
          * Batch Call Calldata Layout
          * Offset (in bytes)    | Length (in bytes) | Contents

@@ -14,6 +14,7 @@
     "@openzeppelin/contracts": "5.0.1"
   },
   "devDependencies": {
+    "account-abstraction": "github:eth-infinitism/account-abstraction#develop",
     "ds-test": "github:dapphub/ds-test",
     "forge-std": "github:foundry-rs/forge-std",
     "prettier": "^2.8.8",
@@ -21,7 +22,13 @@
     "solady": "github:vectorized/solady",
     "solhint": "^4.1.1"
   },
-  "files": ["artifacts", "src", "test/utils", "CHANGELOG.md", "LICENSE-GPL.md"],
+  "files": [
+    "artifacts",
+    "src",
+    "test/utils",
+    "CHANGELOG.md",
+    "LICENSE-GPL.md"
+  ],
   "homepage": "https://github.com/rhinestonewtf/modulekit/#readme",
   "keywords": [
     "blockchain",

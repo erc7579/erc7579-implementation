@@ -21,8 +21,10 @@ interface IModule {
 
     /**
      * Disable module
-     *  This function is called by the MSA during "uninstallValidator, uninstallExecutor, uninstallHook"
-     * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled later
+     *  This function is called by the MSA during "uninstallValidator, uninstallExecutor,
+     * uninstallHook"
+     * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled
+     * later
      */
     function onUninstall(bytes calldata data) external;
 
@@ -40,27 +42,43 @@ interface IValidator is IModule {
     /**
      * @dev Validates a transaction on behalf of the account.
      *         This function is intended to be called by the MSA during the ERC-4337 validaton phase
-     *         Note: solely relying on bytes32 hash and signature is not suffcient for some validation implementations (i.e. SessionKeys often need access to userOp.calldata)
-     * @param userOp The user operation to be validated. The userOp MUST NOT contain any metadata. The MSA MUST clean up the userOp before sending it to the validator.
+     *         Note: solely relying on bytes32 hash and signature is not suffcient for some
+     * validation implementations (i.e. SessionKeys often need access to userOp.calldata)
+     * @param userOp The user operation to be validated. The userOp MUST NOT contain any metadata.
+     * The MSA MUST clean up the userOp before sending it to the validator.
      * @param userOpHash The hash of the user operation to be validated
      * @return return value according to ERC-4337
      */
-    function validateUserOp(IERC4337.UserOperation calldata userOp, bytes32 userOpHash) external returns (uint256);
+    function validateUserOp(
+        IERC4337.UserOperation calldata userOp,
+        bytes32 userOpHash
+    )
+        external
+        returns (uint256);
 
     /**
      * Validator can be used for ERC-1271 validation
      */
-    function isValidSignatureWithSender(address sender, bytes32 hash, bytes calldata data)
+    function isValidSignatureWithSender(
+        address sender,
+        bytes32 hash,
+        bytes calldata data
+    )
         external
         view
         returns (bytes4);
 }
 
-interface IExecutor is IModule {}
+interface IExecutor is IModule { }
 
 interface IHook is IModule {
-    function preCheck(address msgSender, bytes calldata msgData) external returns (bytes memory hookData);
+    function preCheck(
+        address msgSender,
+        bytes calldata msgData
+    )
+        external
+        returns (bytes memory hookData);
     function postCheck(bytes calldata hookData) external returns (bool success);
 }
 
-interface IFallback is IModule {}
+interface IFallback is IModule { }

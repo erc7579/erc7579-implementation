@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {Execution} from "../interfaces/IMSA.sol";
+import { Execution } from "../interfaces/IMSA.sol";
 
 /**
  * @title Execution
@@ -23,7 +23,11 @@ contract Executor {
         }
     }
 
-    function _execute(address target, uint256 value, bytes calldata callData)
+    function _execute(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
         internal
         virtual
         returns (bytes memory result)
@@ -45,7 +49,13 @@ contract Executor {
     }
 
     /// @dev Execute a delegatecall with `delegate` on this account.
-    function _executeDelegatecall(address delegate, bytes calldata callData) internal returns (bytes memory result) {
+    function _executeDelegatecall(
+        address delegate,
+        bytes calldata callData
+    )
+        internal
+        returns (bytes memory result)
+    {
         /// @solidity memory-safe-assembly
         assembly {
             result := mload(0x40)

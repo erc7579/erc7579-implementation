@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {SentinelListLib, SENTINEL} from "sentinellist/SentinelList.sol";
-import {AccountBase} from "./AccountBase.sol";
-import {IValidator, IExecutor} from "../interfaces/IModule.sol";
+import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { AccountBase } from "./AccountBase.sol";
+import { IValidator, IExecutor } from "../interfaces/IModule.sol";
 import "forge-std/interfaces/IERC165.sol";
 
 /**
@@ -27,9 +27,15 @@ abstract contract ModuleManager is AccountBase {
     }
 
     // keccak256("modulemanager.storage.msa");
-    bytes32 constant MODULEMANAGER_STORAGE_LOCATION = 0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
+    bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
+        0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
-    function _getModuleManagerStorage() internal pure virtual returns (ModuleManagerStorage storage ims) {
+    function _getModuleManagerStorage()
+        internal
+        pure
+        virtual
+        returns (ModuleManagerStorage storage ims)
+    {
         bytes32 position = MODULEMANAGER_STORAGE_LOCATION;
         assembly {
             ims.slot := position
@@ -81,7 +87,10 @@ abstract contract ModuleManager is AccountBase {
      * THIS IS NOT PART OF THE STANDARD
      * Helper Function to access linked list
      */
-    function getValidatorPaginated(address cursor, uint256 size)
+    function getValidatorPaginated(
+        address cursor,
+        uint256 size
+    )
         external
         view
         virtual
@@ -108,7 +117,10 @@ abstract contract ModuleManager is AccountBase {
      * THIS IS NOT PART OF THE STANDARD
      * Helper Function to access linked list
      */
-    function getExecutorsPaginated(address cursor, uint256 size)
+    function getExecutorsPaginated(
+        address cursor,
+        uint256 size
+    )
         external
         view
         virtual

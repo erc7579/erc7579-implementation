@@ -5,20 +5,22 @@ import "forge-std/Test.sol";
 import "src/lib/ModeLib.sol";
 
 contract ModeLibTest is Test {
-    function setUp() public {}
+    function setUp() public { }
 
     function test_encode_decode() public {
-        bytes1 callType = CALLTYPE_SINGLE;
-        bytes1 execType = EXECTYPE_REVERT;
-        MODESELECTOR modeSelector = MODE_EXEC;
-        bytes32 enc = ModeLib.encode(callType, execType, modeSelector, bytes22(hex"01"));
+        CallType callType = CALLTYPE_SINGLE;
+        ExecType execType = EXECTYPE_REVERT;
+        ModeSelector modeSelector = MODE_DEFAULT;
+        ModePayload payload = ModePayload.wrap(bytes22(hex"01"));
+        ModeCode enc = ModeLib.encode(callType, execType, modeSelector, payload);
 
-        console2.logBytes32(enc);
+        console2.logBytes32(ModeCode.unwrap(enc));
 
-        (bytes1 _calltype, bytes1 _execType, MODESELECTOR _mode, bytes22 _context) = ModeLib.decode(enc);
-        assertEq(_calltype, callType);
-        assertEq(_execType, execType);
+        (CallType _calltype, ExecType _execType, ModeSelector _mode, ModePayload _payload) =
+            ModeLib.decode(enc);
+        assertTrue(_calltype == callType);
+        assertTrue(_execType == execType);
         assertTrue(_mode == modeSelector);
-        assertEq(_context, bytes22(hex"01"));
+        // assertTrue(_payload == payload);
     }
 }

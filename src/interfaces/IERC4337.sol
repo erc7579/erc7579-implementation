@@ -15,7 +15,11 @@ interface IERC4337 {
         bytes signature;
     }
 
-    function validateUserOp(UserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds)
+    function validateUserOp(
+        UserOperation calldata userOp,
+        bytes32 userOpHash,
+        uint256 missingAccountFunds
+    )
         external
         payable
         returns (uint256);
