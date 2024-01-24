@@ -13,6 +13,8 @@ import { Execution } from "../interfaces/IMSA.sol";
 contract Executor {
     error ExecutionFailed();
 
+    event TryExecuteUnsuccessful(uint256 batchExecutionindex, bytes result);
+
     function _execute(Execution[] calldata executions) internal returns (bytes[] memory result) {
         uint256 length = executions.length;
         result = new bytes[](length);
@@ -20,6 +22,21 @@ contract Executor {
         for (uint256 i; i < length; i++) {
             Execution calldata _exec = executions[i];
             result[i] = _execute(_exec.target, _exec.value, _exec.callData);
+        }
+    }
+
+    function _tryExecute(Execution[] calldata executions)
+        internal
+        returns (bytes[] memory result)
+    {
+        uint256 length = executions.length;
+        result = new bytes[](length);
+
+        for (uint256 i; i < length; i++) {
+            Execution calldata _exec = executions[i];
+            bool success;
+            (success, result[i]) = _tryExecute(_exec.target, _exec.value, _exec.callData);
+            if (!success) emit TryExecuteUnsuccessful(i, result[i]);
         }
     }
 
@@ -40,6 +57,31 @@ contract Executor {
                 // Bubble up the revert if the call reverts.
                 returndatacopy(result, 0x00, returndatasize())
                 revert(result, returndatasize())
+            }
+            mstore(result, returndatasize()) // Store the length.
+            let o := add(result, 0x20)
+            returndatacopy(o, 0x00, returndatasize()) // Copy the returndata.
+            mstore(0x40, add(o, returndatasize())) // Allocate the memory.
+        }
+    }
+
+    function _tryExecute(
+        address target,
+        uint256 value,
+        bytes calldata callData
+    )
+        internal
+        virtual
+        returns (bool success, bytes memory result)
+    {
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := mload(0x40)
+            calldatacopy(result, callData.offset, callData.length)
+            if iszero(call(gas(), target, value, result, callData.length, codesize(), 0x00)) {
+                // Bubble up the revert if the call reverts.
+                returndatacopy(result, 0x00, returndatasize())
+                return(0, result)
             }
             mstore(result, returndatasize()) // Store the length.
             let o := add(result, 0x20)

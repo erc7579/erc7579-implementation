@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { Execution } from "../interfaces/IMSA.sol";
 
-library DecodeLib {
+library ExecutionLib {
     function decodeBatch(bytes calldata callData)
         internal
         pure

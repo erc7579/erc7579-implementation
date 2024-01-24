@@ -2,18 +2,17 @@
 pragma solidity ^0.8.23;
 
 import "./lib/ModeLib.sol";
-import { DecodeLib } from "./lib/DecodeLib.sol";
+import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { Executor } from "./core/Executor.sol";
 import "./interfaces/IERC4337.sol";
 import "./interfaces/IModule.sol";
 import "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
+import { HookManager } from "./core/HookManager.sol";
 
-contract uMSA is Executor, IMSA, ModuleManager {
-    using DecodeLib for bytes;
+contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
+    using ExecutionLib for bytes;
     using ModeLib for ModeCode;
-
-    error UnsupportedModuleType(uint256 moduleType);
 
     function execute(
         ModeCode mode,
@@ -22,16 +21,24 @@ contract uMSA is Executor, IMSA, ModuleManager {
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
-        CallType callType = mode.getCallType();
+        (CallType callType, ExecType execType,,) = mode.decode();
 
+        // check if calltype is batch or single
         if (callType == CALLTYPE_BATCH) {
+            // destructure executionCallData according to batched exec
             Execution[] calldata executions = executionCalldata.decodeBatch();
-            _execute(executions);
+            // check if execType is revert or try
+            if (execType == EXECTYPE_REVERT) _execute(executions);
+            else if (execType == EXECTYPE_TRY) _tryExecute(executions);
         } else if (callType == CALLTYPE_SINGLE) {
+            // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
-            _execute(target, value, callData);
+            // check if execType is revert or try
+            if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
         }
     }
 
@@ -42,16 +49,24 @@ contract uMSA is Executor, IMSA, ModuleManager {
         external
         payable
         onlyExecutorModule
+        withHook
     {
-        CallType callType = mode.getCallType();
+        (CallType callType, ExecType execType,,) = mode.decode();
 
+        // check if calltype is batch or single
         if (callType == CALLTYPE_BATCH) {
+            // destructure executionCallData according to batched exec
             Execution[] calldata executions = executionCalldata.decodeBatch();
-            _execute(executions);
+            // check if execType is revert or try
+            if (execType == EXECTYPE_REVERT) _execute(executions);
+            else if (execType == EXECTYPE_TRY) _tryExecute(executions);
         } else if (callType == CALLTYPE_SINGLE) {
+            // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
-            _execute(target, value, callData);
+            // check if execType is revert or try
+            if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
         }
     }
 
@@ -72,10 +87,8 @@ contract uMSA is Executor, IMSA, ModuleManager {
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        // TODO: implement fallback and hook
-
-        // else if (moduleType == MODULE_TYPE_FALLBACK) _installFallback(module, initData);
-        // else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
+        else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
+        else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
         else revert UnsupportedModuleType(moduleType);
     }
 
@@ -88,13 +101,10 @@ contract uMSA is Executor, IMSA, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        // TODO: check if this is the last validator
         if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        // TODO: implement fallback and hook
-
-        // else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallback(module, deInitData);
-        // else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
+        else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
+        else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
         else revert UnsupportedModuleType(moduleType);
     }
 
@@ -115,28 +125,19 @@ contract uMSA is Executor, IMSA, ModuleManager {
         returns (uint256 validSignature)
     {
         address validator;
+        // @notice validator encodig in nonce is just an example!
+        // @notice this is not part of the standard!
+        // Account Vendors may choose any other way to impolement validator selection
         uint256 nonce = userOp.nonce;
         assembly {
             validator := shr(96, nonce)
         }
 
         // check if validator is enabled. If terminate the validation phase.
-        if (!isValidatorInstalled(validator)) return 0;
+        if (!_isValidatorInstalled(validator)) return 0;
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
-    }
-
-    function initializeAccount(bytes calldata data) public payable virtual override {
-        // only allow initialization once
-        if (isAlreadyInitialized()) revert();
-        _initModuleManager();
-
-        // this is just implemented for demonstration purposes. You can use any other initialization
-        // logic here.
-        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
-        (bool success,) = bootstrap.delegatecall(bootstrapCall);
-        if (!success) revert();
     }
 
     function isModuleModuleInstalled(
@@ -149,20 +150,39 @@ contract uMSA is Executor, IMSA, ModuleManager {
         override
         returns (bool)
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) return isValidatorInstalled(module);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) return isExecutorInstalled(module);
-        else revert UnsupportedModuleType(moduleType);
+        if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
+        else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
+        else if (moduleType == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
+        else if (moduleType == MODULE_TYPE_HOOK) return _isHookInstalled(module);
+        else return false;
     }
 
     function accountId() external view virtual override returns (string memory) {
-        // vendor.flavour.semver
-        return "uMSA.demo.v0.1";
+        // vendor.flavour.SemVer
+        return "uMSA.advanced.withHook.v0.1";
     }
 
-    function supportsMode(ModeCode mode) external view virtual override returns (bool) {
+    function supportsAccountMode(ModeCode mode) external view virtual override returns (bool) {
         CallType callType = mode.getCallType();
         if (callType == CALLTYPE_BATCH) return true;
         else if (callType == CALLTYPE_SINGLE) return true;
         else return false;
+    }
+
+    function supportsModule(uint256 modulTypeId) external view virtual override returns (bool) {
+        if (modulTypeId == MODULE_TYPE_VALIDATOR) return true;
+        else if (modulTypeId == MODULE_TYPE_EXECUTOR) return true;
+    }
+
+    function initializeAccount(bytes calldata data) public payable virtual override {
+        // only allow initialization once
+        if (isAlreadyInitialized()) revert();
+        _initModuleManager();
+
+        // this is just implemented for demonstration purposes. You can use any other initialization
+        // logic here.
+        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        (bool success,) = bootstrap.delegatecall(bootstrapCall);
+        if (!success) revert();
     }
 }

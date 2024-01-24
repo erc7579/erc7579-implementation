@@ -15,6 +15,10 @@ struct Execution {
 
 interface IMSA is IERC4337 {
     error Unsupported();
+    error UnsupportedModuleType(uint256 moduleType);
+
+    event ModuleInstalled(uint256 moduleTypeId, address module);
+    event ModuleUninstalled(uint256 moduleTypeId, address module);
 
     function execute(ModeCode mode, bytes calldata executionCalldata) external payable;
     function executeFromExecutor(
@@ -32,7 +36,8 @@ interface IMSA is IERC4337 {
     )
         external
         payable;
-    function supportsMode(ModeCode encodedMode) external view returns (bool);
+    function supportsAccountMode(ModeCode encodedMode) external view returns (bool);
+    function supportsModule(uint256 moduleTypeId) external view returns (bool);
     function uninstallModule(
         uint256 moduleType,
         address module,

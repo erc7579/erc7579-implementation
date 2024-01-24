@@ -52,14 +52,15 @@ using { eqExecType as == } for ExecType global;
 
 type ModePayload is bytes22;
 
-/**
- *
- */
 CallType constant CALLTYPE_SINGLE = CallType.wrap(0x01);
 CallType constant CALLTYPE_BATCH = CallType.wrap(0x02);
+// @dev Implementing delegatecall is OPTIONAL!
+// implement delegatecall with extreme care.
 CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
 // @dev default behavior is to revert on failure
+// To allow very simple accounts to use mode encoding, the default behavior is to revert on failure
+// Since this is value 0x00, no additional encoding is required for simple accounts
 ExecType constant EXECTYPE_REVERT = ExecType.wrap(0x00);
 // @dev account may elect to change execution behavior. For example "try exec" / "allow fail"
 ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
@@ -68,8 +69,7 @@ ModeSelector constant MODE_DEFAULT = ModeSelector.wrap(bytes4(0x00000000));
 ModeSelector constant MODE_OFFSET = ModeSelector.wrap(bytes4(keccak256("default.mode.offset")));
 
 /**
- * this enum informs how the execution should be handled in the execution phase.
- * it should be out of scope for most validation modules
+ * @dev ModeLib is a library for encoding and decoding ModeCode
  */
 library ModeLib {
     function decode(ModeCode mode)
@@ -125,7 +125,7 @@ library ModeLib {
         pure
         returns (ModeCode mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_SINGLE, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0));
+        mode = encode(CALLTYPE_SINGLE, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0x00));
         data = abi.encode(target, value, callData);
     }
 

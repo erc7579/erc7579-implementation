@@ -1,10 +1,10 @@
 import "../interfaces/IModule.sol";
 import "../interfaces/IMSA.sol";
 import "../lib/ModeLib.sol";
-import "../lib/DecodeLib.sol";
+import "../lib/ExecutionLib.sol";
 
 contract SimpleExecutionValidator is IValidator {
-    using DecodeLib for bytes;
+    using ExecutionLib for bytes;
 
     error InvalidExec();
 
