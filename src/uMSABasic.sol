@@ -133,7 +133,7 @@ contract MSABase is Executor, IMSA, ModuleManager {
         if (!success) revert();
     }
 
-    function isModuleModuleInstalled(
+    function isModuleInstalled(
         uint256 moduleType,
         address module,
         bytes calldata additionalContext

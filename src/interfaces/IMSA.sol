@@ -45,7 +45,7 @@ interface IMSA is IERC4337 {
     )
         external
         payable;
-    function isModuleModuleInstalled(
+    function isModuleInstalled(
         uint256 moduleType,
         address module,
         bytes calldata additionalContext

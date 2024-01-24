@@ -136,7 +136,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
-    function isModuleModuleInstalled(
+    function isModuleInstalled(
         uint256 moduleType,
         address module,
         bytes calldata additionalContext
