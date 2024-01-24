@@ -30,6 +30,8 @@ contract MSABase is Executor, IMSA, ModuleManager {
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
             _execute(target, value, callData);
+        } else {
+            revert UnsupportedCallType();
         }
     }
 
@@ -50,6 +52,8 @@ contract MSABase is Executor, IMSA, ModuleManager {
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
             _execute(target, value, callData);
+        } else {
+            revert UnsupportedCallType();
         }
     }
 
