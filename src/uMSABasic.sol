@@ -115,7 +115,7 @@ contract MSABase is Executor, IMSA, ModuleManager {
         }
 
         // check if validator is enabled. If terminate the validation phase.
-        if (!_isValidatorInstalled(validator)) return 0;
+        if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
@@ -164,5 +164,7 @@ contract MSABase is Executor, IMSA, ModuleManager {
     function supportsModule(uint256 modulTypeId) external view virtual override returns (bool) {
         if (modulTypeId == MODULE_TYPE_VALIDATOR) return true;
         else if (modulTypeId == MODULE_TYPE_EXECUTOR) return true;
+        else if (modulTypeId == MODULE_TYPE_FALLBACK) return true;
+        else return false;
     }
 }

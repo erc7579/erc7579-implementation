@@ -134,7 +134,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
         }
 
         // check if validator is enabled. If terminate the validation phase.
-        if (!_isValidatorInstalled(validator)) return 0;
+        if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
@@ -162,16 +162,31 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
         return "uMSA.advanced.withHook.v0.1";
     }
 
-    function supportsAccountMode(ModeCode mode) external view virtual override returns (bool) {
-        CallType callType = mode.getCallType();
-        if (callType == CALLTYPE_BATCH) return true;
-        else if (callType == CALLTYPE_SINGLE) return true;
+    function supportsAccountMode(ModeCode mode)
+        external
+        view
+        virtual
+        override
+        returns (bool isSupported)
+    {
+        (CallType callType, ExecType execType,,) = mode.decode();
+        if (callType == CALLTYPE_BATCH) isSupported = true;
+        else if (callType == CALLTYPE_SINGLE) isSupported = true;
+        // if callType is not batch or single, return false
+        else return false;
+
+        if (execType == EXECTYPE_REVERT) isSupported = true;
+        else if (execType == EXECTYPE_TRY) isSupported = true;
+        // if execType is not default or try, return false
         else return false;
     }
 
     function supportsModule(uint256 modulTypeId) external view virtual override returns (bool) {
         if (modulTypeId == MODULE_TYPE_VALIDATOR) return true;
         else if (modulTypeId == MODULE_TYPE_EXECUTOR) return true;
+        else if (modulTypeId == MODULE_TYPE_FALLBACK) return true;
+        else if (modulTypeId == MODULE_TYPE_HOOK) return true;
+        else return false;
     }
 
     function initializeAccount(bytes calldata data) public payable virtual override {
