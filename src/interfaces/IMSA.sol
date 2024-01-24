@@ -14,7 +14,8 @@ struct Execution {
  */
 
 interface IMSA is IERC4337 {
-    error Unsupported();
+    error UnsupportedCallType();
+    error UnsupportedExecType();
     error UnsupportedModuleType(uint256 moduleType);
 
     event ModuleInstalled(uint256 moduleTypeId, address module);

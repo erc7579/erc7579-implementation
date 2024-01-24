@@ -32,6 +32,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // check if execType is revert or try
             if (execType == EXECTYPE_REVERT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
+            else revert UnsupportedExecType();
         } else if (callType == CALLTYPE_SINGLE) {
             // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
@@ -40,6 +41,9 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
+            else revert UnsupportedExecType();
+        } else {
+            revert UnsupportedCallType();
         }
     }
 
@@ -61,6 +65,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // check if execType is revert or try
             if (execType == EXECTYPE_REVERT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
+            else revert UnsupportedExecType();
         } else if (callType == CALLTYPE_SINGLE) {
             // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
@@ -69,6 +74,9 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
+            else revert UnsupportedExecType();
+        } else {
+            revert UnsupportedCallType();
         }
     }
 
