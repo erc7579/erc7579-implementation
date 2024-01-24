@@ -52,8 +52,8 @@ using { eqExecType as == } for ExecType global;
 
 type ModePayload is bytes22;
 
-CallType constant CALLTYPE_SINGLE = CallType.wrap(0x01);
-CallType constant CALLTYPE_BATCH = CallType.wrap(0x02);
+CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
+CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 // @dev Implementing delegatecall is OPTIONAL!
 // implement delegatecall with extreme care.
 CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
@@ -61,7 +61,7 @@ CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 // @dev default behavior is to revert on failure
 // To allow very simple accounts to use mode encoding, the default behavior is to revert on failure
 // Since this is value 0x00, no additional encoding is required for simple accounts
-ExecType constant EXECTYPE_REVERT = ExecType.wrap(0x00);
+ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 // @dev account may elect to change execution behavior. For example "try exec" / "allow fail"
 ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
@@ -112,7 +112,7 @@ library ModeLib {
         pure
         returns (ModeCode mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_BATCH, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0x00));
+        mode = encode(CALLTYPE_BATCH, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00));
         data = abi.encode(executions);
     }
 
@@ -125,7 +125,7 @@ library ModeLib {
         pure
         returns (ModeCode mode, bytes memory data)
     {
-        mode = encode(CALLTYPE_SINGLE, EXECTYPE_REVERT, MODE_DEFAULT, ModePayload.wrap(0x00));
+        mode = encode(CALLTYPE_SINGLE, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00));
         data = abi.encode(target, value, callData);
     }
 

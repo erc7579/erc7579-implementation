@@ -30,7 +30,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // destructure executionCallData according to batched exec
             Execution[] calldata executions = executionCalldata.decodeBatch();
             // check if execType is revert or try
-            if (execType == EXECTYPE_REVERT) _execute(executions);
+            if (execType == EXECTYPE_DEFAULT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
             else revert UnsupportedExecType();
         } else if (callType == CALLTYPE_SINGLE) {
@@ -38,7 +38,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
             // check if execType is revert or try
-            if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
             else revert UnsupportedExecType();
@@ -63,7 +63,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // destructure executionCallData according to batched exec
             Execution[] calldata executions = executionCalldata.decodeBatch();
             // check if execType is revert or try
-            if (execType == EXECTYPE_REVERT) _execute(executions);
+            if (execType == EXECTYPE_DEFAULT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
             else revert UnsupportedExecType();
         } else if (callType == CALLTYPE_SINGLE) {
@@ -71,7 +71,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
             // check if execType is revert or try
-            if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
             else revert UnsupportedExecType();
@@ -181,7 +181,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
         // if callType is not batch or single, return false
         else return false;
 
-        if (execType == EXECTYPE_REVERT) isSupported = true;
+        if (execType == EXECTYPE_DEFAULT) isSupported = true;
         else if (execType == EXECTYPE_TRY) isSupported = true;
         // if execType is not default or try, return false
         else return false;

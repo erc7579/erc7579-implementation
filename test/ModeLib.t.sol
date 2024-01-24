@@ -9,7 +9,7 @@ contract ModeLibTest is Test {
 
     function test_encode_decode() public {
         CallType callType = CALLTYPE_SINGLE;
-        ExecType execType = EXECTYPE_REVERT;
+        ExecType execType = EXECTYPE_DEFAULT;
         ModeSelector modeSelector = MODE_DEFAULT;
         ModePayload payload = ModePayload.wrap(bytes22(hex"01"));
         ModeCode enc = ModeLib.encode(callType, execType, modeSelector, payload);
