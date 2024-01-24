@@ -108,10 +108,6 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
         else revert UnsupportedModuleType(moduleType);
     }
 
-    /**
-     * Validator selection / encoding is NOT in scope of this standard.
-     * This is just an example of how it could be done.
-     */
     function validateUserOp(
         UserOperation calldata userOp,
         bytes32 userOpHash,
