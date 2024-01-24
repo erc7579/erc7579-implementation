@@ -38,6 +38,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
                 executionCalldata.decodeSingle();
             // check if execType is revert or try
             if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
         }
     }
@@ -66,6 +67,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
                 executionCalldata.decodeSingle();
             // check if execType is revert or try
             if (execType == EXECTYPE_REVERT) _execute(target, value, callData);
+            // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
         }
     }
