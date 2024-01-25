@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+
+# External libraries
+node_modules
