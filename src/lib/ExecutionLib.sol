@@ -3,6 +3,10 @@ pragma solidity ^0.8.23;
 
 import { Execution } from "../interfaces/IMSA.sol";
 
+/**
+ * Helper Library for decoding Execution calldata
+ * malloc for memory allocation is bad for gas. use this assembly instead
+ */
 library ExecutionLib {
     function decodeBatch(bytes calldata callData)
         internal

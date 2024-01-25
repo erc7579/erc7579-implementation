@@ -5,7 +5,7 @@ import "./ModuleManager.sol";
 import "../interfaces/IMSA.sol";
 import "../interfaces/IModule.sol";
 /**
- * @title reference implementation of the minimal modular smart account with Hook Extension
+ * @title reference implementation of HookManager
  * @author zeroknots.eth | rhinestone.wtf
  */
 

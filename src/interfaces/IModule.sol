@@ -15,15 +15,14 @@ uint256 constant MODULE_TYPE_HOOK = 4;
 interface IModule {
     /**
      * Enable module
-     *  This function is called by the MSA during "installValidator, installExecutor, installHook"
+     *  This function is called by the MSA during "installModule"
      * @dev this function MUST revert on error (i.e. if module is already enabled)
      */
     function onInstall(bytes calldata data) external;
 
     /**
      * Disable module
-     *  This function is called by the MSA during "uninstallValidator, uninstallExecutor,
-     * uninstallHook"
+     *  This function is called by the MSA during "uninstallModule"
      * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled
      * later
      */

@@ -9,8 +9,9 @@ import "forge-std/interfaces/IERC165.sol";
 /**
  * @title ModuleManager
  * @author zeroknots.eth | rhinestone.wtf
- * @dev This contract manages Validator and Executor modules for the MSA
+ * @dev This contract manages Validator, Executor and Fallback modules for the MSA
  * @dev it uses SentinelList to manage the linked list of modules
+ * NOTE: the linked list is just an example. accounts may implement this differently
  */
 abstract contract ModuleManager is AccountBase {
     using SentinelListLib for SentinelListLib.SentinelList;
