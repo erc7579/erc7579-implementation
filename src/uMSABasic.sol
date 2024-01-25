@@ -10,10 +10,13 @@ import "./interfaces/IModule.sol";
 import "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
-contract MSABase is ExecutionHelper, IMSA, ModuleManager {
+contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function execute(
         ModeCode mode,
         bytes calldata executionCalldata
@@ -36,6 +39,9 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         }
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function executeFromExecutor(
         ModeCode mode,
         bytes calldata executionCalldata
@@ -58,12 +64,18 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         }
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function executeUserOp(UserOperation calldata userOp) external payable onlyEntryPointOrSelf {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
         if (!success) revert ExecutionFailed();
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function installModule(
         uint256 moduleType,
         address module,
@@ -79,6 +91,9 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         else revert UnsupportedModuleType(moduleType);
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function uninstallModule(
         uint256 moduleType,
         address module,
@@ -96,7 +111,7 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
 
     /**
      * Validator selection / encoding is NOT in scope of this standard.
-     * This is just an example of how it could be done.
+     * @inheritdoc IERC7579Account
      */
     function validateUserOp(
         UserOperation calldata userOp,
@@ -126,6 +141,9 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function initializeAccount(bytes calldata data) public payable virtual override {
         // only allow initialization once
         if (isAlreadyInitialized()) revert();
@@ -138,6 +156,9 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         if (!success) revert();
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function isModuleInstalled(
         uint256 moduleType,
         address module,
@@ -154,11 +175,17 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         else revert UnsupportedModuleType(moduleType);
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function accountId() external view virtual override returns (string memory) {
         // vendor.flavour.semver
-        return "uMSA.simple.noHook.v0.1";
+        return "uMSA.simple/noHook.v0.1";
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function supportsAccountMode(ModeCode mode) external view virtual override returns (bool) {
         CallType callType = mode.getCallType();
         if (callType == CALLTYPE_BATCH) return true;
@@ -166,6 +193,9 @@ contract MSABase is ExecutionHelper, IMSA, ModuleManager {
         else return false;
     }
 
+    /**
+     * @inheritdoc IERC7579Account
+     */
     function supportsModule(uint256 modulTypeId) external view virtual override returns (bool) {
         if (modulTypeId == MODULE_TYPE_VALIDATOR) return true;
         else if (modulTypeId == MODULE_TYPE_EXECUTOR) return true;

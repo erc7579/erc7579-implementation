@@ -10,7 +10,7 @@ struct Execution {
     bytes callData;
 }
 
-interface IMSA {
+interface IERC7579Account {
     error UnsupportedModuleType(uint256 moduleType);
     // Error thrown when an execution with an unsupported CallType was made
     error UnsupportedCallType(CallType callType);
