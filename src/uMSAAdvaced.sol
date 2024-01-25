@@ -4,7 +4,8 @@ pragma solidity ^0.8.23;
 import "./lib/ModeLib.sol";
 import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { Executor } from "./core/Executor.sol";
-import "./interfaces/IERC4337.sol";
+import { PackedUserOperation as UserOperation } from
+    "account-abstraction/interfaces/PackedUserOperation.sol";
 import "./interfaces/IModule.sol";
 import "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
@@ -32,7 +33,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // check if execType is revert or try
             if (execType == EXECTYPE_DEFAULT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
-            else revert UnsupportedExecType();
+            else revert UnsupportedExecType(execType);
         } else if (callType == CALLTYPE_SINGLE) {
             // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
@@ -41,9 +42,9 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
-            else revert UnsupportedExecType();
+            else revert UnsupportedExecType(execType);
         } else {
-            revert UnsupportedCallType();
+            revert UnsupportedCallType(callType);
         }
     }
 
@@ -65,7 +66,7 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             // check if execType is revert or try
             if (execType == EXECTYPE_DEFAULT) _execute(executions);
             else if (execType == EXECTYPE_TRY) _tryExecute(executions);
-            else revert UnsupportedExecType();
+            else revert UnsupportedExecType(execType);
         } else if (callType == CALLTYPE_SINGLE) {
             // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
@@ -74,9 +75,9 @@ contract MSAAdvanced is Executor, IMSA, ModuleManager, HookManager {
             if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
-            else revert UnsupportedExecType();
+            else revert UnsupportedExecType(execType);
         } else {
-            revert UnsupportedCallType();
+            revert UnsupportedCallType(callType);
         }
     }
 

@@ -15,7 +15,7 @@ contract SimpleExecutionValidator is IValidator {
     function isModuleType(uint256 typeID) external view override returns (bool) { }
 
     function validateUserOp(
-        IERC4337.UserOperation calldata userOp,
+        UserOperation calldata userOp,
         bytes32 userOpHash
     )
         external

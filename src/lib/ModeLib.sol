@@ -3,6 +3,16 @@ pragma solidity ^0.8.23;
 
 /**
  * @title ModeLib
+ * To allow smart accounts to be very simple, but allow for more complex execution, A custom mode
+ * encoding is used.
+ *    Function Signature of execute function:
+ *           function execute(ModeCode mode, bytes calldata executionCalldata) external payable;
+ * This allows for a single bytes32 to be used to encode the execution mode, calltype, execType and
+ * context.
+ * NOTE: Simple Account implementations only have to scope for the most significant byte. Account  that
+ * implement
+ * more complex execution modes may use the entire bytes32.
+ *
  * |--------------------------------------------------------------------|
  * | CALLTYPE  | EXECTYPE  |   UNUSED   | ModeSelector  |  ModePayload  |
  * |--------------------------------------------------------------------|
@@ -10,34 +20,38 @@ pragma solidity ^0.8.23;
  * |--------------------------------------------------------------------|
  *
  * CALLTYPE: 1 byte
- * CallType is used to determine how the data should be decoded.
- * It can be either single, batch or delegatecall. In the future different calls could be added. i.e.
- * staticcall
- * calltype can be used by a validation module to determine how to decode <bytes data>.
+ * CallType is used to determine how the executeCalldata paramter of the execute function has to be
+ * decoded.
+ * It can be either single, batch or delegatecall. In the future different calls could be added.
+ * CALLTYPE can be used by a validation module to determine how to decode <userOp.callData[36:]>.
  *
  * EXECTYPE: 1 byte
  * ExecType is used to determine how the account should handle the execution.
  * It can indicate if the execution should revert on failure or continue execution.
+ * In the future more execution modes may be added.
+ * Default Behavior (EXECTYPE = 0x00) is to revert on a single failed execution. If one execution in
+ * a batch fails, the entire batch is reverted
  *
  * UNUSED: 4 bytes
  * Unused bytes are reserved for future use.
  *
  * ModeSelector: bytes4
- * Exec mode is used to determine how the account should handle the execution.
- * Validator Modules do not have to interpret this value.
- * It can indicate if the execution should revert on failure or continue execution.
+ * The "optional" mode selector can be used by account vendors, to implement custom behavior in
+ * their accounts.
+ * the way a ModeSelector is to be calculated is bytes4(keccak256("vendorname.featurename"))
+ * this is to prevent collisions between different vendors, while allowing innovation and the
+ * development of new features without coordination between ERC-7579 implementing accounts
  *
  * ModePayload: 22 bytes
  * Mode payload is used to pass additional data to the smart account execution, this may be
- * interpreted depending on the mode
- * It can be used to decode additional context data that the smart account may interpret to change
- * the execution behavior.
+ * interpreted depending on the ModeSelector
  *
- * CALLDATA: n bytes
- * single, delegatecall or batch exec encoded as bytes
+ * ExecutionCallData: n bytes
+ * single, delegatecall or batch exec abi.encoded as bytes
  */
 import { Execution } from "../interfaces/IMSA.sol";
 
+// Custom type for improved developer experience
 type ModeCode is bytes32;
 
 type CallType is bytes1;
@@ -46,13 +60,11 @@ type ExecType is bytes1;
 
 type ModeSelector is bytes4;
 
-using { eqModeSelector as == } for ModeSelector global;
-using { eqCallType as == } for CallType global;
-using { eqExecType as == } for ExecType global;
-
 type ModePayload is bytes22;
 
+// Default CallTupe
 CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
+// Batched CallType
 CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 // @dev Implementing delegatecall is OPTIONAL!
 // implement delegatecall with extreme care.
@@ -66,10 +78,11 @@ ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
 ModeSelector constant MODE_DEFAULT = ModeSelector.wrap(bytes4(0x00000000));
+// Example declaration of a custom mode selector
 ModeSelector constant MODE_OFFSET = ModeSelector.wrap(bytes4(keccak256("default.mode.offset")));
 
 /**
- * @dev ModeLib is a library for encoding and decoding ModeCode
+ * @dev ModeLib is a helper library to encode/decode ModeCodes
  */
 library ModeLib {
     function decode(ModeCode mode)
@@ -135,6 +148,10 @@ library ModeLib {
         }
     }
 }
+
+using { eqModeSelector as == } for ModeSelector global;
+using { eqCallType as == } for CallType global;
+using { eqExecType as == } for ExecType global;
 
 function eqCallType(CallType a, CallType b) pure returns (bool) {
     return CallType.unwrap(a) == CallType.unwrap(b);

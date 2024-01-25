@@ -4,7 +4,8 @@ pragma solidity ^0.8.23;
 import "./lib/ModeLib.sol";
 import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { Executor } from "./core/Executor.sol";
-import "./interfaces/IERC4337.sol";
+import { PackedUserOperation as UserOperation } from
+    "account-abstraction/interfaces/PackedUserOperation.sol";
 import "./interfaces/IModule.sol";
 import "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
@@ -31,7 +32,7 @@ contract MSABase is Executor, IMSA, ModuleManager {
                 executionCalldata.decodeSingle();
             _execute(target, value, callData);
         } else {
-            revert UnsupportedCallType();
+            revert UnsupportedCallType(callType);
         }
     }
 
@@ -53,7 +54,7 @@ contract MSABase is Executor, IMSA, ModuleManager {
                 executionCalldata.decodeSingle();
             _execute(target, value, callData);
         } else {
-            revert UnsupportedCallType();
+            revert UnsupportedCallType(callType);
         }
     }
 
