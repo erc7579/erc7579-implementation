@@ -2,8 +2,8 @@
 pragma solidity ^0.8.21;
 
 import "./ModuleManager.sol";
-import "../interfaces/IMSA.sol";
-import "../interfaces/IModule.sol";
+import "../interfaces/IERC7579Account.sol";
+import "../interfaces/IERC7579Module.sol";
 /**
  * @title reference implementation of HookManager
  * @author zeroknots.eth | rhinestone.wtf

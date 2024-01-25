@@ -17,6 +17,8 @@ interface IERC7579Account {
     // Error thrown when an execution with an unsupported ExecType was made
     error UnsupportedExecType(ExecType execType);
 
+    error AccountInitializationFailed();
+
     event ModuleInstalled(uint256 moduleTypeId, address module);
     event ModuleUninstalled(uint256 moduleTypeId, address module);
 

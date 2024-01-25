@@ -6,8 +6,8 @@ import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
-import "./interfaces/IModule.sol";
-import "./interfaces/IMSA.sol";
+import "./interfaces/IERC7579Account.sol";
+import "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
 contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
@@ -146,14 +146,14 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
      */
     function initializeAccount(bytes calldata data) public payable virtual override {
         // only allow initialization once
-        if (isAlreadyInitialized()) revert();
+        if (isAlreadyInitialized()) revert AccountInitializationFailed();
         _initModuleManager();
 
         // this is just implemented for demonstration purposes. You can use any other initialization
         // logic here.
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
-        if (!success) revert();
+        if (!success) revert AccountInitializationFailed();
     }
 
     /**

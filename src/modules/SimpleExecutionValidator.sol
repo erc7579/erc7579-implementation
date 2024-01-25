@@ -1,5 +1,8 @@
-import "../interfaces/IModule.sol";
-import "../interfaces/IMSA.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
+import "../interfaces/IERC7579Account.sol";
+import "../interfaces/IERC7579Module.sol";
 import "../lib/ModeLib.sol";
 import "../lib/ExecutionLib.sol";
 

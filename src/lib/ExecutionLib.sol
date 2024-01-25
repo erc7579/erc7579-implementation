@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { Execution } from "../interfaces/IMSA.sol";
+import { Execution } from "../interfaces/IERC7579Account.sol";
 
 /**
  * Helper Library for decoding Execution calldata

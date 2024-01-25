@@ -6,8 +6,8 @@ import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
-import "./interfaces/IModule.sol";
-import "./interfaces/IMSA.sol";
+import "./interfaces/IERC7579Account.sol";
+import "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
 

@@ -3,7 +3,7 @@ pragma solidity ^0.8.21;
 
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { AccountBase } from "./AccountBase.sol";
-import "../interfaces/IModule.sol";
+import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
 
 /**

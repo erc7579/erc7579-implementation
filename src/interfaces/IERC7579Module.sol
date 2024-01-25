@@ -35,7 +35,6 @@ interface IModule {
 }
 
 interface IValidator is IModule {
-    error InvalidExecution(bytes4 functionSig);
     error InvalidTargetAddress(address target);
     error InvalidTargetCall();
 
