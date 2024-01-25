@@ -24,6 +24,10 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
 
     /**
      * @inheritdoc IERC7579Account
+     * @dev this function is only callable by the entry point or the account itself
+     * @dev this function demonstrates how to implement
+     * CallType SINGLE and BATCH and ExecType DEFAULT and TRY
+     * @dev this function demonstrates how to implement hook support (modifier)
      */
     function execute(
         ModeCode mode,
@@ -60,6 +64,10 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
 
     /**
      * @inheritdoc IERC7579Account
+     * @dev this function is only callable by an installed executor module
+     * @dev this function demonstrates how to implement
+     * CallType SINGLE and BATCH and ExecType DEFAULT and TRY
+     * @dev this function demonstrates how to implement hook support (modifier)
      */
     function executeFromExecutor(
         ModeCode mode,
