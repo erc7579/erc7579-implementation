@@ -10,6 +10,13 @@ import "./interfaces/IERC7579Account.sol";
 import "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
+/**
+ * @author zeroknots.eth | rhinestone.wtf
+ * Reference implementation of a very simple ERC7579 Account.
+ * This account only implements CallType: SINGLE and BATCH.
+ * only the default ExecType is implemented.
+ * Hook support is not implemented
+ */
 contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
