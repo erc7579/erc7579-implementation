@@ -245,8 +245,7 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
      * @inheritdoc IERC7579Account
      */
     function initializeAccount(bytes calldata data) public payable virtual override {
-        // only allow initialization once
-        if (isAlreadyInitialized()) revert();
+        // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
 
         // this is just implemented for demonstration purposes. You can use any other initialization
