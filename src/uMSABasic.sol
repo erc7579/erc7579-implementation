@@ -165,6 +165,8 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
 
     /**
      * @inheritdoc IERC7579Account
+     * @param additionalContext is not needed here. It is only used in cases where the modules are
+     * stored in more complex mappings
      */
     function isModuleInstalled(
         uint256 moduleType,
@@ -179,7 +181,7 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
         if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
         else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
         else if (moduleType == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
-        else revert UnsupportedModuleType(moduleType);
+        else return false;
     }
 
     /**
