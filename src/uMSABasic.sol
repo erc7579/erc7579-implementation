@@ -3,14 +3,14 @@ pragma solidity ^0.8.23;
 
 import "./lib/ModeLib.sol";
 import { ExecutionLib } from "./lib/ExecutionLib.sol";
-import { Executor } from "./core/Executor.sol";
+import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
 import "./interfaces/IModule.sol";
 import "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
-contract MSABase is Executor, IMSA, ModuleManager {
+contract MSABase is ExecutionHelper, IMSA, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 

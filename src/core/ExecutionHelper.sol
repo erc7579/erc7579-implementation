@@ -10,7 +10,7 @@ import { Execution } from "../interfaces/IMSA.sol";
  * shoutout to solady (vectorized, ross) for this code
  * https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol
  */
-contract Executor {
+contract ExecutionHelper {
     error ExecutionFailed();
 
     event TryExecuteUnsuccessful(uint256 batchExecutionindex, bytes result);
