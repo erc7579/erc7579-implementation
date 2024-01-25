@@ -13,11 +13,14 @@ uint256 constant MODULE_TYPE_FALLBACK = 3;
 uint256 constant MODULE_TYPE_HOOK = 4;
 
 interface IModule {
+    error AlreadyInitialized(address smartAccount);
+    error NotInitialized(address smartAccount);
     /**
      * Enable module
      *  This function is called by the MSA during "installModule"
      * @dev this function MUST revert on error (i.e. if module is already enabled)
      */
+
     function onInstall(bytes calldata data) external;
 
     /**
@@ -32,11 +35,22 @@ interface IModule {
      * @dev Returns boolean value if Module is a certain ERC7579 Type
      */
     function isModuleType(uint256 typeID) external view returns (bool);
+
+    /**
+     * @dev Returns if the module was already initialized for a provided smartaccount
+     */
+    function isInitialized(address smartAccount) external view returns (bool);
+
+    /**
+     * @return moduleId of this module
+     * the moduleId should be structured like so:
+     *        "vendorname.executor/validator.semver"
+     */
+    function moduleId() external view returns (string memory moduleId);
 }
 
 interface IValidator is IModule {
     error InvalidTargetAddress(address target);
-    error InvalidTargetCall();
 
     /**
      * @dev Validates a transaction on behalf of the account.
