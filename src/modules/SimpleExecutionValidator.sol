@@ -11,9 +11,21 @@ contract SimpleExecutionValidator is IValidator {
 
     error InvalidExec();
 
-    function onInstall(bytes calldata data) external override { }
+    mapping(address => bool) internal _initialized;
 
-    function onUninstall(bytes calldata data) external override { }
+    function onInstall(bytes calldata data) external override {
+        if (isInitialized(msg.sender)) revert AlreadyInitialized(msg.sender);
+        _initialized[msg.sender] = true;
+    }
+
+    function onUninstall(bytes calldata data) external override {
+        if (!isInitialized(msg.sender)) revert NotInitialized(msg.sender);
+        _initialized[msg.sender] = false;
+    }
+
+    function isInitialized(address smartAccount) public view override returns (bool) {
+        return _initialized[smartAccount];
+    }
 
     function isModuleType(uint256 typeID) external view override returns (bool) { }
 
@@ -49,4 +61,8 @@ contract SimpleExecutionValidator is IValidator {
         override
         returns (bytes4)
     { }
+
+    function moduleId() external pure override returns (string memory moduleIdStr) {
+        moduleIdStr = "SimpoleValidator.v0.0.1";
+    }
 }
