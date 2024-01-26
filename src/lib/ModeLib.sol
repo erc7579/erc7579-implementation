@@ -111,7 +111,7 @@ library ModeLib {
     )
         internal
         pure
-        returns (ModeCode _mode)
+        returns (ModeCode)
     {
         return ModeCode.wrap(
             bytes32(
