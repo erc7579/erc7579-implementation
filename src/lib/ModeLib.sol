@@ -147,7 +147,6 @@ library ModeLib {
             calltype := shr(mode, 248)
         }
     }
-}
 
 using { eqModeSelector as == } for ModeSelector global;
 using { eqCallType as == } for CallType global;
