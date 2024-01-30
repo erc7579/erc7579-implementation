@@ -1,6 +1,6 @@
 # ERC-7579 Reference Implementation
 
-Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://github.com/ethereum/ERCs/pull/163)).
+Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://eips.ethereum.org/EIPS/eip-7579)).
 
 ## Security Note
 
