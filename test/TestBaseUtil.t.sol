@@ -87,44 +87,4 @@ contract TestBaseUtil is BootstrapUtil, Test {
             signature: abi.encodePacked(hex"41414141")
         });
     }
-
-    // function test_execSingle() public {
-    //     // Create calldata for the account to execute
-    //     bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
-
-    //     // Encode the call into the calldata for the userOp
-    //     bytes memory userOpCalldata = abi.encodeCall(
-    //         IERC7579Account.execute,
-    //         (
-    //             ModeLib.encodeSimpleSingle(),
-    //             ExecutionLib.encodeSingle(address(target), uint256(0), setValueOnTarget)
-    //         )
-    //     );
-
-    //     // Get the account, initcode and nonce
-    //     (address account, bytes memory initCode) = getAccountAndInitCode();
-    //     uint256 nonce = getNonce(account, address(defaultValidator));
-
-    //     // Create the userOp and add it to the array
-    //     UserOperation memory userOp = UserOperation({
-    //         sender: address(account),
-    //         nonce: nonce,
-    //         initCode: initCode,
-    //         callData: userOpCalldata,
-    //         accountGasLimits: bytes32(abi.encodePacked(uint128(2e6), uint128(2e6))),
-    //         preVerificationGas: 2e6,
-    //         maxFeePerGas: 1,
-    //         maxPriorityFeePerGas: 1,
-    //         paymasterAndData: bytes(""),
-    //         signature: abi.encodePacked(hex"41414141")
-    //     });
-    //     UserOperation[] memory userOps = new UserOperation[](1);
-    //     userOps[0] = userOp;
-
-    //     // Send the userOp to the entrypoint
-    //     entrypoint.handleOps(userOps, payable(address(0x69)));
-
-    //     // Assert that the value was set ie that execution was successful
-    //     assertTrue(target.value() == 1337);
-    // }
 }
