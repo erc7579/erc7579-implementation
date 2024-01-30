@@ -1,0 +1,91 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
+import "src/interfaces/IERC7579Account.sol";
+import { MockTarget } from "./mocks/MockTarget.sol";
+import { ExecutionLib } from "src/lib/ExecutionLib.sol";
+import {
+    ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
+} from "src/lib/ModeLib.sol";
+import "./TestBaseUtil.t.sol";
+
+contract MSATest is TestBaseUtil {
+    function setUp() public override {
+        super.setUp();
+    }
+
+    function test_execSingle() public {
+        // Create calldata for the account to execute
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
+
+        // Encode the call into the calldata for the userOp
+        bytes memory userOpCalldata = abi.encodeCall(
+            IERC7579Account.execute,
+            (
+                ModeLib.encodeSimpleSingle(),
+                ExecutionLib.encodeSingle(address(target), uint256(0), setValueOnTarget)
+            )
+        );
+
+        // Get the account, initcode and nonce
+        (address account, bytes memory initCode) = getAccountAndInitCode();
+        uint256 nonce = getNonce(account, address(defaultValidator));
+
+        // Create the userOp and add the data
+        UserOperation memory userOp = getDefaultUserOp();
+        userOp.sender = address(account);
+        userOp.nonce = nonce;
+        userOp.initCode = initCode;
+        userOp.callData = userOpCalldata;
+
+        // Create userOps array
+        UserOperation[] memory userOps = new UserOperation[](1);
+        userOps[0] = userOp;
+
+        // Send the userOp to the entrypoint
+        entrypoint.handleOps(userOps, payable(address(0x69)));
+
+        // Assert that the value was set ie that execution was successful
+        assertTrue(target.value() == 1337);
+    }
+
+    function test_execBatch() public {
+        // Create calldata for the account to execute
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
+        address target2 = address(0x420);
+        uint256 target2Amount = 1 wei;
+
+        // Create the executions
+        Execution[] memory executions = new Execution[](2);
+        executions[0] = Execution({ target: address(target), value: 0, callData: setValueOnTarget });
+        executions[1] = Execution({ target: target2, value: target2Amount, callData: "" });
+
+        // Encode the call into the calldata for the userOp
+        bytes memory userOpCalldata = abi.encodeCall(
+            IERC7579Account.execute,
+            (ModeLib.encodeSimpleBatch(), ExecutionLib.encodeBatch(executions))
+        );
+
+        // Get the account, initcode and nonce
+        (address account, bytes memory initCode) = getAccountAndInitCode();
+        uint256 nonce = getNonce(account, address(defaultValidator));
+
+        // Create the userOp and add the data
+        UserOperation memory userOp = getDefaultUserOp();
+        userOp.sender = address(account);
+        userOp.nonce = nonce;
+        userOp.initCode = initCode;
+        userOp.callData = userOpCalldata;
+
+        // Create userOps array
+        UserOperation[] memory userOps = new UserOperation[](1);
+        userOps[0] = userOp;
+
+        // Send the userOp to the entrypoint
+        entrypoint.handleOps(userOps, payable(address(0x69)));
+
+        // Assert that the value was set ie that execution was successful
+        assertTrue(target.value() == 1337);
+        assertTrue(target2.balance == target2Amount);
+    }
+}

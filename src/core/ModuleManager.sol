@@ -178,6 +178,10 @@ abstract contract ModuleManager is AccountBase {
         return _getModuleManagerStorage().fallbackHandler == _handler;
     }
 
+    function getActiveFallbackHandler() external view virtual returns (address) {
+        return _getModuleManagerStorage().fallbackHandler;
+    }
+
     // FALLBACK
     fallback() external {
         address handler = _getModuleManagerStorage().fallbackHandler;

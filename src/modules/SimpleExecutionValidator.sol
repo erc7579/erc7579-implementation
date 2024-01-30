@@ -29,6 +29,8 @@ contract SimpleExecutionValidator is IValidator {
 
     function isModuleType(uint256 typeID) external view override returns (bool) { }
 
+    function getModuleTypes() external view returns (uint256) { }
+
     function validateUserOp(
         UserOperation calldata userOp,
         bytes32 userOpHash
@@ -61,8 +63,4 @@ contract SimpleExecutionValidator is IValidator {
         override
         returns (bytes4)
     { }
-
-    function moduleId() external pure override returns (string memory moduleIdStr) {
-        moduleIdStr = "SimpoleValidator.v0.0.1";
-    }
 }

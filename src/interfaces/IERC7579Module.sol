@@ -16,37 +16,43 @@ interface IModule {
     error AlreadyInitialized(address smartAccount);
     error NotInitialized(address smartAccount);
     /**
-     * Enable module
-     *  This function is called by the MSA during "installModule"
-     * @dev this function MUST revert on error (i.e. if module is already enabled)
+     * @dev This function is called by the smart account during installation of the module
+     * @param data arbitrary data that may be required on the module during `onInstall`
+     * initialization
+     *
+     * MUST revert on error (i.e. if module is already enabled)
      */
 
     function onInstall(bytes calldata data) external;
 
     /**
-     * Disable module
-     *  This function is called by the MSA during "uninstallModule"
-     * @dev this function MUST deinitialize the module for the user, so that it can be re-enabled
-     * later
+     * @dev This function is called by the smart account during uninstallation of the module
+     * @param data arbitrary data that may be required on the module during `onUninstall`
+     * de-initialization
+     *
+     * MUST revert on error
      */
     function onUninstall(bytes calldata data) external;
 
     /**
-     * @dev Returns boolean value if Module is a certain ERC7579 Type
+     * @dev Returns boolean value if module is a certain type
+     * @param typeID the module type ID according the ERC-7579 spec
+     *
+     * MUST return true if the module is of the given type and false otherwise
      */
     function isModuleType(uint256 typeID) external view returns (bool);
+
+    /**
+     * @dev Returns bit-encoded integer of the different typeIds of the module
+     *
+     * MUST return all the bit-encoded typeIds of the module
+     */
+    function getModuleTypes() external view returns (uint256);
 
     /**
      * @dev Returns if the module was already initialized for a provided smartaccount
      */
     function isInitialized(address smartAccount) external view returns (bool);
-
-    /**
-     * @return moduleId of this module
-     * the moduleId should be structured like so:
-     *        "vendorname.executor/validator.semver"
-     */
-    function moduleId() external view returns (string memory moduleId);
 }
 
 interface IValidator is IModule {
@@ -87,6 +93,7 @@ interface IExecutor is IModule { }
 interface IHook is IModule {
     function preCheck(
         address msgSender,
+        uint256 msgValue,
         bytes calldata msgData
     )
         external
