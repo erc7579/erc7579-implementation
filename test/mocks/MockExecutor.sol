@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { IExecutor } from "src/interfaces/IERC7579Module.sol";
+import { IExecutor, EncodedModuleTypes } from "src/interfaces/IERC7579Module.sol";
 import { IERC7579Account } from "src/interfaces/IERC7579Account.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import { ModeLib } from "src/lib/ModeLib.sol";
@@ -28,11 +28,9 @@ contract MockExecutor is IExecutor {
         return typeID == 2;
     }
 
-    function getModuleTypes() external pure returns (uint256) {
-        return 1 << 2;
-    }
+    function getModuleTypes() external view returns (EncodedModuleTypes) { }
 
-    function isInitialized(address smartAccount) external pure returns (bool) {
+    function isInitialized(address smartAccount) external view returns (bool) {
         return false;
     }
 }

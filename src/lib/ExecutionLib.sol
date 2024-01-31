@@ -43,9 +43,9 @@ library ExecutionLib {
         pure
         returns (address destination, uint256 value, bytes calldata callData)
     {
-        destination = address(bytes20(_callData[0:20]));
-        value = uint256(bytes32(_callData[20:52]));
-        callData = _callData[52:];
+        destination = address(bytes20(executionCalldata[0:20]));
+        value = uint256(bytes32(executionCalldata[20:52]));
+        callData = executionCalldata[52:];
     }
 
     function encodeSingle(

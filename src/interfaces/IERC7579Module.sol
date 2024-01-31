@@ -16,6 +16,7 @@ uint256 constant MODULE_TYPE_HOOK = 4;
 interface IModule {
     error AlreadyInitialized(address smartAccount);
     error NotInitialized(address smartAccount);
+
     /**
      * @dev This function is called by the smart account during installation of the module
      * @param data arbitrary data that may be required on the module during `onInstall`
@@ -23,7 +24,6 @@ interface IModule {
      *
      * MUST revert on error (i.e. if module is already enabled)
      */
-
     function onInstall(bytes calldata data) external;
 
     /**

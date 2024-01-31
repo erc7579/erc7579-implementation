@@ -29,7 +29,7 @@ contract SimpleExecutionValidator is IValidator {
 
     function isModuleType(uint256 typeID) external view override returns (bool) { }
 
-    function getModuleTypes() external view returns (uint256) { }
+    function getModuleTypes() external view returns (EncodedModuleTypes) { }
 
     function validateUserOp(
         UserOperation calldata userOp,
