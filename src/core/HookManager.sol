@@ -27,7 +27,7 @@ abstract contract HookManager {
         if (hook == address(0)) {
             _;
         } else {
-            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
+            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.value, msg.data);
             _;
             if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
         }
@@ -63,5 +63,9 @@ abstract contract HookManager {
 
     function _isHookInstalled(address module) internal view returns (bool) {
         return _getHook() == module;
+    }
+
+    function getActiveHook() external view returns (address hook) {
+        return _getHook();
     }
 }

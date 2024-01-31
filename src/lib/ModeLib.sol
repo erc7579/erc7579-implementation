@@ -120,31 +120,17 @@ library ModeLib {
         );
     }
 
-    function encodeSimpleBatch(Execution[] calldata executions)
-        internal
-        pure
-        returns (ModeCode mode, bytes memory data)
-    {
+    function encodeSimpleBatch() internal pure returns (ModeCode mode) {
         mode = encode(CALLTYPE_BATCH, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00));
-        data = abi.encode(executions);
     }
 
-    function encodeSimpleSingle(
-        address target,
-        uint256 value,
-        bytes calldata callData
-    )
-        internal
-        pure
-        returns (ModeCode mode, bytes memory data)
-    {
+    function encodeSimpleSingle() internal pure returns (ModeCode mode) {
         mode = encode(CALLTYPE_SINGLE, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00));
-        data = abi.encode(target, value, callData);
     }
 
     function getCallType(ModeCode mode) internal pure returns (CallType calltype) {
         assembly {
-            calltype := shr(mode, 248)
+            calltype := mode
         }
     }
 }

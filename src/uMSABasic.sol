@@ -17,7 +17,7 @@ import { ModuleManager } from "./core/ModuleManager.sol";
  * only the default ExecType is implemented.
  * Hook support is not implemented
  */
-contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
+contract MSABasic is ExecutionHelper, IERC7579Account, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 

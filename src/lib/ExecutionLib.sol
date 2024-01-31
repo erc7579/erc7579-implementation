@@ -22,10 +22,7 @@ library ExecutionLib {
          */
         // solhint-disable-next-line no-inline-assembly
         assembly ("memory-safe") {
-            let offset := add(callData.offset, 0x4)
-            let baseOffset := offset
-
-            let dataPointer := add(baseOffset, calldataload(offset))
+            let dataPointer := add(callData.offset, calldataload(callData.offset))
 
             // Extract the ERC7579 Executions
             executionBatch.offset := add(dataPointer, 32)
@@ -33,14 +30,22 @@ library ExecutionLib {
         }
     }
 
-    function decodeSingle(bytes calldata _callData)
+    function encodeBatch(Execution[] memory executions)
+        internal
+        pure
+        returns (bytes memory callData)
+    {
+        callData = abi.encode(executions);
+    }
+
+    function decodeSingle(bytes calldata executionCalldata)
         internal
         pure
         returns (address destination, uint256 value, bytes calldata callData)
     {
-        destination = address(bytes20(_callData[0:20]));
-        value = uint256(bytes32(_callData[20:52]));
-        callData = _callData[52:];
+        destination = address(bytes20(executionCalldata[0:20]));
+        value = uint256(bytes32(executionCalldata[20:52]));
+        callData = executionCalldata[52:];
     }
 
     function encodeSingle(
@@ -50,8 +55,8 @@ library ExecutionLib {
     )
         internal
         pure
-        returns (bytes memory)
+        returns (bytes memory userOpCalldata)
     {
-        return abi.encodePacked(destination, value, callData);
+        userOpCalldata = abi.encodePacked(destination, value, callData);
     }
 }

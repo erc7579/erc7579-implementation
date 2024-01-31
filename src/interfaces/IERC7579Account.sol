@@ -30,7 +30,7 @@ interface IERC7579Account {
      * @dev MSA MUST implement this function signature.
      * If a mode is requested that is not supported by the Account, it MUST revert
      * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
-     * @param executionCalldata The return data of the executed contract call.
+     * @param executionCalldata The encoded execution call data
      */
     function execute(ModeCode mode, bytes calldata executionCalldata) external payable;
 
@@ -42,7 +42,7 @@ interface IERC7579Account {
      * @dev MSA MUST implement this function signature.
      * If a mode is requested that is not supported by the Account, it MUST revert
      * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
-     * @param executionCalldata The return data of the executed contract call.
+     * @param executionCalldata The encoded execution call data
      */
     function executeFromExecutor(
         ModeCode mode,

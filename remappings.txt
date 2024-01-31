@@ -4,3 +4,4 @@ solarray/=node_modules/solarray/src/
 account-abstraction/=node_modules/account-abstraction/contracts/
 ds-test/=node_modules/ds-test/src/
 forge-std/=node_modules/forge-std/src/
+@openzeppelin/=node_modules/@openzeppelin/
