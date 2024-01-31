@@ -77,6 +77,9 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
         payable
         onlyExecutorModule
         withHook
+        returns (
+            bytes[] memory returnData // TODO returnData is not used
+        )
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 

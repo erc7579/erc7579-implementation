@@ -56,6 +56,9 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
         external
         payable
         onlyExecutorModule
+        returns (
+            bytes[] memory returnData // TODO returnData is not used
+        )
     {
         CallType callType = mode.getCallType();
 
