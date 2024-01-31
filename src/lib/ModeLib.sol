@@ -130,7 +130,7 @@ library ModeLib {
 
     function getCallType(ModeCode mode) internal pure returns (CallType calltype) {
         assembly {
-            calltype := shr(mode, 248)
+            calltype := mode
         }
     }
 }
