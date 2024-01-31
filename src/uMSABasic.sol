@@ -99,6 +99,7 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
         else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
         else revert UnsupportedModuleType(moduleType);
+        emit ModuleInstalled(moduleType, module);
     }
 
     /**
@@ -117,6 +118,7 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
         else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
         else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
         else revert UnsupportedModuleType(moduleType);
+        emit ModuleUninstalled(moduleType, module);
     }
 
     /**
@@ -178,7 +180,7 @@ contract MSABase is ExecutionHelper, IERC7579Account, ModuleManager {
         external
         view
         override
-        returns (bool)
+        returns (bool isInstalled)
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
         else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
