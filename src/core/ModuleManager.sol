@@ -80,7 +80,7 @@ abstract contract ModuleManager is AccountBase {
 
     function _uninstallValidator(address validator, bytes calldata data) internal {
         // TODO: check if its the last validator. this might brick the account
-        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._executors;
+        SentinelListLib.SentinelList storage _validators = _getModuleManagerStorage()._validators;
         (address prev, bytes memory disableModuleData) = abi.decode(data, (address, bytes));
         _validators.pop(prev, validator);
         IValidator(validator).onUninstall(disableModuleData);
