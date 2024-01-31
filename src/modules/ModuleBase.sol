@@ -11,8 +11,8 @@ abstract contract ModuleBase is IModule {
         MODULE_TYPES = ModuleTypeLib.bitEncode(moduleTypes);
     }
 
-    function isModuleType(ModuleType _isModuleType) public view returns (bool) {
-        return ModuleTypeLib.isType(MODULE_TYPES, _isModuleType);
+    function isModuleType(uint256 _isModuleType) public view returns (bool) {
+        return ModuleTypeLib.isType(MODULE_TYPES, ModuleType.wrap(_isModuleType));
     }
 
     function getModuleTypes() public view returns (EncodedModuleTypes) {
