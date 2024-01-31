@@ -154,6 +154,29 @@ contract MSABasic is ExecutionHelper, IERC7579Account, ModuleManager {
     }
 
     /**
+     * @dev ERC-1271 isValidSignature
+     *         This function is intended to be used to validate a smart account signature
+     * and may forward the call to a validator module
+     *
+     * @param hash The hash of the data that is signed
+     * @param data The data that is signed
+     */
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata data
+    )
+        external
+        payable
+        virtual
+        override
+        returns (bytes4)
+    {
+        address validator = address(bytes20(data[0:20]));
+        if (!_isValidatorInstalled(validator)) revert InvalidModule(validator);
+        return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
+    }
+
+    /**
      * @inheritdoc IERC7579Account
      */
     function initializeAccount(bytes calldata data) public payable virtual override {

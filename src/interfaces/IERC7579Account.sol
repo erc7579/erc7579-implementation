@@ -81,6 +81,22 @@ interface IERC7579Account {
         returns (uint256 validSignature);
 
     /**
+     * @dev ERC-1271 isValidSignature
+     *         This function is intended to be used to validate a smart account signature
+     * and may forward the call to a validator module
+     *
+     * @param hash The hash of the data that is signed
+     * @param data The data that is signed
+     */
+    function isValidSignature(
+        bytes32 hash,
+        bytes calldata data
+    )
+        external
+        payable
+        returns (bytes4);
+
+    /**
      * @dev installs a Module of a certain type on the smart account
      * @dev Implement Authorization control of your chosing
      * @param moduleType the module type ID according the ERC-7579 spec
