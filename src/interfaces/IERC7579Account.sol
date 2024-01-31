@@ -49,7 +49,8 @@ interface IERC7579Account {
         bytes calldata executionCalldata
     )
         external
-        payable;
+        payable
+        returns (bytes[] memory returnData);
 
     /**
      * @dev ERC-4337 executeUserOp according to ERC-4337 v0.7

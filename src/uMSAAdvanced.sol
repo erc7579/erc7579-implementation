@@ -77,6 +77,9 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
         payable
         onlyExecutorModule
         withHook
+        returns (
+            bytes[] memory returnData // TODO returnData is not used
+        )
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 
@@ -128,6 +131,7 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
         else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
         else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
         else revert UnsupportedModuleType(moduleType);
+        emit ModuleInstalled(moduleType, module);
     }
 
     /**
@@ -147,6 +151,7 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
         else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
         else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
         else revert UnsupportedModuleType(moduleType);
+        emit ModuleUninstalled(moduleType, module);
     }
 
     /**

@@ -104,10 +104,10 @@ library ModeLib {
     }
 
     function encode(
-        CallType calltype,
+        CallType callType,
         ExecType execType,
         ModeSelector mode,
-        ModePayload context
+        ModePayload payload
     )
         internal
         pure
@@ -115,7 +115,7 @@ library ModeLib {
     {
         return ModeCode.wrap(
             bytes32(
-                abi.encodePacked(calltype, execType, bytes4(0), ModeSelector.unwrap(mode), context)
+                abi.encodePacked(callType, execType, bytes4(0), ModeSelector.unwrap(mode), payload)
             )
         );
     }

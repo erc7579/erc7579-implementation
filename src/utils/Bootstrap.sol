@@ -17,6 +17,11 @@ contract Bootstrap is ModuleManager, HookManager {
         _installValidator(address(validator), data);
     }
 
+    /**
+     * This function is intended to be called by the MSA with a delegatecall.
+     * Make sure that the MSA already initilazed the linked lists in the ModuleManager prior to
+     * calling this function
+     */
     function initMSA(
         BootstrapConfig[] calldata _validators,
         BootstrapConfig[] calldata _executors,
