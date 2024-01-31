@@ -7,8 +7,7 @@ import "src/lib/ExecutionLib.sol";
 contract ExecutionLibTest is Test {
     function setUp() public { }
 
-    function test_encode_decode(address target, uint value, bytes memory callData) public {
-
+    function test_encode_decode(address target, uint256 value, bytes memory callData) public {
         bytes memory encoded = ExecutionLib.encodeSingle(target, value, callData);
         console2.logBytes(encoded);
         console2.log("calldata");
