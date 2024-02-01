@@ -14,7 +14,7 @@ contract MSATest is TestBaseUtil {
         super.setUp();
     }
 
-    function test_execSingle() public {
+    function test_execSingle() public returns (address) {
         // Create calldata for the account to execute
         bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
 
@@ -47,6 +47,7 @@ contract MSATest is TestBaseUtil {
 
         // Assert that the value was set ie that execution was successful
         assertTrue(target.value() == 1337);
+        return account;
     }
 
     function test_execBatch() public {
@@ -87,5 +88,19 @@ contract MSATest is TestBaseUtil {
         // Assert that the value was set ie that execution was successful
         assertTrue(target.value() == 1337);
         assertTrue(target2.balance == target2Amount);
+    }
+
+    function test_execSingleFromExecutor() public {
+        address account = test_execSingle();
+
+        bytes[] memory ret = defaultExecutor.executeViaAccount(
+            IERC7579Account(address(account)),
+            address(target),
+            0,
+            abi.encodePacked(MockTarget.setValue.selector, uint256(1338))
+        );
+
+        assertEq(ret.length, 1);
+        assertEq(abi.decode(ret[0], (uint256)), 1338);
     }
 }

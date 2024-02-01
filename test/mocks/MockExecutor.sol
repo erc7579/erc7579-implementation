@@ -18,8 +18,9 @@ contract MockExecutor is IExecutor {
         bytes calldata callData
     )
         external
+        returns (bytes[] memory returnData)
     {
-        account.execute(
+        return account.executeFromExecutor(
             ModeLib.encodeSimpleSingle(), ExecutionLib.encodeSingle(target, value, callData)
         );
     }
