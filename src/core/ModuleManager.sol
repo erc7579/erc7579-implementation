@@ -5,6 +5,7 @@ import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { AccountBase } from "./AccountBase.sol";
 import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
+import "./Receiver.sol";
 
 /**
  * @title ModuleManager
@@ -13,7 +14,7 @@ import "forge-std/interfaces/IERC165.sol";
  * @dev it uses SentinelList to manage the linked list of modules
  * NOTE: the linked list is just an example. accounts may implement this differently
  */
-abstract contract ModuleManager is AccountBase {
+abstract contract ModuleManager is AccountBase, Receiver {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     error InvalidModule(address module);
@@ -183,7 +184,7 @@ abstract contract ModuleManager is AccountBase {
     }
 
     // FALLBACK
-    fallback() external {
+    fallback() external override(Receiver) receiverFallback {
         address handler = _getModuleManagerStorage().fallbackHandler;
         if (handler == address(0)) revert();
         /* solhint-disable no-inline-assembly */
