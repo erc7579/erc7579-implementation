@@ -81,8 +81,7 @@ contract TestBaseUtil is BootstrapUtil, Test {
             callData: "",
             accountGasLimits: bytes32(abi.encodePacked(uint128(2e6), uint128(2e6))),
             preVerificationGas: 2e6,
-            maxFeePerGas: 1,
-            maxPriorityFeePerGas: 1,
+            gasFees: bytes32(abi.encodePacked(uint128(2e6), uint128(2e6))),
             paymasterAndData: bytes(""),
             signature: abi.encodePacked(hex"41414141")
         });

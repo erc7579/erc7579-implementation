@@ -184,7 +184,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
     }
 
     // FALLBACK
-    fallback() external override(Receiver) receiverFallback {
+    fallback() external payable override(Receiver) receiverFallback {
         address handler = _getModuleManagerStorage().fallbackHandler;
         if (handler == address(0)) revert();
         /* solhint-disable no-inline-assembly */
