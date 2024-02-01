@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { PackedUserOperation as UserOperation } from
-    "account-abstraction/interfaces/PackedUserOperation.sol";
+import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
 import { EncodedModuleTypes } from "../lib/ModuleTypeLib.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
@@ -70,7 +69,7 @@ interface IValidator is IModule {
      * @return return value according to ERC-4337
      */
     function validateUserOp(
-        UserOperation calldata userOp,
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash
     )
         external

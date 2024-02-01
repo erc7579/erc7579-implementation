@@ -4,8 +4,7 @@ pragma solidity ^0.8.23;
 import "./lib/ModeLib.sol";
 import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { ExecutionHelper } from "./core/ExecutionHelper.sol";
-import { PackedUserOperation as UserOperation } from
-    "account-abstraction/interfaces/PackedUserOperation.sol";
+import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
 import "./interfaces/IERC7579Module.sol";
 import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
@@ -117,7 +116,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function executeUserOp(UserOperation calldata userOp) external payable onlyEntryPointOrSelf {
+    function executeUserOp(PackedUserOperation calldata userOp)
+        external
+        payable
+        onlyEntryPointOrSelf
+    {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
         if (!success) revert ExecutionFailed();
@@ -167,7 +170,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      * @inheritdoc IERC7579Account
      */
     function validateUserOp(
-        UserOperation calldata userOp,
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     )

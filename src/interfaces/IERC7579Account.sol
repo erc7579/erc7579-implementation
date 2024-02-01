@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import { CallType, ExecType, ModeCode } from "../lib/ModeLib.sol";
-import { PackedUserOperation as UserOperation } from "account-abstraction/interfaces/IAccount.sol";
+import { PackedUserOperation } from "account-abstraction/interfaces/IAccount.sol";
 
 struct Execution {
     address target;
@@ -52,7 +52,7 @@ interface IERC7579Account {
      *
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(UserOperation calldata userOp) external payable;
+    function executeUserOp(PackedUserOperation calldata userOp) external payable;
 
     /**
      * @dev ERC-4337 validateUserOp according to ERC-4337 v0.7
@@ -64,7 +64,7 @@ interface IERC7579Account {
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
     function validateUserOp(
-        UserOperation calldata userOp,
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     )

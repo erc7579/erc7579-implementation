@@ -32,14 +32,14 @@ contract MSATest is TestBaseUtil {
         uint256 nonce = getNonce(account, address(defaultValidator));
 
         // Create the userOp and add the data
-        UserOperation memory userOp = getDefaultUserOp();
+        PackedUserOperation memory userOp = getDefaultUserOp();
         userOp.sender = address(account);
         userOp.nonce = nonce;
         userOp.initCode = initCode;
         userOp.callData = userOpCalldata;
 
         // Create userOps array
-        UserOperation[] memory userOps = new UserOperation[](1);
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
         userOps[0] = userOp;
 
         // Send the userOp to the entrypoint
@@ -72,14 +72,14 @@ contract MSATest is TestBaseUtil {
         uint256 nonce = getNonce(account, address(defaultValidator));
 
         // Create the userOp and add the data
-        UserOperation memory userOp = getDefaultUserOp();
+        PackedUserOperation memory userOp = getDefaultUserOp();
         userOp.sender = address(account);
         userOp.nonce = nonce;
         userOp.initCode = initCode;
         userOp.callData = userOpCalldata;
 
         // Create userOps array
-        UserOperation[] memory userOps = new UserOperation[](1);
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
         userOps[0] = userOp;
 
         // Send the userOp to the entrypoint

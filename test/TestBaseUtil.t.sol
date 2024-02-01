@@ -73,8 +73,8 @@ contract TestBaseUtil is BootstrapUtil, Test {
         nonce = entrypoint.getNonce(address(account), key);
     }
 
-    function getDefaultUserOp() internal returns (UserOperation memory userOp) {
-        userOp = UserOperation({
+    function getDefaultUserOp() internal returns (PackedUserOperation memory userOp) {
+        userOp = PackedUserOperation({
             sender: address(0),
             nonce: 0,
             initCode: "",

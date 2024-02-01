@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import {
     IValidator,
-    UserOperation,
+    PackedUserOperation,
     VALIDATION_SUCCESS,
     EncodedModuleTypes
 } from "src/interfaces/IERC7579Module.sol";
@@ -14,7 +14,7 @@ contract MockValidator is IValidator {
     function onUninstall(bytes calldata data) external override { }
 
     function validateUserOp(
-        UserOperation calldata userOp,
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash
     )
         external
