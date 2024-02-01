@@ -88,18 +88,26 @@ contract MSAAdvanced is ExecutionHelper, IERC7579Account, ModuleManager, HookMan
             // destructure executionCallData according to batched exec
             Execution[] calldata executions = executionCalldata.decodeBatch();
             // check if execType is revert or try
-            if (execType == EXECTYPE_DEFAULT) _execute(executions);
-            else if (execType == EXECTYPE_TRY) _tryExecute(executions);
+            if (execType == EXECTYPE_DEFAULT) returnData = _execute(executions);
+            else if (execType == EXECTYPE_TRY) returnData = _tryExecute(executions);
             else revert UnsupportedExecType(execType);
         } else if (callType == CALLTYPE_SINGLE) {
             // destructure executionCallData according to single exec
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
+            returnData = new bytes[](1);
+            bool success;
             // check if execType is revert or try
-            if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
+            if (execType == EXECTYPE_DEFAULT) {
+                returnData[0] = _execute(target, value, callData);
+            }
             // TODO: implement event emission for tryExecute singleCall
-            else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
-            else revert UnsupportedExecType(execType);
+            else if (execType == EXECTYPE_TRY) {
+                (success, returnData[0]) = _tryExecute(target, value, callData);
+                if (!success) emit TryExecuteUnsuccessful(0, returnData[0]);
+            } else {
+                revert UnsupportedExecType(execType);
+            }
         } else {
             revert UnsupportedCallType(callType);
         }
