@@ -7,7 +7,7 @@ import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
 import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
-import { IReferenceImplementation } from "./interfaces/IReferenceImplementation.sol";
+import { IMSA } from "./interfaces/IMSA.sol";
 import "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
@@ -18,7 +18,7 @@ import { ModuleManager } from "./core/ModuleManager.sol";
  * only the default ExecType is implemented.
  * Hook support is not implemented
  */
-contract MSABasic is IReferenceImplementation, ExecutionHelper, ModuleManager {
+contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 

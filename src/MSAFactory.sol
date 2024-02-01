@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import { LibClone } from "solady/src/utils/LibClone.sol";
-import { IReferenceImplementation } from "./interfaces/IReferenceImplementation.sol";
+import { IMSA } from "./interfaces/IMSA.sol";
 
 contract MSAFactory {
     address public immutable implementation;
@@ -25,7 +25,7 @@ contract MSAFactory {
             LibClone.createDeterministicERC1967(msg.value, implementation, _salt);
 
         if (!alreadyDeployed) {
-            IReferenceImplementation(account).initializeAccount(initCode);
+            IMSA(account).initializeAccount(initCode);
         }
         return account;
     }

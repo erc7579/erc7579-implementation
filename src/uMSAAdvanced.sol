@@ -8,7 +8,7 @@ import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
 import "./interfaces/IERC7579Module.sol";
 import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
-import { IReferenceImplementation } from "./interfaces/IReferenceImplementation.sol";
+import { IMSA } from "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
 
@@ -19,7 +19,7 @@ import { HookManager } from "./core/HookManager.sol";
  * This account implements ExecType: DEFAULT and TRY.
  * Hook support is implemented
  */
-contract MSAAdvanced is IReferenceImplementation, ExecutionHelper, ModuleManager, HookManager {
+contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 
