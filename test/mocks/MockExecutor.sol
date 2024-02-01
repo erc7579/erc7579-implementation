@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import { IExecutor, EncodedModuleTypes } from "src/interfaces/IERC7579Module.sol";
-import { IERC7579Account } from "src/interfaces/IERC7579Account.sol";
+import { IERC7579Account, Execution } from "src/interfaces/IERC7579Account.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import { ModeLib } from "src/lib/ModeLib.sol";
 
@@ -22,6 +22,18 @@ contract MockExecutor is IExecutor {
     {
         return account.executeFromExecutor(
             ModeLib.encodeSimpleSingle(), ExecutionLib.encodeSingle(target, value, callData)
+        );
+    }
+
+    function execBatch(
+        IERC7579Account account,
+        Execution[] calldata execs
+    )
+        external
+        returns (bytes[] memory returnData)
+    {
+        return account.executeFromExecutor(
+            ModeLib.encodeSimpleBatch(), ExecutionLib.encodeBatch(execs)
         );
     }
 

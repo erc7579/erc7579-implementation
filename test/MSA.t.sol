@@ -103,4 +103,20 @@ contract MSATest is TestBaseUtil {
         assertEq(ret.length, 1);
         assertEq(abi.decode(ret[0], (uint256)), 1338);
     }
+
+    function test_execBatchFromExecutor() public {
+        address account = test_execSingle();
+
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1338);
+        Execution[] memory executions = new Execution[](2);
+        executions[0] = Execution({ target: address(target), value: 0, callData: setValueOnTarget });
+        executions[1] = Execution({ target: address(target), value: 0, callData: setValueOnTarget });
+        bytes[] memory ret = defaultExecutor.execBatch({
+            account: IERC7579Account(address(account)),
+            execs: executions
+        });
+
+        assertEq(ret.length, 2);
+        assertEq(abi.decode(ret[0], (uint256)), 1338);
+    }
 }
