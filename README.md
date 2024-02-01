@@ -14,7 +14,7 @@ The contracts in this repository are - at this point - not audited. We advice ag
 
 - [Fallback Manager](./src/core/ModuleManager.sol): Fallback Manager is inspiried by [Richard's (Safe)](https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol) Fallback Manager
 
-- [Try/catch execution](./lib/ModeLib.sol): original idea by Elim and the OKX team
+- [Try/catch execution](./src/lib/ModeLib.sol): original idea by Elim and the OKX team
 
 ## Authors ✨
 
