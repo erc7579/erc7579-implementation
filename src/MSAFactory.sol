@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 import { LibClone } from "solady/src/utils/LibClone.sol";
-import { IReferenceImplementation } from "src/interfaces/IReferenceImplementation.sol";
+import { IReferenceImplementation } from "./interfaces/IReferenceImplementation.sol";
 
 contract MSAFactory {
     address public immutable implementation;
