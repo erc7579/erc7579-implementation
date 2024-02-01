@@ -6,7 +6,8 @@ import { ExecutionLib } from "./lib/ExecutionLib.sol";
 import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation as UserOperation } from
     "account-abstraction/interfaces/PackedUserOperation.sol";
-import "./interfaces/IERC7579Account.sol";
+import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
+import { IReferenceImplementation } from "./interfaces/IReferenceImplementation.sol";
 import "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
@@ -17,7 +18,7 @@ import { ModuleManager } from "./core/ModuleManager.sol";
  * only the default ExecType is implemented.
  * Hook support is not implemented
  */
-contract MSABasic is ExecutionHelper, IERC7579Account, ModuleManager {
+contract MSABasic is IReferenceImplementation, ExecutionHelper, ModuleManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 
@@ -178,9 +179,10 @@ contract MSABasic is ExecutionHelper, IERC7579Account, ModuleManager {
     }
 
     /**
-     * @inheritdoc IERC7579Account
+     * @dev Initializes the account. Function might be called directly, or by a Factory
+     * @param data. encoded data that can be used during the initialization phase
      */
-    function initializeAccount(bytes calldata data) public payable virtual override {
+    function initializeAccount(bytes calldata data) public payable virtual {
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
 

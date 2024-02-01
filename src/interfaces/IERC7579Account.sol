@@ -11,14 +11,6 @@ struct Execution {
 }
 
 interface IERC7579Account {
-    error UnsupportedModuleType(uint256 moduleType);
-    // Error thrown when an execution with an unsupported CallType was made
-    error UnsupportedCallType(CallType callType);
-    // Error thrown when an execution with an unsupported ExecType was made
-    error UnsupportedExecType(ExecType execType);
-
-    error AccountInitializationFailed();
-
     event ModuleInstalled(uint256 moduleTypeId, address module);
     event ModuleUninstalled(uint256 moduleTypeId, address module);
 
@@ -167,10 +159,4 @@ interface IERC7579Account {
      *        "vendorname.accountname.semver"
      */
     function accountId() external view returns (string memory accountImplementationId);
-
-    /**
-     * @dev initialized the account. Function might be called directly, or by a Factory
-     * @param data. encoded data that can be used during the initialization phase
-     */
-    function initializeAccount(bytes calldata data) external payable;
 }

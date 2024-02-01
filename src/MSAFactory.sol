@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { LibClone } from "solady/src/utils/LibClone.sol";
+import { IReferenceImplementation } from "src/interfaces/IReferenceImplementation.sol";
 
 contract MSAFactory {
     address public immutable implementation;
@@ -25,7 +25,7 @@ contract MSAFactory {
             LibClone.createDeterministicERC1967(msg.value, implementation, _salt);
 
         if (!alreadyDeployed) {
-            IERC7579Account(account).initializeAccount(initCode);
+            IReferenceImplementation(account).initializeAccount(initCode);
         }
         return account;
     }

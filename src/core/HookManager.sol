@@ -27,7 +27,7 @@ abstract contract HookManager {
         if (hook == address(0)) {
             _;
         } else {
-            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.value, msg.data);
+            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
             _;
             if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
         }
