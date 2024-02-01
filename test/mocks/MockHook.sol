@@ -10,7 +10,6 @@ contract MockHook is IHook {
 
     function preCheck(
         address msgSender,
-        uint256 msdValue,
         bytes calldata msgData
     )
         external
