@@ -68,7 +68,8 @@ contract MSABasic is ExecutionHelper, IERC7579Account, ModuleManager {
         } else if (callType == CALLTYPE_SINGLE) {
             (address target, uint256 value, bytes calldata callData) =
                 executionCalldata.decodeSingle();
-            _execute(target, value, callData);
+            returnData = new bytes[](1);
+            returnData[0] = _execute(target, value, callData);
         } else {
             revert UnsupportedCallType(callType);
         }
