@@ -210,7 +210,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         bytes calldata data
     )
         external
-        payable
+        view
         virtual
         override
         returns (bytes4)

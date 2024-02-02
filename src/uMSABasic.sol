@@ -171,7 +171,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         bytes calldata data
     )
         external
-        payable
+        view
         virtual
         override
         returns (bytes4)
