@@ -80,13 +80,7 @@ interface IERC7579Account {
      * @param hash The hash of the data that is signed
      * @param data The data that is signed
      */
-    function isValidSignature(
-        bytes32 hash,
-        bytes calldata data
-    )
-        external
-        payable
-        returns (bytes4);
+    function isValidSignature(bytes32 hash, bytes calldata data) external view returns (bytes4);
 
     /**
      * @dev installs a Module of a certain type on the smart account
