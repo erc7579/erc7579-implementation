@@ -45,13 +45,13 @@ abstract contract HookManager {
         if (currentHook != address(0)) {
             revert HookAlreadyInstalled(currentHook);
         }
-        IHook(hook).onInstall(data);
         _setHook(hook);
+        IHook(hook).onInstall(data);
     }
 
     function _uninstallHook(address hook, bytes calldata data) internal virtual {
-        IHook(hook).onUninstall(data);
         _setHook(address(0));
+        IHook(hook).onUninstall(data);
     }
 
     function _getHook() internal view returns (address _hook) {
