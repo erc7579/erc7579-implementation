@@ -69,7 +69,7 @@ contract TestBaseUtil is BootstrapUtil, Test {
     }
 
     function getNonce(address account, address validator) internal returns (uint256 nonce) {
-        uint192 key = uint192(bytes24(bytes20(address(defaultValidator))));
+        uint192 key = uint192(bytes24(bytes20(address(validator))));
         nonce = entrypoint.getNonce(address(account), key);
     }
 
