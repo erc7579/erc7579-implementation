@@ -41,15 +41,15 @@ library ExecutionLib {
     function decodeSingle(bytes calldata executionCalldata)
         internal
         pure
-        returns (address destination, uint256 value, bytes calldata callData)
+        returns (address target, uint256 value, bytes calldata callData)
     {
-        destination = address(bytes20(executionCalldata[0:20]));
+        target = address(bytes20(executionCalldata[0:20]));
         value = uint256(bytes32(executionCalldata[20:52]));
         callData = executionCalldata[52:];
     }
 
     function encodeSingle(
-        address destination,
+        address target,
         uint256 value,
         bytes memory callData
     )
@@ -57,6 +57,6 @@ library ExecutionLib {
         pure
         returns (bytes memory userOpCalldata)
     {
-        userOpCalldata = abi.encodePacked(destination, value, callData);
+        userOpCalldata = abi.encodePacked(target, value, callData);
     }
 }

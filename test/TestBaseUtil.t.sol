@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
-import { MSABasic } from "src/uMSABasic.sol";
+import { MSABasic } from "src/MSABasic.sol";
 import "src/interfaces/IERC7579Account.sol";
 import "src/MSAFactory.sol";
 import { BootstrapUtil, BootstrapConfig } from "./Bootstrap.t.sol";
