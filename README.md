@@ -2,10 +2,6 @@
 
 Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://eips.ethereum.org/EIPS/eip-7579)).
 
-> **Note**
->
-> These contracts are **unaudited** and are not recommended for use in production.
-
 ## Usage
 
 ### Installation
@@ -25,7 +21,7 @@ Note: The reference implementation is required to make some choices that are lef
 
 ## Security Note
 
-The contracts in this repository are - at this point - not audited. We advice against using this in production.
+The contracts in this repository are not audited. We advise against using this in production.
 
 ## Credits
 
