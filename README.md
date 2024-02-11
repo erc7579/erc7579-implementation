@@ -2,6 +2,27 @@
 
 Reference Implementation to Minimal Modular Smart Account ([ERC-7579](https://eips.ethereum.org/EIPS/eip-7579)).
 
+> **Note**
+>
+> These contracts are **unaudited** and are not recommended for use in production.
+
+## Usage
+
+### Installation
+
+```bash
+pnpm i
+```
+
+### Account flavors
+
+The reference implementation provides two account flavors:
+
+- [MSABasic](./src/MSABasic.sol): A basic modular smart account that supports the minimal set of features required to be compliant with the ERC-7579 standard.
+- [MSAAdvanced](./src/MSAAdvanced.sol): A modular smart account that supports the mandatory ERC-7579 features and the optional hook extension.
+
+Note: The reference implementation is required to make some choices that are left open by the standard, such as how validators are encoded. The interface that is required by the ERC, without any additions, can be found in [IERC7579.sol](./src/interfaces/IERC7579Account.sol).
+
 ## Security Note
 
 The contracts in this repository are - at this point - not audited. We advice against using this in production.
@@ -10,7 +31,7 @@ The contracts in this repository are - at this point - not audited. We advice ag
 
 - Validator Encoding in Signature: inspired by [taek's (ZeroDev) Kernel](https://github.com/zerodevapp/kernel/blob/main/src/Kernel.sol)
 
-- [Validator Encoding in Nonce](./src/uMSABasic.sol): Implementation of validator encoding in userOp nonce is inspired by [ross' (Nani) Account](https://github.com/NaniDAO/accounts/blob/65b08c39ca2859ddec35472ba4698b0d446f84ea/src/Account.sol#L27C1-L68)
+- [Validator Encoding in Nonce](./src/MSABasic.sol): Implementation of validator encoding in userOp nonce is inspired by [ross' (Nani) Account](https://github.com/NaniDAO/accounts/blob/65b08c39ca2859ddec35472ba4698b0d446f84ea/src/Account.sol#L27C1-L68)
 
 - [Fallback Manager](./src/core/ModuleManager.sol): Fallback Manager is inspiried by [Richard's (Safe)](https://github.com/safe-global/safe-contracts/blob/main/contracts/base/FallbackManager.sol) Fallback Manager
 
