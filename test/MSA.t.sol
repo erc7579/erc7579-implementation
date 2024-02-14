@@ -2,16 +2,22 @@
 pragma solidity ^0.8.23;
 
 import "src/interfaces/IERC7579Account.sol";
+import "src/interfaces/IERC7579Module.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
+import { MockFallback } from "./mocks/MockFallback.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
 } from "src/lib/ModeLib.sol";
+import { FallbackLib } from "src/lib/FallbackLib.sol";
 import "./TestBaseUtil.t.sol";
 
 contract MSATest is TestBaseUtil {
+    MockFallback fallbackModule;
+
     function setUp() public override {
         super.setUp();
+        fallbackModule = new MockFallback();
     }
 
     function test_execSingle() public returns (address) {
@@ -118,5 +124,37 @@ contract MSATest is TestBaseUtil {
 
         assertEq(ret.length, 2);
         assertEq(abi.decode(ret[0], (uint256)), 1338);
+    }
+
+    function test_execOnFallback() public {
+        IMSA account = IMSA(test_execSingle());
+
+        vm.startPrank(address(account));
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(MockFallback.callTarget.selector, FallbackLib.CallType.CALL, "")
+        );
+
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(
+                MockFallback.delegateCallTarget.selector, FallbackLib.CallType.DELEGATECALL, ""
+            )
+        );
+
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(MockFallback.staticCallTarget.selector, FallbackLib.CallType.STATIC, "")
+        );
+
+        vm.stopPrank();
+
+        uint256 ret = MockFallback(address(account)).callTarget(1337);
+        assertEq(ret, 1337);
+        ret = MockFallback(address(account)).delegateCallTarget(1337);
+        ret = MockFallback(address(account)).staticCallTarget(1337);
     }
 }

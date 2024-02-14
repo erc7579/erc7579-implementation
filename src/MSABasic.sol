@@ -211,10 +211,15 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         override
         returns (bool isInstalled)
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
-        else if (moduleType == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
-        else return false;
+        if (moduleType == MODULE_TYPE_VALIDATOR) {
+            return _isValidatorInstalled(module);
+        } else if (moduleType == MODULE_TYPE_EXECUTOR) {
+            return _isExecutorInstalled(module);
+        } else if (moduleType == MODULE_TYPE_FALLBACK) {
+            return _isFallbackHandlerInstalled(abi.decode(additionalContext, (bytes4)), module);
+        } else {
+            return false;
+        }
     }
 
     /**
