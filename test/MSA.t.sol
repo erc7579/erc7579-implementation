@@ -15,7 +15,6 @@ import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
 } from "src/lib/ModeLib.sol";
-import { FallbackLib } from "src/lib/FallbackLib.sol";
 import "./TestBaseUtil.t.sol";
 
 contract MSATest is TestBaseUtil {

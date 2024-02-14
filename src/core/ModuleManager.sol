@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
-import { PackedFallback, FallbackLib } from "../lib/FallbackLib.sol";
 import {
     CallType, CALLTYPE_SINGLE, CALLTYPE_DELEGATECALL, CALLTYPE_STATIC
 } from "../lib/ModeLib.sol";
@@ -21,7 +20,6 @@ import "forge-std/console2.sol";
  */
 abstract contract ModuleManager is AccountBase, Receiver {
     using SentinelListLib for SentinelListLib.SentinelList;
-    using FallbackLib for PackedFallback;
 
     error InvalidModule(address module);
     error NoFallbackHandler(bytes4 selector);
