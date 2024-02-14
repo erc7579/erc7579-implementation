@@ -155,9 +155,26 @@ contract MSATest is TestBaseUtil {
 
         vm.stopPrank();
 
-        uint256 ret = MockFallback(address(account)).callTarget(1337);
+        uint256 ret;
+        address sender;
+        address _this;
+        address erc2771;
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget(1337);
         assertEq(ret, 1337);
-        ret = MockFallback(address(account)).delegateCallTarget(1337);
-        ret = MockFallback(address(account)).staticCallTarget(1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).staticCallTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, _this) = MockFallback(address(account)).delegateCallTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(this));
+        assertEq(_this, address(account));
     }
 }

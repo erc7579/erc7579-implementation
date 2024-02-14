@@ -213,6 +213,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         CallType calltype = $fallbackHandler.calltype;
         if (handler == address(0)) revert NoFallbackHandler(msg.sig);
 
+        console2.log("fallbackFn: ", msg.sender);
+
         if (calltype == CALLTYPE_STATIC) {
             assembly {
                 function allocate(length) -> pos {
@@ -265,22 +267,12 @@ abstract contract ModuleManager is AccountBase, Receiver {
 
         if (calltype == CALLTYPE_DELEGATECALL) {
             assembly {
-                function allocate(length) -> pos {
-                    pos := mload(0x40)
-                    mstore(0x40, add(pos, length))
-                }
-
-                let calldataPtr := allocate(calldatasize())
-                calldatacopy(calldataPtr, 0, calldatasize())
-
-                // Add 20 bytes for the address appended add the end
-                let success :=
-                    delegatecall(gas(), handler, calldataPtr, add(calldatasize(), 20), 0, 0)
-
-                let returnDataPtr := allocate(returndatasize())
-                returndatacopy(returnDataPtr, 0, returndatasize())
-                if iszero(success) { revert(returnDataPtr, returndatasize()) }
-                return(returnDataPtr, returndatasize())
+                calldatacopy(0, 0, calldatasize())
+                let result := delegatecall(gas(), handler, 0, calldatasize(), 0, 0)
+                returndatacopy(0, 0, returndatasize())
+                switch result
+                case 0 { revert(0, returndatasize()) }
+                default { return(0, returndatasize()) }
             }
         }
     }
