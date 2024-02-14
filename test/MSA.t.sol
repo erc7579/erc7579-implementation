@@ -4,6 +4,12 @@ pragma solidity ^0.8.23;
 import "src/interfaces/IERC7579Account.sol";
 import "src/interfaces/IERC7579Module.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
+import {
+    CallType,
+    CALLTYPE_SINGLE,
+    CALLTYPE_DELEGATECALL,
+    CALLTYPE_STATIC
+} from "../src/lib/ModeLib.sol";
 import { MockFallback } from "./mocks/MockFallback.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
@@ -133,21 +139,19 @@ contract MSATest is TestBaseUtil {
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(MockFallback.callTarget.selector, FallbackLib.CallType.CALL, "")
+            abi.encode(MockFallback.callTarget.selector, CALLTYPE_SINGLE, "")
         );
 
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(
-                MockFallback.delegateCallTarget.selector, FallbackLib.CallType.DELEGATECALL, ""
-            )
+            abi.encode(MockFallback.delegateCallTarget.selector, CALLTYPE_DELEGATECALL, "")
         );
 
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(MockFallback.staticCallTarget.selector, FallbackLib.CallType.STATIC, "")
+            abi.encode(MockFallback.staticCallTarget.selector, CALLTYPE_STATIC, "")
         );
 
         vm.stopPrank();

@@ -3,6 +3,9 @@ pragma solidity ^0.8.21;
 
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { PackedFallback, FallbackLib } from "../lib/FallbackLib.sol";
+import {
+    CallType, CALLTYPE_SINGLE, CALLTYPE_DELEGATECALL, CALLTYPE_STATIC
+} from "../lib/ModeLib.sol";
 import { AccountBase } from "./AccountBase.sol";
 import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
@@ -28,6 +31,11 @@ abstract contract ModuleManager is AccountBase, Receiver {
     bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
         0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
+    struct FallbackHandler {
+        address handler;
+        CallType calltype;
+    }
+
     /// @custom:storage-location erc7201:modulemanager.storage.msa
     struct ModuleManagerStorage {
         // linked list of validators. List is initialized by initializeAccount()
@@ -36,7 +44,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         SentinelListLib.SentinelList $executors;
         // single fallback handler for all fallbacks
         // account vendors may implement this differently. This is just a reference implementation
-        mapping(bytes4 selector => PackedFallback packedHandler) $fallbacks;
+        mapping(bytes4 selector => FallbackHandler fallbackHandler) $fallbacks;
     }
 
     function $moduleManager() internal pure virtual returns (ModuleManagerStorage storage $ims) {
@@ -152,12 +160,11 @@ abstract contract ModuleManager is AccountBase, Receiver {
     ////////////////////////////////////////////////////
 
     function _installFallbackHandler(address handler, bytes calldata params) internal virtual {
-        (bytes4 functionSig, FallbackLib.CallType calltype, bytes memory initData) =
-            abi.decode(params, (bytes4, FallbackLib.CallType, bytes));
+        (bytes4 functionSig, CallType calltype, bytes memory initData) =
+            abi.decode(params, (bytes4, CallType, bytes));
         if (_isFallbackHandlerInstalled(functionSig)) revert();
 
-        console2.log("handler:", handler);
-        $moduleManager().$fallbacks[functionSig] = FallbackLib.pack(handler, calltype);
+        $moduleManager().$fallbacks[functionSig] = FallbackHandler(handler, calltype);
         IFallback(handler).onInstall(initData);
     }
 
@@ -175,8 +182,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {
-        (address handler,) = $moduleManager().$fallbacks[functionSig].unpack();
-        return handler != address(0);
+        FallbackHandler storage $fallback = $moduleManager().$fallbacks[functionSig];
+        return $fallback.handler != address(0);
     }
 
     function _isFallbackHandlerInstalled(
@@ -188,26 +195,27 @@ abstract contract ModuleManager is AccountBase, Receiver {
         virtual
         returns (bool)
     {
-        (address handler,) = $moduleManager().$fallbacks[functionSig].unpack();
-        return handler == _handler;
+        FallbackHandler storage $fallback = $moduleManager().$fallbacks[functionSig];
+        return $fallback.handler == _handler;
     }
 
     function getActiveFallbackHandler(bytes4 functionSig)
         external
         view
         virtual
-        returns (address, FallbackLib.CallType)
+        returns (FallbackHandler memory)
     {
-        return $moduleManager().$fallbacks[functionSig].unpack();
+        return $moduleManager().$fallbacks[functionSig];
     }
 
     // FALLBACK
     fallback() external payable override(Receiver) receiverFallback {
-        (address handler, FallbackLib.CallType calltype) =
-            $moduleManager().$fallbacks[msg.sig].unpack();
+        FallbackHandler storage $fallbackHandler = $moduleManager().$fallbacks[msg.sig];
+        address handler = $fallbackHandler.handler;
+        CallType calltype = $fallbackHandler.calltype;
         if (handler == address(0)) revert NoFallbackHandler(msg.sig);
 
-        if (calltype == FallbackLib.CallType.STATIC) {
+        if (calltype == CALLTYPE_STATIC) {
             assembly {
                 function allocate(length) -> pos {
                     pos := mload(0x40)
@@ -232,7 +240,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
                 return(returnDataPtr, returndatasize())
             }
         }
-        if (calltype == FallbackLib.CallType.CALL) {
+        if (calltype == CALLTYPE_SINGLE) {
             assembly {
                 function allocate(length) -> pos {
                     pos := mload(0x40)
@@ -257,7 +265,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
             }
         }
 
-        if (calltype == FallbackLib.CallType.DELEGATECALL) {
+        if (calltype == CALLTYPE_DELEGATECALL) {
             assembly {
                 function allocate(length) -> pos {
                     pos := mload(0x40)

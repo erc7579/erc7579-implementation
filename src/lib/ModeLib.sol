@@ -69,6 +69,7 @@ CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 // @dev Implementing delegatecall is OPTIONAL!
 // implement delegatecall with extreme care.
 CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+CallType constant CALLTYPE_STATIC = CallType.wrap(0xFE);
 
 // @dev default behavior is to revert on failure
 // To allow very simple accounts to use mode encoding, the default behavior is to revert on failure
