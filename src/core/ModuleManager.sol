@@ -9,7 +9,6 @@ import { AccountBase } from "./AccountBase.sol";
 import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
 import "./Receiver.sol";
-import "forge-std/console2.sol";
 
 /**
  * @title ModuleManager
@@ -26,7 +25,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
     error CannotRemoveLastValidator();
 
     // keccak256("modulemanager.storage.msa");
-    bytes32 constant MODULEMANAGER_STORAGE_LOCATION =
+    bytes32 internal constant MODULEMANAGER_STORAGE_LOCATION =
         0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
     struct FallbackHandler {
@@ -212,8 +211,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
         address handler = $fallbackHandler.handler;
         CallType calltype = $fallbackHandler.calltype;
         if (handler == address(0)) revert NoFallbackHandler(msg.sig);
-
-        console2.log("fallbackFn: ", msg.sender);
 
         if (calltype == CALLTYPE_STATIC) {
             assembly {
