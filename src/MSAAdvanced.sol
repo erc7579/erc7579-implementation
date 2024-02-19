@@ -36,7 +36,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        withHook
+        executionHook(mode, executionCalldata)
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 
@@ -76,7 +76,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
-        withHook
+        executionHook(mode, executionCalldata)
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
@@ -120,6 +120,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        executionUserOpHook(userOp)
     {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
@@ -137,6 +138,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        installationHook(moduleType, module, initData)
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
@@ -157,6 +159,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        uninstallationHook(moduleType, module, deInitData)
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);

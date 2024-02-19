@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
 import { EncodedModuleTypes } from "../lib/ModuleTypeLib.sol";
+import { ModeCode } from "../lib/ModeLib.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
@@ -91,13 +92,48 @@ interface IValidator is IModule {
 interface IExecutor is IModule { }
 
 interface IHook is IModule {
-    function preCheck(
+    function executionPreCheck(
         address msgSender,
+        ModeCode mode,
+        bytes calldata executionCalldata
+    )
+        external
+        returns (bytes memory preCheckContext);
+
+    function executionPreCheck(
+        address msgSender,
+        PackedUserOperation calldata userOp
+    )
+        external
+        returns (bytes memory preCheckContext);
+
+    function installationPreCheck(
+        address msgSender,
+        uint256 moduleType,
+        address module,
+        bytes calldata initData
+    )
+        external
+        returns (bytes memory preCheckContext);
+
+    function uninstallationPreCheck(
+        address msgSender,
+        uint256 moduleType,
+        address module,
+        bytes calldata initData
+    )
+        external
+        returns (bytes memory preCheckContext);
+
+    function fallbackPreCheck(
+        address msgSender,
+        address fallbackHandler,
         bytes calldata msgData
     )
         external
-        returns (bytes memory hookData);
-    function postCheck(bytes calldata hookData) external returns (bool success);
+        returns (bytes memory preCheckContext);
+
+    function postCheck(bytes calldata preCheckContext) external returns (bool success);
 }
 
 interface IFallback is IModule { }

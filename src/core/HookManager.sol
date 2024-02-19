@@ -19,17 +19,75 @@ abstract contract HookManager {
     bytes32 constant HOOKMANAGER_STORAGE_LOCATION =
         0x36e05829dd1b9a4411d96a3549582172d7f071c1c0db5c573fcf94eb28431608;
 
-    error HookPostCheckFailed();
+    error HookpostCheckFailed();
     error HookAlreadyInstalled(address currentHook);
 
-    modifier withHook() {
+    modifier executionHook(ModeCode mode, bytes calldata executionCalldata) {
         address hook = _getHook();
         if (hook == address(0)) {
             _;
         } else {
-            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
+            bytes memory precheckcontext =
+                IHook(hook).executionPreCheck(msg.sender, mode, executionCalldata);
             _;
-            if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+            if (IHook(hook).postCheck(precheckcontext) == false) {
+                revert HookpostCheckFailed();
+            }
+        }
+    }
+
+    modifier executionUserOpHook(PackedUserOperation calldata userOp) {
+        address hook = _getHook();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory precheckcontext = IHook(hook).executionPreCheck(msg.sender, userOp);
+            _;
+            if (IHook(hook).postCheck(precheckcontext) == false) {
+                revert HookpostCheckFailed();
+            }
+        }
+    }
+
+    modifier installationHook(uint256 moduleType, address module, bytes calldata initData) {
+        address hook = _getHook();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory preCheckContext =
+                IHook(hook).installationPreCheck(msg.sender, moduleType, module, initData);
+            _;
+            if (IHook(hook).postCheck(preCheckContext) == false) {
+                revert HookpostCheckFailed();
+            }
+        }
+    }
+
+    modifier uninstallationHook(uint256 moduleType, address module, bytes calldata initData) {
+        address hook = _getHook();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory preCheckContext =
+                IHook(hook).uninstallationPreCheck(msg.sender, moduleType, module, initData);
+            _;
+            if (IHook(hook).postCheck(preCheckContext) == false) {
+                revert HookpostCheckFailed();
+            }
+        }
+    }
+
+    modifier fallbackHook(address fallbackHandler, bytes calldata msgData) {
+        address hook = _getHook();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory preCheckContext =
+                IHook(hook).fallbackPreCheck(msg.sender, fallbackHandler, msgData);
+            _;
+            if (IHook(hook).postCheck(preCheckContext) == false) {
+                revert HookpostCheckFailed();
+            }
         }
     }
 
