@@ -62,7 +62,7 @@ type ModeSelector is bytes4;
 
 type ModePayload is bytes22;
 
-// Default CallTupe
+// Default CallType
 CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 // Batched CallType
 CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
