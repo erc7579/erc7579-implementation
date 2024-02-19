@@ -183,7 +183,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         return _getModuleManagerStorage().fallbackHandler;
     }
 
-    function _execfallback() internal virtual receiverFallback {
+    // FALLBACK
+    fallback() external payable override(Receiver) receiverFallback {
         address handler = _getModuleManagerStorage().fallbackHandler;
         if (handler == address(0)) revert();
         /* solhint-disable no-inline-assembly */
@@ -217,10 +218,5 @@ abstract contract ModuleManager is AccountBase, Receiver {
             return(returnDataPtr, returndatasize())
         }
         /* solhint-enable no-inline-assembly */
-    }
-
-    // FALLBACK
-    fallback() external payable override(Receiver) {
-        _execfallback();
     }
 }

@@ -92,47 +92,12 @@ interface IValidator is IModule {
 interface IExecutor is IModule { }
 
 interface IHook is IModule {
-    function executionPreCheck(
+    function preCheck(
         address msgSender,
-        ModeCode mode,
-        bytes calldata executionCalldata
-    )
-        external
-        returns (bytes memory preCheckContext);
-
-    function executionPreCheck(
-        address msgSender,
-        PackedUserOperation calldata userOp
-    )
-        external
-        returns (bytes memory preCheckContext);
-
-    function installationPreCheck(
-        address msgSender,
-        uint256 moduleType,
-        address module,
-        bytes calldata initData
-    )
-        external
-        returns (bytes memory preCheckContext);
-
-    function uninstallationPreCheck(
-        address msgSender,
-        uint256 moduleType,
-        address module,
-        bytes calldata initData
-    )
-        external
-        returns (bytes memory preCheckContext);
-
-    function fallbackPreCheck(
-        address msgSender,
-        address fallbackHandler,
         bytes calldata msgData
     )
         external
         returns (bytes memory preCheckContext);
-
     function postCheck(bytes calldata preCheckContext) external returns (bool success);
 }
 

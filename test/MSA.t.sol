@@ -3,6 +3,7 @@ pragma solidity ^0.8.23;
 
 import "src/interfaces/IERC7579Account.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
+import { MockHook } from "./mocks/MockHook.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
@@ -48,6 +49,47 @@ contract MSATest is TestBaseUtil {
         // Assert that the value was set ie that execution was successful
         assertTrue(target.value() == 1337);
         return account;
+    }
+
+    function test_hook() public {
+        address account = test_execSingle();
+
+        MockHook hook = new MockHook();
+
+        vm.prank(account);
+        IERC7579Account(account).installModule(4, address(hook), hex"4141414141");
+
+        // Create calldata for the account to execute
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1338);
+
+        // Encode the call into the calldata for the userOp
+        bytes memory userOpCalldata = abi.encodeCall(
+            IERC7579Account.execute,
+            (
+                ModeLib.encodeSimpleSingle(),
+                ExecutionLib.encodeSingle(address(target), uint256(0), setValueOnTarget)
+            )
+        );
+
+        // Get the account, initcode and nonce
+        uint256 nonce = getNonce(account, address(defaultValidator));
+
+        // Create the userOp and add the data
+        PackedUserOperation memory userOp = getDefaultUserOp();
+        userOp.sender = address(account);
+        userOp.nonce = nonce;
+        userOp.initCode = "";
+        userOp.callData = userOpCalldata;
+
+        // Create userOps array
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = userOp;
+
+        // Send the userOp to the entrypoint
+        entrypoint.handleOps(userOps, payable(address(0x69)));
+
+        // Assert that the value was set ie that execution was successful
+        assertTrue(target.value() == 1338);
     }
 
     function test_execBatch() public {

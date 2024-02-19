@@ -10,6 +10,7 @@ import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
+import "forge-std/console2.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -36,7 +37,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        executionHook(mode, executionCalldata)
+        withHook
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 
@@ -76,7 +77,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
-        executionHook(mode, executionCalldata)
+        withHook
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
@@ -120,7 +121,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        executionUserOpHook(userOp)
+        withHook
     {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
@@ -138,7 +139,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        installationHook(moduleType, module, initData)
+        withHook
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
@@ -159,7 +160,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        uninstallationHook(moduleType, module, deInitData)
+        withHook
     {
         if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
         else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
