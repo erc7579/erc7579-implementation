@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
-import { EncodedModuleTypes } from "../lib/ModuleTypeLib.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
@@ -41,13 +40,6 @@ interface IModule {
      * MUST return true if the module is of the given type and false otherwise
      */
     function isModuleType(uint256 typeID) external view returns (bool);
-
-    /**
-     * @dev Returns bit-encoded integer of the different typeIds of the module
-     *
-     * MUST return all the bit-encoded typeIds of the module
-     */
-    function getModuleTypes() external view returns (EncodedModuleTypes);
 
     /**
      * @dev Returns if the module was already initialized for a provided smartaccount
