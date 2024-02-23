@@ -182,15 +182,15 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         returns (uint256 validSignature)
     {
         address validator;
-        // @notice validator encodig in nonce is just an example!
+        // @notice validator encoding in nonce is just an example!
         // @notice this is not part of the standard!
-        // Account Vendors may choose any other way to impolement validator selection
+        // Account Vendors may choose any other way to implement validator selection
         uint256 nonce = userOp.nonce;
         assembly {
             validator := shr(96, nonce)
         }
 
-        // check if validator is enabled. If terminate the validation phase.
+        // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
 
         // bubble up the return value of the validator module
