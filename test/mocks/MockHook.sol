@@ -15,7 +15,7 @@ contract MockHook is IHook {
         external
         returns (bytes memory hookData)
     { }
-    function postCheck(bytes calldata hookData) external returns (bool success) { }
+    function postCheck(bytes calldata hookData) external { }
 
     function isModuleType(uint256 typeID) external view returns (bool) {
         return typeID == 4;

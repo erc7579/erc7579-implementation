@@ -97,7 +97,7 @@ interface IHook is IModule {
     )
         external
         returns (bytes memory hookData);
-    function postCheck(bytes calldata hookData) external returns (bool success);
+    function postCheck(bytes calldata hookData) external;
 }
 
 interface IFallback is IModule { }

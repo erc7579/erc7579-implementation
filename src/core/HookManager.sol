@@ -29,7 +29,7 @@ abstract contract HookManager {
         } else {
             bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
             _;
-            if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+            IHook(hook).postCheck(hookData);
         }
     }
 
