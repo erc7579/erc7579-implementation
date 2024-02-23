@@ -145,7 +145,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         address validator;
         // @notice validator encodig in nonce is just an example!
         // @notice this is not part of the standard!
-        // Account Vendors may choose any other way to impolement validator selection
+        // Account Vendors may choose any other way to implement validator selection
         uint256 nonce = userOp.nonce;
         assembly {
             validator := shr(96, nonce)
