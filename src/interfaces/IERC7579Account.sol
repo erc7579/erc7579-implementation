@@ -103,8 +103,8 @@ interface IERC7579Account {
      * @dev Implement Authorization control of your chosing
      * @param moduleType the module type ID according the ERC-7579 spec
      * @param module the module address
-     * @param deInitData arbitrary data that may be required on the module during `onInstall`
-     * initialization.
+     * @param deInitData arbitrary data that may be required on the module during `onUninstall`
+     * de-initialization.
      */
     function uninstallModule(
         uint256 moduleType,
