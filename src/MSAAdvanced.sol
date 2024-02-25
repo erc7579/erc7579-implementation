@@ -14,7 +14,7 @@ import { HookManager } from "./core/HookManager.sol";
 /**
  * @author zeroknots.eth | rhinestone.wtf
  * Reference implementation of a very simple ERC7579 Account.
- * This account only implements CallType: SINGLE and BATCH.
+ * This account implements CallType: SINGLE, BATCH and DELEGATECALL.
  * This account implements ExecType: DEFAULT and TRY.
  * Hook support is implemented
  */
@@ -56,6 +56,14 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
             if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
+            else revert UnsupportedExecType(execType);
+        } else if (callType == CALLTYPE_DELEGATECALL) {
+            // destructure executionCallData according to single exec
+            address delegate = address(uint160(bytes20(executionCalldata[0:20])));
+            bytes calldata callData = executionCalldata[20:];
+            // check if execType is revert or try
+            if (execType == EXECTYPE_DEFAULT) _executeDelegatecall(delegate, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecuteDelegatecall(delegate, callData);
             else revert UnsupportedExecType(execType);
         } else {
             revert UnsupportedCallType(callType);
@@ -108,6 +116,14 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
             } else {
                 revert UnsupportedExecType(execType);
             }
+        } else if (callType == CALLTYPE_DELEGATECALL) {
+            // destructure executionCallData according to single exec
+            address delegate = address(uint160(bytes20(executionCalldata[0:20])));
+            bytes calldata callData = executionCalldata[20:];
+            // check if execType is revert or try
+            if (execType == EXECTYPE_DEFAULT) _executeDelegatecall(delegate, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecuteDelegatecall(delegate, callData);
+            else revert UnsupportedExecType(execType);
         } else {
             revert UnsupportedCallType(callType);
         }
@@ -261,7 +277,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         (CallType callType, ExecType execType,,) = mode.decode();
         if (callType == CALLTYPE_BATCH) isSupported = true;
         else if (callType == CALLTYPE_SINGLE) isSupported = true;
-        // if callType is not batch or single, return false
+        else if (callType == CALLTYPE_DELEGATECALL) isSupported = true;
+        // if callType is not single, batch or delegatecall return false
         else return false;
 
         if (execType == EXECTYPE_DEFAULT) isSupported = true;

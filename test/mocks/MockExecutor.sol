@@ -4,7 +4,13 @@ pragma solidity ^0.8.23;
 import { IExecutor, MODULE_TYPE_EXECUTOR } from "src/interfaces/IERC7579Module.sol";
 import { IERC7579Account, Execution } from "src/interfaces/IERC7579Account.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
-import { ModeLib } from "src/lib/ModeLib.sol";
+import {
+    ModeLib,
+    CALLTYPE_DELEGATECALL,
+    EXECTYPE_DEFAULT,
+    MODE_DEFAULT,
+    ModePayload
+} from "src/lib/ModeLib.sol";
 
 contract MockExecutor is IExecutor {
     function onInstall(bytes calldata data) external override { }
@@ -34,6 +40,21 @@ contract MockExecutor is IExecutor {
     {
         return account.executeFromExecutor(
             ModeLib.encodeSimpleBatch(), ExecutionLib.encodeBatch(execs)
+        );
+    }
+
+    function execDelegatecall(
+        IERC7579Account account,
+        bytes calldata callData
+    )
+        external
+        returns (bytes[] memory returnData)
+    {
+        return account.executeFromExecutor(
+            ModeLib.encode(
+                CALLTYPE_DELEGATECALL, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00)
+            ),
+            callData
         );
     }
 
