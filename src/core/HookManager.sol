@@ -22,12 +22,12 @@ abstract contract HookManager {
     error HookPostCheckFailed();
     error HookAlreadyInstalled(address currentHook);
 
-    modifier withHook() {
+    modifier withHook(address supervisor) {
         address hook = _getHook();
         if (hook == address(0)) {
             _;
         } else {
-            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
+            bytes memory hookData = IHook(hook).preCheck(supervisor, msg.data);
             _;
             IHook(hook).postCheck(hookData);
         }

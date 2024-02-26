@@ -92,7 +92,7 @@ interface IExecutor is IModule { }
 
 interface IHook is IModule {
     function preCheck(
-        address msgSender,
+        address supervisor,
         bytes calldata msgData
     )
         external

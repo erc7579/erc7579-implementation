@@ -36,7 +36,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        withHook
+        withHook(cachedValidator)
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 
@@ -76,7 +76,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
-        withHook
+        withHook(msg.sender)
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
@@ -192,6 +192,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
 
         // check if validator is enabled. If terminate the validation phase.
         if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
+        cachedValidator = validator;
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);

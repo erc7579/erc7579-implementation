@@ -35,6 +35,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         address fallbackHandler;
     }
 
+    address internal cachedValidator;
+
     function _getModuleManagerStorage()
         internal
         pure
