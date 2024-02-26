@@ -47,7 +47,7 @@ interface IModule {
      *
      * MUST return all the bit-encoded typeIds of the module
      */
-    function getModuleTypes() external view returns (EncodedModuleTypes);
+    // function getModuleTypes() external view returns (EncodedModuleTypes);
 
     /**
      * @dev Returns if the module was already initialized for a provided smartaccount
