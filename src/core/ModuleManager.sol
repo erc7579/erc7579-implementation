@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { AccountBase } from "./AccountBase.sol";
+import { taddress, TransientCacheLib } from "../lib/TransientCacheLib.sol";
 import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
 import "./Receiver.sol";
@@ -33,9 +34,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         // single fallback handler for all fallbacks
         // account vendors may implement this differently. This is just a reference implementation
         address fallbackHandler;
+        taddress cachedValidator;
     }
-
-    address internal cachedValidator;
 
     function _getModuleManagerStorage()
         internal

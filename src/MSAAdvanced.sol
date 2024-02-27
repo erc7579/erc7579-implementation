@@ -10,6 +10,7 @@ import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
+import { taddress, TransientCacheLib } from "./lib/TransientCacheLib.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -21,6 +22,7 @@ import { HookManager } from "./core/HookManager.sol";
 contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
+    using TransientCacheLib for taddress;
 
     /**
      * @inheritdoc IERC7579Account
@@ -36,7 +38,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        withHook(cachedValidator)
+        withHook(_getModuleManagerStorage().cachedValidator.get())
     {
         (CallType callType, ExecType execType,,) = mode.decode();
 
@@ -192,7 +194,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
 
         // check if validator is enabled. If terminate the validation phase.
         if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
-        cachedValidator = validator;
+
+        _getModuleManagerStorage().cachedValidator.set(validator);
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);

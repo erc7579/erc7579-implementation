@@ -4,6 +4,8 @@ out = "out"
 libs = ["lib"]
 fs_permissions = [{ access = "read", path = "out-optimized" }]
 allow_paths = ["*", "/"]
+evm_version = "cancun"
+ignored_error_codes = [2394]
 
 [fmt]
 bracket_spacing = true
