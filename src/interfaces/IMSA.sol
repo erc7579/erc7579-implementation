@@ -7,7 +7,7 @@ import { CallType, ExecType, ModeCode } from "../lib/ModeLib.sol";
 
 interface IMSA is IERC7579Account {
     // Error thrown when an unsupported ModuleType is requested
-    error UnsupportedModuleType(uint256 moduleType);
+    error UnsupportedModuleType(uint256 moduleTypeId);
     // Error thrown when an execution with an unsupported CallType was made
     error UnsupportedCallType(CallType callType);
     // Error thrown when an execution with an unsupported ExecType was made

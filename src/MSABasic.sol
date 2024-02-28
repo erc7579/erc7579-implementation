@@ -92,7 +92,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      * @inheritdoc IERC7579Account
      */
     function installModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata initData
     )
@@ -100,18 +100,18 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleInstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleInstalled(moduleTypeId, module);
     }
 
     /**
      * @inheritdoc IERC7579Account
      */
     function uninstallModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata deInitData
     )
@@ -119,11 +119,11 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleUninstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /**
@@ -202,7 +202,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      * stored in more complex mappings
      */
     function isModuleInstalled(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata additionalContext
     )
@@ -211,9 +211,9 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         override
         returns (bool isInstalled)
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
-        else if (moduleType == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
         else return false;
     }
 
@@ -228,7 +228,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function supportsAccountMode(ModeCode mode) external view virtual override returns (bool) {
+    function supportsExecutionMode(ModeCode mode) external view virtual override returns (bool) {
         CallType callType = mode.getCallType();
         if (callType == CALLTYPE_BATCH) return true;
         else if (callType == CALLTYPE_SINGLE) return true;

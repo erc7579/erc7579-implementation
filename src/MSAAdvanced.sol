@@ -146,7 +146,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      * @inheritdoc IERC7579Account
      */
     function installModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata initData
     )
@@ -154,19 +154,19 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
-        else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleInstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_HOOK) _installHook(module, initData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleInstalled(moduleTypeId, module);
     }
 
     /**
      * @inheritdoc IERC7579Account
      */
     function uninstallModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata deInitData
     )
@@ -174,12 +174,12 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleUninstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
+        else if (moduleTypeId == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /**
@@ -240,7 +240,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      * @inheritdoc IERC7579Account
      */
     function isModuleInstalled(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata additionalContext
     )
@@ -249,10 +249,10 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         override
         returns (bool)
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
-        else if (moduleType == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
-        else if (moduleType == MODULE_TYPE_HOOK) return _isHookInstalled(module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
+        else if (moduleTypeId == MODULE_TYPE_HOOK) return _isHookInstalled(module);
         else return false;
     }
 
@@ -267,7 +267,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function supportsAccountMode(ModeCode mode)
+    function supportsExecutionMode(ModeCode mode)
         external
         view
         virtual
