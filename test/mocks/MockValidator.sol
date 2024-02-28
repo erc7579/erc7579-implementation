@@ -37,8 +37,8 @@ contract MockValidator is IValidator {
         returns (bytes4)
     { }
 
-    function isModuleType(uint256 typeID) external view returns (bool) {
-        return typeID == MODULE_TYPE_VALIDATOR;
+    function isModuleType(uint256 moduleTypeId) external view returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 
     function isInitialized(address smartAccount) external view returns (bool) {

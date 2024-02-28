@@ -58,8 +58,8 @@ contract MockExecutor is IExecutor {
         );
     }
 
-    function isModuleType(uint256 typeID) external view returns (bool) {
-        return typeID == MODULE_TYPE_EXECUTOR;
+    function isModuleType(uint256 moduleTypeId) external view returns (bool) {
+        return moduleTypeId == MODULE_TYPE_EXECUTOR;
     }
 
     function isInitialized(address smartAccount) external view returns (bool) {

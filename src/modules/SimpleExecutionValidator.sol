@@ -27,8 +27,8 @@ contract SimpleExecutionValidator is IValidator {
         return _initialized[smartAccount];
     }
 
-    function isModuleType(uint256 typeID) external view override returns (bool) {
-        return typeID == MODULE_TYPE_VALIDATOR;
+    function isModuleType(uint256 moduleTypeId) external view override returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 
     function validateUserOp(
