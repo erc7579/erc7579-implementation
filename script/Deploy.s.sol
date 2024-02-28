@@ -4,6 +4,7 @@ pragma solidity ^0.8.23;
 import { Script } from "forge-std/Script.sol";
 import { MSAAdvanced } from "src/MSAAdvanced.sol";
 import { MSAFactory } from "src/MSAFactory.sol";
+import { Bootstrap } from "src/utils/Bootstrap.sol";
 
 /**
  * @title Deploy
@@ -15,9 +16,12 @@ contract DeployScript is Script {
 
         vm.startBroadcast(vm.envUint("PK"));
 
-        // Deploy Modules
-        MSAAdvanced msaAdvanced = new MSAAdvanced{ salt: salt }();
-        MSAFactory msaFactory = new MSAFactory{ salt: salt }(address(msaAdvanced));
+        // Deploy account and factory
+        // MSAAdvanced msaAdvanced = new MSAAdvanced{ salt: salt }();
+        // MSAFactory msaFactory = new MSAFactory{ salt: salt }(address(msaAdvanced));
+
+        // Deploy Bootstrap
+        Bootstrap bootstrap = new Bootstrap{ salt: salt }();
 
         vm.stopBroadcast();
     }
