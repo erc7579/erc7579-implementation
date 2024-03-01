@@ -68,6 +68,7 @@ CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
 // @dev Implementing delegatecall is OPTIONAL!
 // implement delegatecall with extreme care.
+CallType constant CALLTYPE_STATIC = CallType.wrap(0xFE);
 CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
 // @dev default behavior is to revert on failure

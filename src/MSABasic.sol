@@ -119,10 +119,15 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else revert UnsupportedModuleType(moduleTypeId);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            _uninstallValidator(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            _uninstallExecutor(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            _uninstallFallbackHandler(module, deInitData);
+        } else {
+            revert UnsupportedModuleType(moduleTypeId);
+        }
         emit ModuleUninstalled(moduleTypeId, module);
     }
 
@@ -211,10 +216,15 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         override
         returns (bool isInstalled)
     {
-        if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
-        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
-        else if (moduleTypeId == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
-        else return false;
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            return _isValidatorInstalled(module);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            return _isExecutorInstalled(module);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            return _isFallbackHandlerInstalled(abi.decode(additionalContext, (bytes4)), module);
+        } else {
+            return false;
+        }
     }
 
     /**

@@ -2,7 +2,15 @@
 pragma solidity ^0.8.23;
 
 import "src/interfaces/IERC7579Account.sol";
+import "src/interfaces/IERC7579Module.sol";
 import { MockTarget } from "./mocks/MockTarget.sol";
+import {
+    CallType,
+    CALLTYPE_SINGLE,
+    CALLTYPE_DELEGATECALL,
+    CALLTYPE_STATIC
+} from "../src/lib/ModeLib.sol";
+import { MockFallback } from "./mocks/MockFallback.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
@@ -10,8 +18,11 @@ import {
 import "./TestBaseUtil.t.sol";
 
 contract MSATest is TestBaseUtil {
+    MockFallback fallbackModule;
+
     function setUp() public override {
         super.setUp();
+        fallbackModule = new MockFallback();
     }
 
     function test_execSingle() public returns (address) {
@@ -118,5 +129,66 @@ contract MSATest is TestBaseUtil {
 
         assertEq(ret.length, 2);
         assertEq(abi.decode(ret[0], (uint256)), 1338);
+    }
+
+    function test_execOnFallback() public {
+        IMSA account = IMSA(test_execSingle());
+
+        vm.startPrank(address(account));
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(
+                bytes32(
+                    abi.encodePacked(
+                        MockFallback.callTarget.selector, MockFallback.callTarget2.selector
+                    )
+                ),
+                CALLTYPE_SINGLE,
+                ""
+            )
+        );
+
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(MockFallback.delegateCallTarget.selector, CALLTYPE_DELEGATECALL, "")
+        );
+
+        account.installModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encode(MockFallback.staticCallTarget.selector, CALLTYPE_STATIC, "")
+        );
+
+        vm.stopPrank();
+
+        uint256 ret;
+        address sender;
+        address _this;
+        address erc2771;
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget2(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).staticCallTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, _this) = MockFallback(address(account)).delegateCallTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(this));
+        assertEq(_this, address(account));
     }
 }

@@ -174,11 +174,17 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else if (moduleTypeId == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
-        else revert UnsupportedModuleType(moduleTypeId);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            _uninstallValidator(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            _uninstallExecutor(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            _uninstallFallbackHandler(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_HOOK) {
+            _uninstallHook(module, deInitData);
+        } else {
+            revert UnsupportedModuleType(moduleTypeId);
+        }
         emit ModuleUninstalled(moduleTypeId, module);
     }
 
@@ -249,11 +255,17 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         override
         returns (bool)
     {
-        if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _isValidatorInstalled(module);
-        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _isExecutorInstalled(module);
-        else if (moduleTypeId == MODULE_TYPE_FALLBACK) return _isFallbackHandlerInstalled(module);
-        else if (moduleTypeId == MODULE_TYPE_HOOK) return _isHookInstalled(module);
-        else return false;
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            return _isValidatorInstalled(module);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            return _isExecutorInstalled(module);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            return _isFallbackHandlerInstalled(abi.decode(additionalContext, (bytes4)), module);
+        } else if (moduleTypeId == MODULE_TYPE_HOOK) {
+            return _isHookInstalled(module);
+        } else {
+            return false;
+        }
     }
 
     /**

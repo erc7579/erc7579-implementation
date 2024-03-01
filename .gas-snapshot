@@ -1,0 +1,8 @@
+ExecutionLibTest:test_encode_decode(address,uint256,bytes) (runs: 256, μ: 9186, ~: 8989)
+MSATest:test_execBatch() (gas: 448750)
+MSATest:test_execBatchFromExecutor() (gas: 427924)
+MSATest:test_execOnFallback() (gas: 545018)
+MSATest:test_execSingle() (gas: 409835)
+MSATest:test_execSingleFromExecutor() (gas: 419771)
+ModeLibTest:test_encode_decode_batch() (gas: 858)
+ModeLibTest:test_encode_decode_single() (gas: 836)
