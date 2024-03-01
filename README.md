@@ -15,7 +15,7 @@ pnpm i
 The reference implementation provides two account flavors:
 
 - [MSABasic](./src/MSABasic.sol): A basic modular smart account that supports the minimal set of features required to be compliant with the ERC-7579 standard.
-- [MSAAdvanced](./src/MSAAdvanced.sol): A modular smart account that supports the mandatory ERC-7579 features and the optional hook extension.
+- [MSAAdvanced](./src/MSAAdvanced.sol): A modular smart account that supports the mandatory ERC-7579 features, `delegatecall` executions and the optional hook extension.
 
 Note: The reference implementation is required to make some choices that are left open by the standard, such as how validators are encoded. The interface that is required by the ERC, without any additions, can be found in [IERC7579.sol](./src/interfaces/IERC7579Account.sol).
 

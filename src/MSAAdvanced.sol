@@ -14,7 +14,7 @@ import { HookManager } from "./core/HookManager.sol";
 /**
  * @author zeroknots.eth | rhinestone.wtf
  * Reference implementation of a very simple ERC7579 Account.
- * This account only implements CallType: SINGLE and BATCH.
+ * This account implements CallType: SINGLE, BATCH and DELEGATECALL.
  * This account implements ExecType: DEFAULT and TRY.
  * Hook support is implemented
  */
@@ -56,6 +56,14 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
             if (execType == EXECTYPE_DEFAULT) _execute(target, value, callData);
             // TODO: implement event emission for tryExecute singleCall
             else if (execType == EXECTYPE_TRY) _tryExecute(target, value, callData);
+            else revert UnsupportedExecType(execType);
+        } else if (callType == CALLTYPE_DELEGATECALL) {
+            // destructure executionCallData according to single exec
+            address delegate = address(uint160(bytes20(executionCalldata[0:20])));
+            bytes calldata callData = executionCalldata[20:];
+            // check if execType is revert or try
+            if (execType == EXECTYPE_DEFAULT) _executeDelegatecall(delegate, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecuteDelegatecall(delegate, callData);
             else revert UnsupportedExecType(execType);
         } else {
             revert UnsupportedCallType(callType);
@@ -108,6 +116,14 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
             } else {
                 revert UnsupportedExecType(execType);
             }
+        } else if (callType == CALLTYPE_DELEGATECALL) {
+            // destructure executionCallData according to single exec
+            address delegate = address(uint160(bytes20(executionCalldata[0:20])));
+            bytes calldata callData = executionCalldata[20:];
+            // check if execType is revert or try
+            if (execType == EXECTYPE_DEFAULT) _executeDelegatecall(delegate, callData);
+            else if (execType == EXECTYPE_TRY) _tryExecuteDelegatecall(delegate, callData);
+            else revert UnsupportedExecType(execType);
         } else {
             revert UnsupportedCallType(callType);
         }
@@ -130,7 +146,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      * @inheritdoc IERC7579Account
      */
     function installModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata initData
     )
@@ -138,19 +154,19 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
-        else if (moduleType == MODULE_TYPE_HOOK) _installHook(module, initData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleInstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_HOOK) _installHook(module, initData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleInstalled(moduleTypeId, module);
     }
 
     /**
      * @inheritdoc IERC7579Account
      */
     function uninstallModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata deInitData
     )
@@ -158,12 +174,18 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else if (moduleType == MODULE_TYPE_HOOK) _uninstallHook(module, deInitData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleUninstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            _uninstallValidator(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            _uninstallExecutor(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            _uninstallFallbackHandler(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_HOOK) {
+            _uninstallHook(module, deInitData);
+        } else {
+            revert UnsupportedModuleType(moduleTypeId);
+        }
+        emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /**
@@ -182,15 +204,15 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         returns (uint256 validSignature)
     {
         address validator;
-        // @notice validator encodig in nonce is just an example!
+        // @notice validator encoding in nonce is just an example!
         // @notice this is not part of the standard!
-        // Account Vendors may choose any other way to impolement validator selection
+        // Account Vendors may choose any other way to implement validator selection
         uint256 nonce = userOp.nonce;
         assembly {
             validator := shr(96, nonce)
         }
 
-        // check if validator is enabled. If terminate the validation phase.
+        // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
 
         // bubble up the return value of the validator module
@@ -224,7 +246,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      * @inheritdoc IERC7579Account
      */
     function isModuleInstalled(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata additionalContext
     )
@@ -257,7 +279,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function supportsAccountMode(ModeCode mode)
+    function supportsExecutionMode(ModeCode mode)
         external
         view
         virtual
@@ -267,7 +289,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         (CallType callType, ExecType execType,,) = mode.decode();
         if (callType == CALLTYPE_BATCH) isSupported = true;
         else if (callType == CALLTYPE_SINGLE) isSupported = true;
-        // if callType is not batch or single, return false
+        else if (callType == CALLTYPE_DELEGATECALL) isSupported = true;
+        // if callType is not single, batch or delegatecall return false
         else return false;
 
         if (execType == EXECTYPE_DEFAULT) isSupported = true;

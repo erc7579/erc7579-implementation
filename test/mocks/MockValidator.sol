@@ -5,7 +5,7 @@ import {
     IValidator,
     PackedUserOperation,
     VALIDATION_SUCCESS,
-    EncodedModuleTypes
+    MODULE_TYPE_VALIDATOR
 } from "src/interfaces/IERC7579Module.sol";
 
 contract MockValidator is IValidator {
@@ -37,11 +37,9 @@ contract MockValidator is IValidator {
         returns (bytes4)
     { }
 
-    function isModuleType(uint256 typeID) external view returns (bool) {
-        return typeID == 1;
+    function isModuleType(uint256 moduleTypeId) external view returns (bool) {
+        return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
-
-    function getModuleTypes() external view returns (EncodedModuleTypes) { }
 
     function isInitialized(address smartAccount) external view returns (bool) {
         return false;

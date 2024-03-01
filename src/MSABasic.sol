@@ -92,7 +92,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      * @inheritdoc IERC7579Account
      */
     function installModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata initData
     )
@@ -100,18 +100,18 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleInstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
+        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
+        else revert UnsupportedModuleType(moduleTypeId);
+        emit ModuleInstalled(moduleTypeId, module);
     }
 
     /**
      * @inheritdoc IERC7579Account
      */
     function uninstallModule(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata deInitData
     )
@@ -119,11 +119,16 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
-        if (moduleType == MODULE_TYPE_VALIDATOR) _uninstallValidator(module, deInitData);
-        else if (moduleType == MODULE_TYPE_EXECUTOR) _uninstallExecutor(module, deInitData);
-        else if (moduleType == MODULE_TYPE_FALLBACK) _uninstallFallbackHandler(module, deInitData);
-        else revert UnsupportedModuleType(moduleType);
-        emit ModuleUninstalled(moduleType, module);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            _uninstallValidator(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            _uninstallExecutor(module, deInitData);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            _uninstallFallbackHandler(module, deInitData);
+        } else {
+            revert UnsupportedModuleType(moduleTypeId);
+        }
+        emit ModuleUninstalled(moduleTypeId, module);
     }
 
     /**
@@ -143,15 +148,15 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         returns (uint256 validSignature)
     {
         address validator;
-        // @notice validator encodig in nonce is just an example!
+        // @notice validator encoding in nonce is just an example!
         // @notice this is not part of the standard!
-        // Account Vendors may choose any other way to impolement validator selection
+        // Account Vendors may choose any other way to implement validator selection
         uint256 nonce = userOp.nonce;
         assembly {
             validator := shr(96, nonce)
         }
 
-        // check if validator is enabled. If terminate the validation phase.
+        // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
 
         // bubble up the return value of the validator module
@@ -202,7 +207,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      * stored in more complex mappings
      */
     function isModuleInstalled(
-        uint256 moduleType,
+        uint256 moduleTypeId,
         address module,
         bytes calldata additionalContext
     )
@@ -233,7 +238,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function supportsAccountMode(ModeCode mode) external view virtual override returns (bool) {
+    function supportsExecutionMode(ModeCode mode) external view virtual override returns (bool) {
         CallType callType = mode.getCallType();
         if (callType == CALLTYPE_BATCH) return true;
         else if (callType == CALLTYPE_SINGLE) return true;
