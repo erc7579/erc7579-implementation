@@ -157,25 +157,72 @@ abstract contract ModuleManager is AccountBase, Receiver {
     ////////////////////////////////////////////////////
 
     function _installFallbackHandler(address handler, bytes calldata params) internal virtual {
-        (bytes4 functionSig, CallType calltype, bytes memory initData) =
-            abi.decode(params, (bytes4, CallType, bytes));
-        if (_isFallbackHandlerInstalled(functionSig)) revert();
+        (bytes32 functionSigs, CallType calltype, bytes memory initData) =
+            abi.decode(params, (bytes32, CallType, bytes));
 
-        $moduleManager().$fallbacks[functionSig] = FallbackHandler(handler, calltype);
-        IFallback(handler).onInstall(initData);
+        for (uint256 i = 0; i < 32; i += 4) {
+            bytes4 functionSig;
+            assembly {
+                functionSig := shl(mul(i, 8), functionSigs)
+            }
+            if (functionSig != bytes4(0)) {
+                if (_isFallbackHandlerInstalled(functionSig)) {
+                    revert("Function selector already used");
+                }
+                $moduleManager().$fallbacks[functionSig] = FallbackHandler(handler, calltype);
+            }
+        }
+        if (calltype == CALLTYPE_DELEGATECALL) {
+            handler.delegatecall(abi.encodeWithSelector(IModule.onInstall.selector, initData));
+        } else {
+            IFallback(handler).onInstall(initData);
+        }
     }
 
     function _uninstallFallbackHandler(
-        address fallbackHandler,
-        bytes calldata initData
+        address handler,
+        bytes calldata deInitData
     )
         internal
         virtual
     {
-        // address currentFallback = _getModuleManagerStorage().fallbackHandler;
-        // if (currentFallback != fallbackHandler) revert InvalidModule(fallbackHandler);
-        // _getModuleManagerStorage().fallbackHandler = address(0);
-        // IFallback(currentFallback).onUninstall(initData);
+        (bytes32 functionSigs, bytes memory _deInitData) = abi.decode(deInitData, (bytes32, bytes));
+
+        bool callTypeSet = false;
+        CallType callType;
+
+        for (uint256 i = 0; i < 32; i += 4) {
+            bytes4 functionSig;
+            assembly {
+                functionSig := shl(mul(i, 8), functionSigs)
+            }
+            if (functionSig != bytes4(0)) {
+                if (!_isFallbackHandlerInstalled(functionSig)) {
+                    revert("Function selector not used");
+                }
+
+                FallbackHandler memory activeFallback = $moduleManager().$fallbacks[functionSig];
+
+                if (activeFallback.handler != handler) {
+                    revert("Function selector not used by this handler");
+                }
+                if (!(activeFallback.calltype == callType) && callTypeSet) {
+                    revert("Function selector not used by this handler");
+                }
+
+                callType = activeFallback.calltype;
+                callTypeSet = true;
+
+                $moduleManager().$fallbacks[functionSig] =
+                    FallbackHandler(address(0), CallType.wrap(0x00));
+            }
+        }
+
+        if (callType == CALLTYPE_DELEGATECALL) {
+            handler.delegatecall(abi.encodeWithSelector(IModule.onUninstall.selector, _deInitData));
+        } else {
+            IFallback(handler).onUninstall(_deInitData);
+        }
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {

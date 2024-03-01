@@ -138,7 +138,15 @@ contract MSATest is TestBaseUtil {
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(MockFallback.callTarget.selector, CALLTYPE_SINGLE, "")
+            abi.encode(
+                bytes32(
+                    abi.encodePacked(
+                        MockFallback.callTarget.selector, MockFallback.callTarget2.selector
+                    )
+                ),
+                CALLTYPE_SINGLE,
+                ""
+            )
         );
 
         account.installModule(
@@ -161,6 +169,12 @@ contract MSATest is TestBaseUtil {
         address erc2771;
 
         (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget(1337);
+        assertEq(ret, 1337);
+        assertEq(sender, address(account), "msg.sender should be the account");
+        assertEq(erc2771, address(this), "erc2771 should be the test contract");
+        assertEq(_this, address(fallbackModule), "this should be the fallback module");
+
+        (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget2(1337);
         assertEq(ret, 1337);
         assertEq(sender, address(account), "msg.sender should be the account");
         assertEq(erc2771, address(this), "erc2771 should be the test contract");
