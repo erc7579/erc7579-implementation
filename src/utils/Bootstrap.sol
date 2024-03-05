@@ -26,7 +26,7 @@ contract Bootstrap is ModuleManager, HookManager {
         BootstrapConfig[] calldata $valdiators,
         BootstrapConfig[] calldata $executors,
         BootstrapConfig calldata _hook,
-        BootstrapConfig calldata _fallback
+        BootstrapConfig[] calldata _fallbacks
     )
         external
     {
@@ -47,8 +47,9 @@ contract Bootstrap is ModuleManager, HookManager {
         }
 
         // init fallback
-        if (_fallback.module != address(0)) {
-            _installFallbackHandler(_fallback.module, _fallback.data);
+        for (uint256 i; i < _fallbacks.length; i++) {
+            if (_fallbacks[i].module == address(0)) continue;
+            _installFallbackHandler(_fallbacks[i].module, _fallbacks[i].data);
         }
     }
 
@@ -56,14 +57,15 @@ contract Bootstrap is ModuleManager, HookManager {
         BootstrapConfig[] calldata $valdiators,
         BootstrapConfig[] calldata $executors,
         BootstrapConfig calldata _hook,
-        BootstrapConfig calldata _fallback
+        BootstrapConfig[] calldata _fallbacks
     )
         external
         view
         returns (bytes memory init)
     {
         init = abi.encode(
-            address(this), abi.encodeCall(this.initMSA, ($valdiators, $executors, _hook, _fallback))
+            address(this),
+            abi.encodeCall(this.initMSA, ($valdiators, $executors, _hook, _fallbacks))
         );
     }
 }

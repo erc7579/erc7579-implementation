@@ -48,11 +48,11 @@ contract TestBaseUtilAdvanced is BootstrapUtil, Test {
         BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
         BootstrapConfig[] memory executors = makeBootstrapConfig(address(defaultExecutor), "");
         BootstrapConfig memory hook = _makeBootstrapConfig(address(0), "");
-        BootstrapConfig memory fallbackHandler = _makeBootstrapConfig(address(0), "");
+        BootstrapConfig[] memory fallbacks = makeBootstrapConfig(address(0), "");
 
         // Create initcode and salt to be sent to Factory
         bytes memory _initCode =
-            bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbackHandler);
+            bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbacks);
         bytes32 salt = keccak256("1");
 
         // Get address of new account
