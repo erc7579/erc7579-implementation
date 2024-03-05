@@ -157,23 +157,21 @@ abstract contract ModuleManager is AccountBase, Receiver {
     ////////////////////////////////////////////////////
 
     function _installFallbackHandler(address handler, bytes calldata params) internal virtual {
-        (bytes32 functionSigs, CallType calltype, bytes memory initData) =
-            abi.decode(params, (bytes32, CallType, bytes));
+        bytes4 selector = bytes4(params[0:4]);
+        CallType calltype = CallType.wrap(bytes1(params[4]));
+        bytes memory initData = params[5:];
 
-        for (uint256 i = 0; i < 32; i += 4) {
-            bytes4 functionSig;
-            assembly {
-                functionSig := shl(mul(i, 8), functionSigs)
-            }
-            if (functionSig != bytes4(0)) {
-                if (_isFallbackHandlerInstalled(functionSig)) {
-                    revert("Function selector already used");
-                }
-                $moduleManager().$fallbacks[functionSig] = FallbackHandler(handler, calltype);
-            }
+        if (_isFallbackHandlerInstalled(selector)) {
+            revert("Function selector already used");
         }
+        $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
+
         if (calltype == CALLTYPE_DELEGATECALL) {
-            handler.delegatecall(abi.encodeWithSelector(IModule.onInstall.selector, initData));
+            (bool success,) =
+                handler.delegatecall(abi.encodeWithSelector(IModule.onInstall.selector, initData));
+            if (!success) {
+                revert("Fallback handler failed to install");
+            }
         } else {
             IFallback(handler).onInstall(initData);
         }
@@ -186,40 +184,30 @@ abstract contract ModuleManager is AccountBase, Receiver {
         internal
         virtual
     {
-        (bytes32 functionSigs, bytes memory _deInitData) = abi.decode(deInitData, (bytes32, bytes));
+        bytes4 selector = bytes4(deInitData[0:4]);
+        bytes memory _deInitData = deInitData[4:];
 
-        bool callTypeSet = false;
-        CallType callType;
-
-        for (uint256 i = 0; i < 32; i += 4) {
-            bytes4 functionSig;
-            assembly {
-                functionSig := shl(mul(i, 8), functionSigs)
-            }
-            if (functionSig != bytes4(0)) {
-                if (!_isFallbackHandlerInstalled(functionSig)) {
-                    revert("Function selector not used");
-                }
-
-                FallbackHandler memory activeFallback = $moduleManager().$fallbacks[functionSig];
-
-                if (activeFallback.handler != handler) {
-                    revert("Function selector not used by this handler");
-                }
-                if (!(activeFallback.calltype == callType) && callTypeSet) {
-                    revert("Function selector not used by this handler");
-                }
-
-                callType = activeFallback.calltype;
-                callTypeSet = true;
-
-                $moduleManager().$fallbacks[functionSig] =
-                    FallbackHandler(address(0), CallType.wrap(0x00));
-            }
+        if (!_isFallbackHandlerInstalled(selector)) {
+            revert("Function selector not used");
         }
 
+        FallbackHandler memory activeFallback = $moduleManager().$fallbacks[selector];
+
+        if (activeFallback.handler != handler) {
+            revert("Function selector not used by this handler");
+        }
+
+        CallType callType = activeFallback.calltype;
+
+        $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
+
         if (callType == CALLTYPE_DELEGATECALL) {
-            handler.delegatecall(abi.encodeWithSelector(IModule.onUninstall.selector, _deInitData));
+            (bool success,) = handler.delegatecall(
+                abi.encodeWithSelector(IModule.onUninstall.selector, _deInitData)
+            );
+            if (!success) {
+                revert("Fallback handler failed to uninstall");
+            }
         } else {
             IFallback(handler).onUninstall(_deInitData);
         }

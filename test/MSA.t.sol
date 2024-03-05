@@ -138,27 +138,19 @@ contract MSATest is TestBaseUtil {
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(
-                bytes32(
-                    abi.encodePacked(
-                        MockFallback.callTarget.selector, MockFallback.callTarget2.selector
-                    )
-                ),
-                CALLTYPE_SINGLE,
-                ""
-            )
+            abi.encodePacked(MockFallback.callTarget.selector, CALLTYPE_SINGLE, "")
         );
 
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(MockFallback.delegateCallTarget.selector, CALLTYPE_DELEGATECALL, "")
+            abi.encodePacked(MockFallback.delegateCallTarget.selector, CALLTYPE_DELEGATECALL, "")
         );
 
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encode(MockFallback.staticCallTarget.selector, CALLTYPE_STATIC, "")
+            abi.encodePacked(MockFallback.staticCallTarget.selector, CALLTYPE_STATIC, "")
         );
 
         vm.stopPrank();
@@ -174,12 +166,6 @@ contract MSATest is TestBaseUtil {
         assertEq(erc2771, address(this), "erc2771 should be the test contract");
         assertEq(_this, address(fallbackModule), "this should be the fallback module");
 
-        (ret, sender, erc2771, _this) = MockFallback(address(account)).callTarget2(1337);
-        assertEq(ret, 1337);
-        assertEq(sender, address(account), "msg.sender should be the account");
-        assertEq(erc2771, address(this), "erc2771 should be the test contract");
-        assertEq(_this, address(fallbackModule), "this should be the fallback module");
-
         (ret, sender, erc2771, _this) = MockFallback(address(account)).staticCallTarget(1337);
         assertEq(ret, 1337);
         assertEq(sender, address(account), "msg.sender should be the account");
@@ -190,5 +176,16 @@ contract MSATest is TestBaseUtil {
         assertEq(ret, 1337);
         assertEq(sender, address(this));
         assertEq(_this, address(account));
+
+        vm.startPrank(address(account));
+        account.uninstallModule(
+            MODULE_TYPE_FALLBACK,
+            address(fallbackModule),
+            abi.encodePacked(MockFallback.callTarget.selector, "")
+        );
+        vm.stopPrank();
+
+        vm.expectRevert();
+        MockFallback(address(account)).callTarget(1337);
     }
 }

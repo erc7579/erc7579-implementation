@@ -37,20 +37,6 @@ contract MockFallback is IFallback {
         return (param, msg.sender, _msgSender(), address(this));
     }
 
-    function callTarget2(uint256 param)
-        public
-        view
-        returns (uint256 _param, address sender, address er2771Sender, address _this)
-    {
-        console2.log(
-            "callTarget2 called with param: %s msg.sender: %s this: %s",
-            param,
-            msg.sender,
-            address(this)
-        );
-        return (param, msg.sender, _msgSender(), address(this));
-    }
-
     function staticCallTarget(uint256 param)
         public
         view
