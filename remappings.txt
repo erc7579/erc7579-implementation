@@ -1,5 +1,5 @@
 sentinellist/=node_modules/sentinellist/src/
-solady/=node_modules/solady/
+solady/=node_modules/solady/src/
 solarray/=node_modules/solarray/src/
 account-abstraction/=node_modules/account-abstraction/contracts/
 ds-test/=node_modules/ds-test/src/
