@@ -10,12 +10,19 @@ contract MockHook is IHook {
 
     function preCheck(
         address msgSender,
+        uint256 msgValue,
         bytes calldata msgData
     )
         external
         returns (bytes memory hookData)
     { }
-    function postCheck(bytes calldata hookData) external returns (bool success) { }
+    function postCheck(
+        bytes calldata hookData,
+        bool executionSuccess,
+        bytes calldata executionReturnValue
+    )
+        external
+    { }
 
     function isModuleType(uint256 moduleTypeId) external view returns (bool) {
         return moduleTypeId == MODULE_TYPE_HOOK;
