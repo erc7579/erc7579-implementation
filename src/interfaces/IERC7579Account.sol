@@ -47,7 +47,7 @@ interface IERC7579Account {
     /**
      * @dev ERC-4337 executeUserOp according to ERC-4337 v0.7
      *         This function is intended to be called by ERC-4337 EntryPoint.sol
-     * @dev Ensure adequate authorization control: i.e. onlyEntryPointOrSelf
+     * @dev Ensure adequate authorization control: i.e. onlyEntryPoint
      *      The implementation of the function is OPTIONAL
      *
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
