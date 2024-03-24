@@ -135,7 +135,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     function executeUserOp(PackedUserOperation calldata userOp)
         external
         payable
-        onlyEntryPointOrSelf
+        onlyEntryPoint
     {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
