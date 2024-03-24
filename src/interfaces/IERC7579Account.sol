@@ -52,7 +52,12 @@ interface IERC7579Account {
      *
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(PackedUserOperation calldata userOp) external payable;
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
+        external
+        payable;
 
     /**
      * @dev ERC-4337 validateUserOp according to ERC-4337 v0.7
