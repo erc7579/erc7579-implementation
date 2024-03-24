@@ -132,7 +132,10 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     /**
      * @inheritdoc IERC7579Account
      */
-    function executeUserOp(PackedUserOperation calldata userOp)
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
         external
         payable
         onlyEntryPointOrSelf
