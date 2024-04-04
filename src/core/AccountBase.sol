@@ -7,12 +7,19 @@ pragma solidity ^0.8.21;
  */
 contract AccountBase {
     error AccountAccessUnauthorized();
+
     /////////////////////////////////////////////////////
     // Access Control
     ////////////////////////////////////////////////////
-
     modifier onlyEntryPointOrSelf() virtual {
         if (!(msg.sender == entryPoint() || msg.sender == address(this))) {
+            revert AccountAccessUnauthorized();
+        }
+        _;
+    }
+
+    modifier onlyEntryPoint() virtual {
+        if (msg.sender != entryPoint()) {
             revert AccountAccessUnauthorized();
         }
         _;

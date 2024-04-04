@@ -153,6 +153,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         external
         payable
         virtual
+        onlyEntryPoint
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {

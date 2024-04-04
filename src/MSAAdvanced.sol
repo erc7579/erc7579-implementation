@@ -210,6 +210,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         virtual
+        onlyEntryPoint
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
