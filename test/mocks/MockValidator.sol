@@ -35,7 +35,9 @@ contract MockValidator is IValidator {
         view
         override
         returns (bytes4)
-    { }
+    {
+        return 0x1626ba7e;
+    }
 
     function isModuleType(uint256 moduleTypeId) external view returns (bool) {
         return moduleTypeId == MODULE_TYPE_VALIDATOR;
