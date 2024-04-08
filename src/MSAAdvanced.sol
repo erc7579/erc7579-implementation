@@ -68,6 +68,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+
+        // TODO: add correct data
         _postCheck(hook, hookData, true, new bytes(0));
     }
 
@@ -128,6 +130,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+
+        // TODO: add correct data
         _postCheck(hook, hookData, true, new bytes(0));
     }
 
@@ -139,7 +143,10 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
      *
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(PackedUserOperation calldata userOp)
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
         external
         payable
         onlyEntryPointOrSelf

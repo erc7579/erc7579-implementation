@@ -83,7 +83,10 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      *
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(PackedUserOperation calldata userOp)
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
         external
         payable
         onlyEntryPointOrSelf
