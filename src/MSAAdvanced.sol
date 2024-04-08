@@ -36,8 +36,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        withHook
     {
+        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -68,6 +68,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -84,11 +85,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
-        withHook
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
     {
+        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -127,6 +128,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**

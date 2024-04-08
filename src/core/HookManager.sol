@@ -4,11 +4,11 @@ pragma solidity ^0.8.21;
 import "./ModuleManager.sol";
 import "../interfaces/IERC7579Account.sol";
 import "../interfaces/IERC7579Module.sol";
+
 /**
  * @title reference implementation of HookManager
  * @author zeroknots.eth | rhinestone.wtf
  */
-
 abstract contract HookManager {
     /// @custom:storage-location erc7201:hookmanager.storage.msa
     struct HookManagerStorage {
@@ -22,14 +22,24 @@ abstract contract HookManager {
     error HookPostCheckFailed();
     error HookAlreadyInstalled(address currentHook);
 
-    modifier withHook() {
-        address hook = _getHook();
-        if (hook == address(0)) {
-            _;
-        } else {
-            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.data);
-            _;
-            if (!IHook(hook).postCheck(hookData)) revert HookPostCheckFailed();
+    function _preCheck() internal returns (address hook, bytes memory hookData) {
+        hook = _getHook();
+        if (hook != address(0)) {
+            hookData = IHook(hook).preCheck(msg.sender, msg.value, msg.data);
+            return (hook, hookData);
+        }
+    }
+
+    function _postCheck(
+        address hook,
+        bytes memory hookData,
+        bool executionSuccess,
+        bytes memory executionReturnValue
+    )
+        internal
+    {
+        if (hook != address(0)) {
+            IHook(hook).postCheck(hookData, executionSuccess, executionReturnValue);
         }
     }
 
