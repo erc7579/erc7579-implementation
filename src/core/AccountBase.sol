@@ -11,6 +11,7 @@ contract AccountBase {
     /////////////////////////////////////////////////////
     // Access Control
     ////////////////////////////////////////////////////
+
     modifier onlyEntryPointOrSelf() virtual {
         if (!(msg.sender == entryPoint() || msg.sender == address(this))) {
             revert AccountAccessUnauthorized();

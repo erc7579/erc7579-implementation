@@ -89,7 +89,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     )
         external
         payable
-        onlyEntryPointOrSelf
+        onlyEntryPoint
     {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
