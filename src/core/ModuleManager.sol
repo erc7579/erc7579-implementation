@@ -165,16 +165,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
             revert("Function selector already used");
         }
         $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
-
-        if (calltype == CALLTYPE_DELEGATECALL) {
-            (bool success,) =
-                handler.delegatecall(abi.encodeWithSelector(IModule.onInstall.selector, initData));
-            if (!success) {
-                revert("Fallback handler failed to install");
-            }
-        } else {
-            IFallback(handler).onInstall(initData);
-        }
+        IFallback(handler).onInstall(initData);
     }
 
     function _uninstallFallbackHandler(
@@ -201,16 +192,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
 
         $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
 
-        if (callType == CALLTYPE_DELEGATECALL) {
-            (bool success,) = handler.delegatecall(
-                abi.encodeWithSelector(IModule.onUninstall.selector, _deInitData)
-            );
-            if (!success) {
-                revert("Fallback handler failed to uninstall");
-            }
-        } else {
-            IFallback(handler).onUninstall(_deInitData);
-        }
+        IFallback(handler).onUninstall(_deInitData);
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {
@@ -294,17 +276,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
                 returndatacopy(returnDataPtr, 0, returndatasize())
                 if iszero(success) { revert(returnDataPtr, returndatasize()) }
                 return(returnDataPtr, returndatasize())
-            }
-        }
-
-        if (calltype == CALLTYPE_DELEGATECALL) {
-            assembly {
-                calldatacopy(0, 0, calldatasize())
-                let result := delegatecall(gas(), handler, 0, calldatasize(), 0, 0)
-                returndatacopy(0, 0, returndatasize())
-                switch result
-                case 0 { revert(0, returndatasize()) }
-                default { return(0, returndatasize()) }
             }
         }
     }

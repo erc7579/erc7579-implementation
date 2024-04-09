@@ -76,9 +76,17 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     }
 
     /**
-     * @inheritdoc IERC7579Account
+     * @dev ERC-4337 executeUserOp according to ERC-4337 v0.7
+     *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     * @dev Ensure adequate authorization control: i.e. onlyEntryPointOrSelf
+     *      The implementation of the function is OPTIONAL
+     *
+     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(PackedUserOperation calldata userOp)
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
         external
         payable
         onlyEntryPoint
@@ -132,8 +140,13 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
     }
 
     /**
-     * Validator selection / encoding is NOT in scope of this standard.
-     * @inheritdoc IERC7579Account
+     * @dev ERC-4337 validateUserOp according to ERC-4337 v0.7
+     *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     * this validation function should decode / sload the validator module to validate the userOp
+     * and call it.
+     *
+     * @dev MSA MUST implement this function signature.
+     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
     function validateUserOp(
         PackedUserOperation calldata userOp,
@@ -143,7 +156,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         external
         payable
         virtual
-        override
+        onlyEntryPoint
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {

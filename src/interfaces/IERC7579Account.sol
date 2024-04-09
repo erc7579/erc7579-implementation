@@ -45,34 +45,6 @@ interface IERC7579Account {
         returns (bytes[] memory returnData);
 
     /**
-     * @dev ERC-4337 executeUserOp according to ERC-4337 v0.7
-     *         This function is intended to be called by ERC-4337 EntryPoint.sol
-     * @dev Ensure adequate authorization control: i.e. onlyEntryPoint
-     *      The implementation of the function is OPTIONAL
-     *
-     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
-     */
-    function executeUserOp(PackedUserOperation calldata userOp) external payable;
-
-    /**
-     * @dev ERC-4337 validateUserOp according to ERC-4337 v0.7
-     *         This function is intended to be called by ERC-4337 EntryPoint.sol
-     * this validation function should decode / sload the validator module to validate the userOp
-     * and call it.
-     *
-     * @dev MSA MUST implement this function signature.
-     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
-     */
-    function validateUserOp(
-        PackedUserOperation calldata userOp,
-        bytes32 userOpHash,
-        uint256 missingAccountFunds
-    )
-        external
-        payable
-        returns (uint256 validSignature);
-
-    /**
      * @dev ERC-1271 isValidSignature
      *         This function is intended to be used to validate a smart account signature
      * and may forward the call to a validator module

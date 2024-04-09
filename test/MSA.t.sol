@@ -144,12 +144,6 @@ contract MSATest is TestBaseUtil {
         account.installModule(
             MODULE_TYPE_FALLBACK,
             address(fallbackModule),
-            abi.encodePacked(MockFallback.delegateCallTarget.selector, CALLTYPE_DELEGATECALL, "")
-        );
-
-        account.installModule(
-            MODULE_TYPE_FALLBACK,
-            address(fallbackModule),
             abi.encodePacked(MockFallback.staticCallTarget.selector, CALLTYPE_STATIC, "")
         );
 
@@ -171,11 +165,6 @@ contract MSATest is TestBaseUtil {
         assertEq(sender, address(account), "msg.sender should be the account");
         assertEq(erc2771, address(this), "erc2771 should be the test contract");
         assertEq(_this, address(fallbackModule), "this should be the fallback module");
-
-        (ret, sender, _this) = MockFallback(address(account)).delegateCallTarget(1337);
-        assertEq(ret, 1337);
-        assertEq(sender, address(this));
-        assertEq(_this, address(account));
 
         vm.startPrank(address(account));
         account.uninstallModule(

@@ -36,8 +36,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
-        withHook
     {
+        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -68,6 +68,9 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+
+        // TODO: add correct data
+        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -84,11 +87,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
-        withHook
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
     {
+        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -127,12 +130,23 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
+
+        // TODO: add correct data
+        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
-     * @inheritdoc IERC7579Account
+     * @dev ERC-4337 executeUserOp according to ERC-4337 v0.7
+     *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     * @dev Ensure adequate authorization control: i.e. onlyEntryPointOrSelf
+     *      The implementation of the function is OPTIONAL
+     *
+     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
-    function executeUserOp(PackedUserOperation calldata userOp)
+    function executeUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    )
         external
         payable
         onlyEntryPoint
@@ -189,7 +203,13 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
     }
 
     /**
-     * @inheritdoc IERC7579Account
+     * @dev ERC-4337 validateUserOp according to ERC-4337 v0.7
+     *         This function is intended to be called by ERC-4337 EntryPoint.sol
+     * this validation function should decode / sload the validator module to validate the userOp
+     * and call it.
+     *
+     * @dev MSA MUST implement this function signature.
+     * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
     function validateUserOp(
         PackedUserOperation calldata userOp,
@@ -199,7 +219,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         virtual
-        override
+        onlyEntryPoint
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
