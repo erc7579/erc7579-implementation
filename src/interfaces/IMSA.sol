@@ -15,6 +15,8 @@ interface IMSA is IERC7579Account, IERC4337Account {
     error UnsupportedExecType(ExecType execType);
     // Error thrown when account initialization fails
     error AccountInitializationFailed();
+    // Error thrown when account installs/unistalls module with mismatched input `moduleTypeId`
+    error MismatchModuleTypeId(uint256 moduleTypeId);
 
     /**
      * @dev Initializes the account. Function might be called directly, or by a Factory
