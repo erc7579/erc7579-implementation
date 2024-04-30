@@ -91,12 +91,7 @@ interface IHook is IModule {
         external
         returns (bytes memory hookData);
 
-    function postCheck(
-        bytes calldata hookData,
-        bool executionSuccess,
-        bytes calldata executionReturnValue
-    )
-        external;
+    function postCheck(bytes calldata hookData) external;
 }
 
 interface IFallback is IModule { }

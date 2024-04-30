@@ -36,8 +36,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
-        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -68,9 +68,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -87,11 +84,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyExecutorModule
+        withHook
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
     {
-        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -130,9 +127,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         } else {
             revert UnsupportedCallType(callType);
         }
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -167,18 +161,14 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
-        (address hook, bytes memory hookData) = _preCheck();
-
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
         else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
         else if (moduleTypeId == MODULE_TYPE_HOOK) _installHook(module, initData);
         else revert UnsupportedModuleType(moduleTypeId);
         emit ModuleInstalled(moduleTypeId, module);
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -192,9 +182,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
-        (address hook, bytes memory hookData) = _preCheck();
-
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
             _uninstallValidator(module, deInitData);
         } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
@@ -207,9 +196,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
             revert UnsupportedModuleType(moduleTypeId);
         }
         emit ModuleUninstalled(moduleTypeId, module);
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
