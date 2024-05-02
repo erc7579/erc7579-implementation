@@ -108,6 +108,8 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payable
         onlyEntryPointOrSelf
     {
+        if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
+
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
         else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
