@@ -128,10 +128,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         external
         payable
         onlyEntryPointOrSelf
-    {
-
-        if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
-        
+    {       
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
             _uninstallValidator(module, deInitData);
         } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
