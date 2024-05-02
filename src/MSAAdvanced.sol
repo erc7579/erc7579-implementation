@@ -163,7 +163,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         onlyEntryPointOrSelf
         withHook
     {
-
         if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
         
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
