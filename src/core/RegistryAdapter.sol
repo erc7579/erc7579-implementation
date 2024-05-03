@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "../interfaces/IERC7484.sol";
+import { IERC7484 } from "../interfaces/IERC7484.sol";
+import { AccountBase } from "./AccountBase.sol";
 
-abstract contract RegistryAdapter {
+abstract contract RegistryAdapter is AccountBase {
     event ERC7484RegistryConfigured(address indexed smartAccount, address indexed registry);
 
     IERC7484 internal $registry;
@@ -22,6 +23,7 @@ abstract contract RegistryAdapter {
         uint8 threshold
     )
         external
+        onlyEntryPointOrSelf
     {
         $registry = registry;
         if (attesters.length > 0) {
