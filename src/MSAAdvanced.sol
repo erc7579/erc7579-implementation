@@ -37,8 +37,8 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
-        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -69,9 +69,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         } else {
             revert UnsupportedCallType(callType);
         }
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -88,12 +85,12 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         external
         payable
         onlyExecutorModule
+        withHook
         withRegistry(msg.sender, MODULE_TYPE_EXECUTOR)
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
     {
-        (address hook, bytes memory hookData) = _preCheck();
         (CallType callType, ExecType execType,,) = mode.decode();
 
         // check if calltype is batch or single
@@ -132,9 +129,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         } else {
             revert UnsupportedCallType(callType);
         }
-
-        // TODO: add correct data
-        _postCheck(hook, hookData, true, new bytes(0));
     }
 
     /**
@@ -151,7 +145,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
     )
         external
         payable
-        onlyEntryPointOrSelf
+        onlyEntryPoint
     {
         bytes calldata callData = userOp.callData[4:];
         (bool success,) = address(this).delegatecall(callData);
@@ -169,8 +163,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         external
         payable
         onlyEntryPointOrSelf
+        withHook
         withRegistry(module, moduleTypeId)
     {
+        if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
+        
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
         else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
         else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
@@ -190,6 +187,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         external
         payable
         onlyEntryPointOrSelf
+        withHook
     {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
             _uninstallValidator(module, deInitData);

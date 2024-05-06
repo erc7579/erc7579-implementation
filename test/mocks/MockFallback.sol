@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { IFallback } from "src/interfaces/IERC7579Module.sol";
+import { IFallback, MODULE_TYPE_FALLBACK } from "src/interfaces/IERC7579Module.sol";
 import { IERC7579Account, Execution } from "src/interfaces/IERC7579Account.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import { ModeLib } from "src/lib/ModeLib.sol";
@@ -65,7 +65,9 @@ contract MockFallback is IFallback {
 
     function onUninstall(bytes calldata data) external override { }
 
-    function isModuleType(uint256 typeID) external view override returns (bool) { }
+    function isModuleType(uint256 typeID) external view override returns (bool) {
+        return typeID == MODULE_TYPE_FALLBACK;
+    }
 
     function isInitialized(address smartAccount) external view override returns (bool) { }
 }

@@ -22,24 +22,14 @@ abstract contract HookManager {
     error HookPostCheckFailed();
     error HookAlreadyInstalled(address currentHook);
 
-    function _preCheck() internal returns (address hook, bytes memory hookData) {
-        hook = _getHook();
-        if (hook != address(0)) {
-            hookData = IHook(hook).preCheck(msg.sender, msg.value, msg.data);
-            return (hook, hookData);
-        }
-    }
-
-    function _postCheck(
-        address hook,
-        bytes memory hookData,
-        bool executionSuccess,
-        bytes memory executionReturnValue
-    )
-        internal
-    {
-        if (hook != address(0)) {
-            IHook(hook).postCheck(hookData, executionSuccess, executionReturnValue);
+    modifier withHook() {
+        address hook = _getHook();
+        if (hook == address(0)) {
+            _;
+        } else {
+            bytes memory hookData = IHook(hook).preCheck(msg.sender, msg.value, msg.data);
+            _;
+            IHook(hook).postCheck(hookData);
         }
     }
 
