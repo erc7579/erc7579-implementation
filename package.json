@@ -24,6 +24,8 @@
   },
   "files": [
     "artifacts",
+    "foundry.toml",
+    "remappings.txt",
     "src",
     "test/utils",
     "CHANGELOG.md",
