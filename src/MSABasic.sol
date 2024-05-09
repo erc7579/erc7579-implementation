@@ -7,7 +7,14 @@ import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
 import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
-import "./interfaces/IERC7579Module.sol";
+import {
+    IValidator,
+    MODULE_TYPE_VALIDATOR,
+    MODULE_TYPE_EXECUTOR,
+    MODULE_TYPE_FALLBACK,
+    IModule,
+    VALIDATION_FAILED
+} from "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
 /**

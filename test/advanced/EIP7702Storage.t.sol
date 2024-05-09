@@ -3,23 +3,20 @@ pragma solidity ^0.8.23;
 
 import { IERC7579Account, Execution } from "src/interfaces/IERC7579Account.sol";
 import { MODULE_TYPE_FALLBACK } from "src/interfaces/IERC7579Module.sol";
-import { MockTarget } from "./mocks/MockTarget.sol";
+import { MockTarget } from "test/mocks/MockTarget.sol";
 import {
-    CallType,
-    CALLTYPE_SINGLE,
-    CALLTYPE_DELEGATECALL,
-    CALLTYPE_STATIC
-} from "../src/lib/ModeLib.sol";
+    CallType, CALLTYPE_SINGLE, CALLTYPE_DELEGATECALL, CALLTYPE_STATIC
+} from "src/lib/ModeLib.sol";
 import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
 } from "src/lib/ModeLib.sol";
-import { TestBaseUtil, PackedUserOperation } from "./TestBaseUtil.t.sol";
+import { TestBaseUtilAdvanced, PackedUserOperation } from "./TestBaseUtilAdvanced.t.sol";
 import { Vm } from "forge-std/Vm.sol";
-import { MockFallback } from "./mocks/MockFallback.sol";
+import { MockFallback } from "test/mocks/MockFallback.sol";
 import { IMSA } from "src/interfaces/IMSA.sol";
 
-contract EIP7702StorageTest is TestBaseUtil {
+contract EIP7702StorageTest is TestBaseUtilAdvanced {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -4,6 +4,7 @@ pragma solidity ^0.8.21;
 import "./ModuleManager.sol";
 import "../interfaces/IERC7579Account.sol";
 import "../interfaces/IERC7579Module.sol";
+import { RData } from "EIP7702Storage/RDataLib.sol";
 
 /**
  * @title reference implementation of HookManager
@@ -34,10 +35,7 @@ abstract contract HookManager {
     }
 
     function _setHook(address hook) internal virtual {
-        bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
-        assembly {
-            sstore(slot, hook)
-        }
+        RData.storageContract.setAddress(HOOKMANAGER_STORAGE_LOCATION, hook);
     }
 
     function _installHook(address hook, bytes calldata data) internal virtual {
@@ -55,10 +53,7 @@ abstract contract HookManager {
     }
 
     function _getHook() internal view returns (address _hook) {
-        bytes32 slot = HOOKMANAGER_STORAGE_LOCATION;
-        assembly {
-            _hook := sload(slot)
-        }
+        _hook = RData.storageContract.getAddress(HOOKMANAGER_STORAGE_LOCATION);
     }
 
     function _isHookInstalled(address module) internal view returns (bool) {
