@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList7702.sol";
 import {
     CallType, CALLTYPE_SINGLE, CALLTYPE_DELEGATECALL, CALLTYPE_STATIC
 } from "../lib/ModeLib.sol";
@@ -9,7 +9,8 @@ import { AccountBase } from "./AccountBase.sol";
 import "../interfaces/IERC7579Module.sol";
 import "forge-std/interfaces/IERC165.sol";
 import "./Receiver.sol";
-
+import { RData } from "EIP7702Storage/RDataLib.sol";
+import { FallbackStorage, FallbackHandler } from "../lib/FallbackLib.sol";
 /**
  * @title ModuleManager
  * @author zeroknots.eth | rhinestone.wtf
@@ -17,8 +18,10 @@ import "./Receiver.sol";
  * @dev it uses SentinelList to manage the linked list of modules
  * NOTE: the linked list is just an example. accounts may implement this differently
  */
+
 abstract contract ModuleManager is AccountBase, Receiver {
     using SentinelListLib for SentinelListLib.SentinelList;
+    using FallbackStorage for *;
 
     error InvalidModule(address module);
     error NoFallbackHandler(bytes4 selector);
@@ -28,11 +31,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
     bytes32 internal constant MODULEMANAGER_STORAGE_LOCATION =
         0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
 
-    struct FallbackHandler {
-        address handler;
-        CallType calltype;
-    }
-
     /// @custom:storage-location erc7201:modulemanager.storage.msa
     struct ModuleManagerStorage {
         // linked list of validators. List is initialized by initializeAccount()
@@ -41,7 +39,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         SentinelListLib.SentinelList $executors;
         // single fallback handler for all fallbacks
         // account vendors may implement this differently. This is just a reference implementation
-        mapping(bytes4 selector => FallbackHandler fallbackHandler) $fallbacks;
+        mapping(bytes4 selector => RData.Bytes) $fallbacks;
     }
 
     function $moduleManager() internal pure virtual returns (ModuleManagerStorage storage $ims) {
@@ -164,7 +162,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         if (_isFallbackHandlerInstalled(selector)) {
             revert("Function selector already used");
         }
-        $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
+        $moduleManager().$fallbacks[selector].store(FallbackHandler(handler, calltype));
+        // $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
         IFallback(handler).onInstall(initData);
     }
 
@@ -182,7 +181,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
             revert("Function selector not used");
         }
 
-        FallbackHandler memory activeFallback = $moduleManager().$fallbacks[selector];
+        FallbackHandler memory activeFallback = $moduleManager().$fallbacks[selector].load();
 
         if (activeFallback.handler != handler) {
             revert("Function selector not used by this handler");
@@ -190,13 +189,13 @@ abstract contract ModuleManager is AccountBase, Receiver {
 
         CallType callType = activeFallback.calltype;
 
-        $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
+        $moduleManager().$fallbacks[selector].remove();
 
         IFallback(handler).onUninstall(_deInitData);
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {
-        FallbackHandler storage $fallback = $moduleManager().$fallbacks[functionSig];
+        FallbackHandler memory $fallback = $moduleManager().$fallbacks[functionSig].load();
         return $fallback.handler != address(0);
     }
 
@@ -209,7 +208,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         virtual
         returns (bool)
     {
-        FallbackHandler storage $fallback = $moduleManager().$fallbacks[functionSig];
+        FallbackHandler memory $fallback = $moduleManager().$fallbacks[functionSig].load();
         return $fallback.handler == _handler;
     }
 
@@ -219,12 +218,12 @@ abstract contract ModuleManager is AccountBase, Receiver {
         virtual
         returns (FallbackHandler memory)
     {
-        return $moduleManager().$fallbacks[functionSig];
+        return $moduleManager().$fallbacks[functionSig].load();
     }
 
     // FALLBACK
     fallback() external payable override(Receiver) receiverFallback {
-        FallbackHandler storage $fallbackHandler = $moduleManager().$fallbacks[msg.sig];
+        FallbackHandler memory $fallbackHandler = $moduleManager().$fallbacks[msg.sig].load();
         address handler = $fallbackHandler.handler;
         CallType calltype = $fallbackHandler.calltype;
         if (handler == address(0)) revert NoFallbackHandler(msg.sig);

@@ -7,7 +7,14 @@ import { ExecutionHelper } from "./core/ExecutionHelper.sol";
 import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
 import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
-import "./interfaces/IERC7579Module.sol";
+import {
+    IValidator,
+    MODULE_TYPE_VALIDATOR,
+    MODULE_TYPE_EXECUTOR,
+    MODULE_TYPE_FALLBACK,
+    IModule,
+    VALIDATION_FAILED
+} from "./interfaces/IERC7579Module.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 
 /**
@@ -151,7 +158,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
     function validateUserOp(
-        PackedUserOperation calldata userOp,
+        PackedUserOperation memory userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     )
@@ -162,6 +169,8 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         payPrefund(missingAccountFunds)
         returns (uint256 validSignature)
     {
+        initAccount(userOp);
+
         address validator;
         // @notice validator encoding in nonce is just an example!
         // @notice this is not part of the standard!
@@ -214,6 +223,28 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert AccountInitializationFailed();
+    }
+
+    function isAccountInitialised() external view virtual returns (bool) {
+        return isAlreadyInitialized();
+    }
+
+    function initAccount(PackedUserOperation memory userOp) internal {
+        if (!isAlreadyInitialized()) {
+            (bytes memory signature, bytes memory initData) =
+                abi.decode(userOp.signature, (bytes, bytes));
+
+            // checks if already initialized and reverts before setting the state to initialized
+            _initModuleManager();
+
+            // this is just implemented for demonstration purposes. You can use any other
+            // initialization logic here.
+            (address bootstrap, bytes memory bootstrapCall) = abi.decode(initData, (address, bytes));
+            (bool success,) = bootstrap.delegatecall(bootstrapCall);
+            if (!success) revert AccountInitializationFailed();
+
+            userOp.signature = signature;
+        }
     }
 
     /**
