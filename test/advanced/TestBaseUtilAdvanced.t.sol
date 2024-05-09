@@ -16,6 +16,9 @@ import {
 
 import "../dependencies/EntryPoint.sol";
 
+import { RDataStorage } from "EIP7702Storage/RDataStorage.sol";
+import { RData } from "EIP7702Storage/RDataLib.sol";
+
 contract TestBaseUtilAdvanced is BootstrapUtil, Test {
     // singletons
     MSAAdvanced implementation;
@@ -41,6 +44,10 @@ contract TestBaseUtilAdvanced is BootstrapUtil, Test {
 
         // Set up Target for testing
         target = new MockTarget();
+
+        // Set up storage contract
+        RDataStorage storageContract = new RDataStorage();
+        vm.etch(address(RData.storageContract), address(storageContract).code);
     }
 
     function getAccountAndInitCode() internal returns (address account, bytes memory initCode) {

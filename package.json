@@ -11,14 +11,15 @@
     "url": "https://github.com/rhinestonewtf/modulekit/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.1"
+    "@openzeppelin/contracts": "5.0.1",
+    "eip7702Storage": "github:rhinestonewtf/eip7702Storage"
   },
   "devDependencies": {
     "account-abstraction": "github:eth-infinitism/account-abstraction#develop",
     "ds-test": "github:dapphub/ds-test",
     "forge-std": "github:foundry-rs/forge-std",
     "prettier": "^2.8.8",
-    "sentinellist": "github:zeroknots/sentinellist",
+    "sentinellist": "github:zeroknots/sentinellist#feature/7702Sentinellist",
     "solady": "github:vectorized/solady",
     "solhint": "^4.1.1"
   },

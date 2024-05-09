@@ -13,7 +13,8 @@ import { ExecutionLib } from "src/lib/ExecutionLib.sol";
 import {
     ModeLib, ModeCode, CallType, ExecType, ModeSelector, ModePayload
 } from "src/lib/ModeLib.sol";
-
+import { RDataStorage } from "EIP7702Storage/RDataStorage.sol";
+import { RData } from "EIP7702Storage/RDataLib.sol";
 import "./dependencies/EntryPoint.sol";
 
 contract TestBaseUtil is BootstrapUtil, Test {
@@ -30,38 +31,51 @@ contract TestBaseUtil is BootstrapUtil, Test {
     function setUp() public virtual {
         // Set up EntryPoint
         etchEntrypoint();
+        vm.label(ENTRYPOINT_ADDR, "EntryPoint");
 
         // Set up MSA and Factory
         implementation = new MSABasic();
+        vm.label(address(implementation), "MSABasic");
         factory = new MSAFactory(address(implementation));
+        vm.label(address(factory), "MSAFactory");
 
         // Set up Modules
         defaultExecutor = new MockExecutor();
+        vm.label(address(defaultExecutor), "MockExecutor");
         defaultValidator = new MockValidator();
+        vm.label(address(defaultValidator), "MockValidator");
 
         // Set up Target for testing
         target = new MockTarget();
+        vm.label(address(target), "MockTarget");
+
+        // Set up storage contract
+        RDataStorage storageContract = new RDataStorage();
+        vm.etch(address(RData.storageContract), address(storageContract).code);
     }
 
-    function getAccountAndInitCode() internal returns (address account, bytes memory initCode) {
+    function getInitData() internal returns (bytes memory initData) {
         // Create config for initial modules
         BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
         BootstrapConfig[] memory executors = makeBootstrapConfig(address(defaultExecutor), "");
         BootstrapConfig memory hook = _makeBootstrapConfig(address(0), "");
         BootstrapConfig[] memory fallbacks = makeBootstrapConfig(address(0), "");
 
-        // Create initcode and salt to be sent to Factory
-        bytes memory _initCode =
-            bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbacks);
+        // Create initData
+        initData = bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbacks);
+    }
+
+    function getAccountAndInitCode() internal returns (address account, bytes memory initCode) {
+        // Create initData and salt to be sent to Factory
+        bytes memory initData = getInitData();
         bytes32 salt = keccak256("1");
 
         // Get address of new account
-        account = factory.getAddress(salt, _initCode);
+        account = factory.getAddress(salt, initData);
 
         // Pack the initcode to include in the userOp
         initCode = abi.encodePacked(
-            address(factory),
-            abi.encodeWithSelector(factory.createAccount.selector, salt, _initCode)
+            address(factory), abi.encodeWithSelector(factory.createAccount.selector, salt, initData)
         );
 
         // Deal 1 ether to the account

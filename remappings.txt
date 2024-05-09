@@ -1,4 +1,5 @@
 sentinellist/=node_modules/sentinellist/src/
+EIP7702Storage/=node_modules/eip7702Storage/src/
 solady/=node_modules/solady/src/
 solarray/=node_modules/solarray/src/
 account-abstraction/=node_modules/account-abstraction/contracts/
