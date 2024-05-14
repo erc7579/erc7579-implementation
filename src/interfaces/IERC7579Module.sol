@@ -2,6 +2,7 @@
 pragma solidity ^0.8.21;
 
 import { PackedUserOperation } from "account-abstraction/interfaces/PackedUserOperation.sol";
+import "forge-std/interfaces/IERC165.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;
@@ -47,7 +48,7 @@ interface IModule {
     function isInitialized(address smartAccount) external view returns (bool);
 }
 
-interface IValidator is IModule {
+interface IValidator is IERC165, IModule {
     error InvalidTargetAddress(address target);
 
     /**

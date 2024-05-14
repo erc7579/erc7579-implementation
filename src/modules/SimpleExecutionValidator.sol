@@ -63,4 +63,16 @@ contract SimpleExecutionValidator is IValidator {
         override
         returns (bytes4)
     { }
+
+    function supportsInterface(bytes4 interfaceId) external pure override returns (bool) {
+        if (interfaceId == type(IERC165).interfaceId) {
+            return true;
+        }
+        if (interfaceId == type(IValidator).interfaceId) {
+            return true;
+        }
+        if (interfaceId == IValidator.validateUserOp.selector) {
+            return true;
+        }
+    }
 }

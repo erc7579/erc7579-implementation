@@ -8,6 +8,8 @@ import {
     MODULE_TYPE_VALIDATOR
 } from "src/interfaces/IERC7579Module.sol";
 
+import "forge-std/interfaces/IERC165.sol";
+
 contract MockValidator is IValidator {
     function onInstall(bytes calldata data) external override { }
 
@@ -45,5 +47,21 @@ contract MockValidator is IValidator {
 
     function isInitialized(address smartAccount) external view returns (bool) {
         return false;
+    }
+
+    function supportsInterface(bytes4 interfaceId) external pure override returns (bool) {
+        if (interfaceId == type(IERC165).interfaceId) {
+            return true;
+        }
+        if (interfaceId == type(IValidator).interfaceId) {
+            return true;
+        }
+        if (interfaceId == IValidator.validateUserOp.selector) {
+            return true;
+        }
+
+        if (interfaceId == IValidator.isValidSignatureWithSender.selector) {
+            return true;
+        }
     }
 }

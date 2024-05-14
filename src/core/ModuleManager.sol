@@ -23,6 +23,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
     error InvalidModule(address module);
     error NoFallbackHandler(bytes4 selector);
     error CannotRemoveLastValidator();
+    error UnsupportedValidationMethod();
 
     // keccak256("modulemanager.storage.msa");
     bytes32 internal constant MODULEMANAGER_STORAGE_LOCATION =
@@ -80,6 +81,10 @@ abstract contract ModuleManager is AccountBase, Receiver {
     function _installValidator(address validator, bytes calldata data) internal virtual {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         $valdiators.push(validator);
+        bool supportsEPv07 =
+            IERC165(validator).supportsInterface(IValidator.validateUserOp.selector);
+        if (!supportsEPv07) revert UnsupportedValidationMethod();
+
         IValidator(validator).onInstall(data);
     }
 
