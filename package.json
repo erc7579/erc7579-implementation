@@ -1,24 +1,22 @@
 {
-  "name": "micro-msa",
-  "description": "super mini modular smart account",
+  "name": "erc7579-implementation",
+  "description": "sReference implementation for ERC-7579",
   "license": "MIT",
   "version": "0.3.1",
   "author": {
-    "name": "zeroknots.eth",
-    "url": "https://rhinestone.wtf"
+    "name": "ERC-7579",
+    "url": "https://erc7579.com/"
   },
   "bugs": {
-    "url": "https://github.com/rhinestonewtf/modulekit/issues"
+    "url": "https://github.com/erc7579/erc7579-implementation/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.1"
-  },
-  "devDependencies": {
+    "@openzeppelin/contracts": "5.0.1",
     "account-abstraction": "github:eth-infinitism/account-abstraction#develop",
     "ds-test": "github:dapphub/ds-test",
     "forge-std": "github:foundry-rs/forge-std",
     "prettier": "^2.8.8",
-    "sentinellist": "github:zeroknots/sentinellist",
+    "sentinellist": "github:rhinestonewtf/sentinellist",
     "solady": "github:vectorized/solady",
     "solhint": "^4.1.1"
   },
@@ -31,7 +29,7 @@
     "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/rhinestonewtf/modulekit/#readme",
+  "homepage": "https://github.com/erc7579/erc7579-implementation/#readme",
   "keywords": [
     "blockchain",
     "ethereum",
@@ -43,7 +41,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "github.com/rhinestonewtf/modulekit",
+  "repository": "github.com/erc7579/erc7579-implementation",
   "scripts": {
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
