@@ -146,7 +146,7 @@ contract MSAAdvancedTest is TestBaseUtilAdvanced {
             (
                 ModeLib.encode(
                     CALLTYPE_DELEGATECALL, EXECTYPE_DEFAULT, MODE_DEFAULT, ModePayload.wrap(0x00)
-                    ),
+                ),
                 abi.encodePacked(address(delegateTarget), sendValue)
             )
         );
