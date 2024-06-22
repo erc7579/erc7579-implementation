@@ -10,6 +10,7 @@ import { IERC7579Account } from "./interfaces/IERC7579Account.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
+import { RegistryAdapter } from "./core/RegistryAdapter.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -18,7 +19,7 @@ import { HookManager } from "./core/HookManager.sol";
  * This account implements ExecType: DEFAULT and TRY.
  * Hook support is implemented
  */
-contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
+contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, RegistryAdapter {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
 
@@ -85,6 +86,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyExecutorModule
         withHook
+        withRegistry(msg.sender, MODULE_TYPE_EXECUTOR)
         returns (
             bytes[] memory returnData // TODO returnData is not used
         )
@@ -162,6 +164,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager {
         payable
         onlyEntryPointOrSelf
         withHook
+        withRegistry(module, moduleTypeId)
     {
         if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
 
