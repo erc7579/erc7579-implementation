@@ -100,7 +100,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
      * THIS IS NOT PART OF THE STANDARD
      * Helper Function to access linked list
      */
-    function getValidatorPaginated(
+    function getValidatorsPaginated(
         address cursor,
         uint256 size
     )
