@@ -8,23 +8,23 @@ pragma solidity ^0.8.19;
  */
 contract MockRegistry {
     function check(
-        address plugin,
-        address trustedEntity
+        address, // plugin
+        address // trustedEntity
     )
         external
-        view
+        pure
         returns (uint256 listedAt)
     {
         return uint256(1234);
     }
 
     function checkN(
-        address module,
+        address, // module
         address[] memory attesters,
-        uint256 threshold
+        uint256 // threshold
     )
         external
-        view
+        pure
         returns (uint256[] memory)
     {
         uint256 attestersLength = attesters.length;
@@ -36,12 +36,12 @@ contract MockRegistry {
     }
 
     function checkNUnsafe(
-        address module,
+        address, // module
         address[] memory attesters,
-        uint256 threshold
+        uint256 // threshold
     )
         external
-        view
+        pure
         returns (uint256[] memory)
     {
         uint256 attestersLength = attesters.length;

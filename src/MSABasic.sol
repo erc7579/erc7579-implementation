@@ -85,7 +85,7 @@ contract MSABasic is IMSA, ExecutionHelper, ModuleManager {
      */
     function executeUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 // userOpHash
     )
         external
         payable

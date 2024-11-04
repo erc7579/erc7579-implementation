@@ -13,12 +13,22 @@ contract SimpleExecutionValidator is IValidator {
 
     mapping(address => bool) internal _initialized;
 
-    function onInstall(bytes calldata data) external override {
+    function onInstall(
+        bytes calldata // data
+    )
+        external
+        override
+    {
         if (isInitialized(msg.sender)) revert AlreadyInitialized(msg.sender);
         _initialized[msg.sender] = true;
     }
 
-    function onUninstall(bytes calldata data) external override {
+    function onUninstall(
+        bytes calldata // data
+    )
+        external
+        override
+    {
         if (!isInitialized(msg.sender)) revert NotInitialized(msg.sender);
         _initialized[msg.sender] = false;
     }
@@ -27,30 +37,31 @@ contract SimpleExecutionValidator is IValidator {
         return _initialized[smartAccount];
     }
 
-    function isModuleType(uint256 moduleTypeId) external view override returns (bool) {
+    function isModuleType(uint256 moduleTypeId) external pure override returns (bool) {
         return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 
     function validateUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 //  userOpHash
     )
         external
+        pure
         override
-        returns (uint256)
+        returns (uint256 validationCode)
     {
         // get the function selector that will be called by EntryPoint
-        bytes4 execFunction = bytes4(userOp.callData[:4]);
+        // bytes4 execFunction = bytes4(userOp.callData[:4]);
 
         // get the mode
         CallType callType = CallType.wrap(bytes1(userOp.callData[4]));
         bytes calldata executionCalldata = userOp.callData[36:];
         if (callType == CALLTYPE_BATCH) {
-            Execution[] calldata executions = executionCalldata.decodeBatch();
+            executionCalldata.decodeBatch();
         } else if (callType == CALLTYPE_SINGLE) {
-            (address target, uint256 value, bytes calldata callData) =
-                executionCalldata.decodeSingle();
+            executionCalldata.decodeSingle();
         }
+        return VALIDATION_SUCCESS;
     }
 
     function isValidSignatureWithSender(

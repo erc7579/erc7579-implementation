@@ -18,10 +18,10 @@ contract DeployScript is Script {
 
         // Deploy account and factory
         MSAAdvanced msaAdvanced = new MSAAdvanced{ salt: salt }();
-        MSAFactory msaFactory = new MSAFactory{ salt: salt }(address(msaAdvanced));
+        new MSAFactory{ salt: salt }(address(msaAdvanced));
 
         // Deploy Bootstrap
-        Bootstrap bootstrap = new Bootstrap{ salt: salt }();
+        new Bootstrap{ salt: salt }();
 
         vm.stopBroadcast();
     }
