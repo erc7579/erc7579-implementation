@@ -2,7 +2,6 @@
 pragma solidity ^0.8.23;
 
 string constant INIT_NOTATION = "SignedInit(address bootstrap,bytes bootstrapInit)";
-
 bytes32 constant INIT_TYPEHASH = keccak256(abi.encodePacked(INIT_NOTATION));
 
 library HashLib {

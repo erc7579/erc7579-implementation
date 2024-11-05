@@ -3,14 +3,11 @@ pragma solidity ^0.8.23;
 
 import { Proxy } from "@openzeppelin/contracts/proxy/Proxy.sol";
 import { ERC1967Utils } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
-import { INIT_SLOT } from "../MSAAdvanced.sol";
+import { Initializable } from "src/lib/Initializable.sol";
 
 contract MSAProxy is Proxy {
     constructor(address implementation, bytes memory _data) payable {
-        bytes32 slot = INIT_SLOT;
-        assembly {
-            tstore(slot, 1)
-        }
+        Initializable.setInitializable();
         ERC1967Utils.upgradeToAndCall(implementation, _data);
     }
 
