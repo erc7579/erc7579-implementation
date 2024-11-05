@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { LibClone } from "solady/utils/LibClone.sol";
 import { IMSA } from "./interfaces/IMSA.sol";
+import { MSAProxy } from "./utils/MSAProxy.sol";
 
 contract MSAFactory {
     address public immutable implementation;
@@ -20,13 +20,12 @@ contract MSAFactory {
         virtual
         returns (address)
     {
-        bytes32 _salt = _getSalt(salt, initCode);
-        (bool alreadyDeployed, address account) =
-            LibClone.createDeterministicERC1967(msg.value, implementation, _salt);
+        address account = address(
+            new MSAProxy{ salt: salt, value: msg.value }(
+                implementation, abi.encodeCall(IMSA.initializeAccount, initCode)
+            )
+        );
 
-        if (!alreadyDeployed) {
-            IMSA(account).initializeAccount(initCode);
-        }
         return account;
     }
 
@@ -39,19 +38,20 @@ contract MSAFactory {
         virtual
         returns (address)
     {
-        bytes32 _salt = _getSalt(salt, initcode);
-        return LibClone.predictDeterministicAddressERC1967(implementation, _salt, address(this));
-    }
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                bytes1(0xff),
+                address(this),
+                salt,
+                keccak256(
+                    abi.encodePacked(
+                        type(MSAProxy).creationCode,
+                        abi.encode(implementation, abi.encodeCall(IMSA.initializeAccount, initcode))
+                    )
+                )
+            )
+        );
 
-    function _getSalt(
-        bytes32 _salt,
-        bytes calldata initCode
-    )
-        public
-        pure
-        virtual
-        returns (bytes32 salt)
-    {
-        salt = keccak256(abi.encodePacked(_salt, initCode));
+        return address(uint160(uint256(hash)));
     }
 }
