@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
-import { MSABasic } from "src/MSABasic.sol";
+import { MSAAdvanced } from "src/MSAAdvanced.sol";
 import "src/interfaces/IERC7579Account.sol";
 import "src/MSAFactory.sol";
 import { BootstrapUtil, BootstrapConfig } from "./Bootstrap.t.sol";
@@ -18,7 +18,7 @@ import "./dependencies/EntryPoint.sol";
 
 contract TestBaseUtil is BootstrapUtil, Test {
     // singletons
-    MSABasic implementation;
+    MSAAdvanced implementation;
     MSAFactory factory;
     IEntryPoint entrypoint = IEntryPoint(ENTRYPOINT_ADDR);
 
@@ -32,7 +32,7 @@ contract TestBaseUtil is BootstrapUtil, Test {
         etchEntrypoint();
 
         // Set up MSA and Factory
-        implementation = new MSABasic();
+        implementation = new MSAAdvanced();
         factory = new MSAFactory(address(implementation));
 
         // Set up Modules
