@@ -65,7 +65,7 @@ contract TestBaseUtil is BootstrapUtil, Test {
         );
 
         // Deal 1 ether to the account
-        vm.deal(account, 1 ether);
+        vm.deal(account, 100 ether);
     }
 
     function getNonce(address account, address validator) internal returns (uint256 nonce) {

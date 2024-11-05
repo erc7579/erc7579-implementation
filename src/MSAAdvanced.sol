@@ -11,6 +11,9 @@ import { IMSA } from "./interfaces/IMSA.sol";
 import { ModuleManager } from "./core/ModuleManager.sol";
 import { HookManager } from "./core/HookManager.sol";
 import { RegistryAdapter } from "./core/RegistryAdapter.sol";
+import { HashLib } from "./lib/HashLib.sol";
+import { ECDSA } from "solady/utils/ECDSA.sol";
+import { Initializable } from "./lib/Initializable.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -22,6 +25,7 @@ import { RegistryAdapter } from "./core/RegistryAdapter.sol";
 contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, RegistryAdapter {
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
+    using ECDSA for bytes32;
 
     /**
      * @inheritdoc IERC7579Account
@@ -213,7 +217,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
      * @param userOp PackedUserOperation struct (see ERC-4337 v0.7+)
      */
     function validateUserOp(
-        PackedUserOperation calldata userOp,
+        PackedUserOperation memory userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     )
@@ -234,7 +238,32 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         }
 
         // check if validator is enabled. If not terminate the validation phase.
-        if (!_isValidatorInstalled(validator)) return VALIDATION_FAILED;
+        if (!_isValidatorInstalled(validator)) {
+            if (!isAlreadyInitialized()) {
+                // if the account is not initialized, then allow initialization with 7702 eoa
+                // signature
+                (bytes memory initData, bytes memory eoaSignature, bytes memory signature) =
+                    abi.decode(userOp.signature, (bytes, bytes, bytes));
+
+                (address bootstrap, bytes memory bootstrapCall) =
+                    abi.decode(initData, (address, bytes));
+
+                bytes32 hash = HashLib.hash(bootstrap, bootstrapCall);
+                address signer = ECDSA.recover(hash.toEthSignedMessageHash(), eoaSignature);
+
+                if (signer != address(this)) {
+                    return VALIDATION_FAILED;
+                }
+
+                _initModuleManager();
+                (bool success,) = bootstrap.delegatecall(bootstrapCall);
+                if (!success) revert();
+
+                userOp.signature = signature;
+            } else {
+                return VALIDATION_FAILED;
+            }
+        }
 
         // bubble up the return value of the validator module
         validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
@@ -336,6 +365,9 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
      * @param data. encoded data that can be used during the initialization phase
      */
     function initializeAccount(bytes calldata data) public payable virtual {
+        // protect this function to only be callable when used with the proxy factory
+        Initializable.checkInitializable();
+
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
 
