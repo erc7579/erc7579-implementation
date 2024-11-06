@@ -23,16 +23,14 @@ contract Bootstrap is ModuleManager, HookManager {
      * calling this function
      */
     function initMSA(
-        BootstrapConfig[] calldata $valdiators,
+        BootstrapConfig[] calldata $validators,
         BootstrapConfig[] calldata $executors,
         BootstrapConfig calldata _hook,
         BootstrapConfig[] calldata _fallbacks
-    )
-        external
-    {
+    ) external {
         // init validators
-        for (uint256 i; i < $valdiators.length; i++) {
-            _installValidator($valdiators[i].module, $valdiators[i].data);
+        for (uint256 i; i < $validators.length; i++) {
+            _installValidator($validators[i].module, $validators[i].data);
         }
 
         // init executors
@@ -54,18 +52,17 @@ contract Bootstrap is ModuleManager, HookManager {
     }
 
     function _getInitMSACalldata(
-        BootstrapConfig[] calldata $valdiators,
+        BootstrapConfig[] calldata $validators,
         BootstrapConfig[] calldata $executors,
         BootstrapConfig calldata _hook,
         BootstrapConfig[] calldata _fallbacks
-    )
-        external
-        view
-        returns (bytes memory init)
-    {
+    ) external view returns (bytes memory init) {
         init = abi.encode(
             address(this),
-            abi.encodeCall(this.initMSA, ($valdiators, $executors, _hook, _fallbacks))
+            abi.encodeCall(
+                this.initMSA,
+                ($validators, $executors, _hook, _fallbacks)
+            )
         );
     }
 }
