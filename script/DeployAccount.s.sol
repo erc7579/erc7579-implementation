@@ -83,7 +83,7 @@ contract DeployAccountScript is Script {
         vm.stopBroadcast();
     }
 
-    function getDefaultUserOp() internal view returns (PackedUserOperation memory userOp) {
+    function getDefaultUserOp() internal pure returns (PackedUserOperation memory userOp) {
         userOp = PackedUserOperation({
             sender: address(0),
             nonce: 0,

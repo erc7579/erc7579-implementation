@@ -14,36 +14,40 @@ contract MockValidator is IValidator {
     function onUninstall(bytes calldata data) external override { }
 
     function validateUserOp(
-        PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        PackedUserOperation calldata, // userOp
+        bytes32 // userOpHash
     )
         external
+        pure
         override
         returns (uint256)
     {
-        bytes4 execSelector = bytes4(userOp.callData[:4]);
-
         return VALIDATION_SUCCESS;
     }
 
     function isValidSignatureWithSender(
-        address sender,
-        bytes32 hash,
-        bytes calldata data
+        address, // sender
+        bytes32, // hash
+        bytes calldata // signature
     )
         external
-        view
+        pure
         override
         returns (bytes4)
     {
         return 0x1626ba7e;
     }
 
-    function isModuleType(uint256 moduleTypeId) external view returns (bool) {
+    function isModuleType(uint256 moduleTypeId) external pure returns (bool) {
         return moduleTypeId == MODULE_TYPE_VALIDATOR;
     }
 
-    function isInitialized(address smartAccount) external view returns (bool) {
+    function isInitialized(address)
+        // smartAccount
+        external
+        pure
+        returns (bool)
+    {
         return false;
     }
 }

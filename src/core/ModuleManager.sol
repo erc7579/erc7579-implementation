@@ -188,8 +188,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
             revert("Function selector not used by this handler");
         }
 
-        CallType callType = activeFallback.calltype;
-
         $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
 
         IFallback(handler).onUninstall(_deInitData);

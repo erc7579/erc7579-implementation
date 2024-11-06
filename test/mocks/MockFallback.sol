@@ -65,7 +65,7 @@ contract MockFallback is IFallback {
 
     function onUninstall(bytes calldata data) external override { }
 
-    function isModuleType(uint256 typeID) external view override returns (bool) {
+    function isModuleType(uint256 typeID) external pure override returns (bool) {
         return typeID == MODULE_TYPE_FALLBACK;
     }
 

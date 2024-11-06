@@ -68,12 +68,12 @@ contract TestBaseUtil is BootstrapUtil, Test {
         vm.deal(account, 100 ether);
     }
 
-    function getNonce(address account, address validator) internal returns (uint256 nonce) {
+    function getNonce(address account, address validator) internal view returns (uint256 nonce) {
         uint192 key = uint192(bytes24(bytes20(address(validator))));
         nonce = entrypoint.getNonce(address(account), key);
     }
 
-    function getDefaultUserOp() internal returns (PackedUserOperation memory userOp) {
+    function getDefaultUserOp() internal pure returns (PackedUserOperation memory userOp) {
         userOp = PackedUserOperation({
             sender: address(0),
             nonce: 0,

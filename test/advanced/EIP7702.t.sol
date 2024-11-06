@@ -225,7 +225,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
             abi.encodeWithSelector(MockDelegateTarget.sendValue.selector, valueTarget, value);
 
         // Execute the delegatecall via the executor
-        bytes[] memory ret = defaultExecutor.execDelegatecall(
+        defaultExecutor.execDelegatecall(
             IERC7579Account(address(account)), abi.encodePacked(address(delegateTarget), sendValue)
         );
 

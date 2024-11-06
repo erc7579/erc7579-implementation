@@ -145,7 +145,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
      */
     function executeUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 // userOpHash
     )
         external
         payable
