@@ -1,9 +1,12 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+
 bytes32 constant INIT_SLOT = keccak256("msa.initilizable");
 
 library Initializable {
     error NotInitializable();
 
-    function checkInitializable() internal {
+    function checkInitializable() internal view {
         bytes32 slot = INIT_SLOT;
         bool isInitializable;
         assembly {
