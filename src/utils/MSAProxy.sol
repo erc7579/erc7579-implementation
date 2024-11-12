@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { Proxy } from "@openzeppelin/contracts/proxy/Proxy.sol";
 import { ERC1967Utils } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
-import { Initializable } from "src/lib/Initializable.sol";
+import { Initializable } from "../lib/Initializable.sol";
 
 contract MSAProxy is Proxy {
     constructor(address implementation, bytes memory _data) payable {
