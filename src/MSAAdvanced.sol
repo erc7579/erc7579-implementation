@@ -239,25 +239,25 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
 
         // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) {
+            // if the account is not initialized, then allow initialization with
+            // 7702 eoa signature
             if (!isAlreadyInitialized()) {
-                // if the account is not initialized, then allow initialization with 7702 eoa
-                // signature
                 (bytes memory initData, bytes memory eoaSignature, bytes memory signature) =
                     abi.decode(userOp.signature, (bytes, bytes, bytes));
-
                 (address bootstrap, bytes memory bootstrapCall) =
                     abi.decode(initData, (address, bytes));
 
+                // Hash the initData and recover the signer
                 bytes32 hash = HashLib.hash(bootstrap, bootstrapCall);
                 address signer = ECDSA.recover(hash.toEthSignedMessageHash(), eoaSignature);
 
+                // check if the signer is the account
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
 
                 _initModuleManager();
-                (bool success,) = bootstrap.delegatecall(bootstrapCall);
-                if (!success) revert();
+                _initAccount(bootstrap, bootstrapCall);
 
                 userOp.signature = signature;
             } else {
@@ -371,9 +371,19 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
 
+        // bootstrap the account
+        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        _initAccount(bootstrap, bootstrapCall);
+    }
+
+    /**
+     * @dev Bootstrap function to initialize the account
+     * @param bootstrap. address of the bootstrap contract,
+     * @param bootstrapCall. encoded data that can be used during the initialization phase
+     */
+    function _initAccount(address bootstrap, bytes memory bootstrapCall) private {
         // this is just implemented for demonstration purposes. You can use any other initialization
         // logic here.
-        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
     }
