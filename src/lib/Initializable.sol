@@ -8,6 +8,7 @@ library Initializable {
 
     function checkInitializable() internal view {
         bytes32 slot = INIT_SLOT;
+        // Load the current value from the slot, revert if 0
         assembly {
             let isInitializable := tload(slot)
             if iszero(isInitializable) {
