@@ -8,20 +8,19 @@ library Initializable {
 
     function checkInitializable() internal view {
         bytes32 slot = INIT_SLOT;
-        bool isInitializable;
         assembly {
-            isInitializable := tload(slot)
-        }
-
-        if (!isInitializable) {
-            revert NotInitializable();
+            let isInitializable := tload(slot)
+            if iszero(isInitializable) {
+                mstore(0x0, 0xaed59595) // NotInitializable()
+                revert(0x1c, 0x04)
+            }
         }
     }
 
     function setInitializable() internal {
         bytes32 slot = INIT_SLOT;
         assembly {
-            tstore(slot, 1)
+            tstore(slot, 0x01)
         }
     }
 }
