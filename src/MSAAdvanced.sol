@@ -245,6 +245,7 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
             if (!isAlreadyInitialized()) {
                 address signer =
                     ECDSA.recover(userOpHash.toEthSignedMessageHash(), userOp.signature);
+
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
@@ -364,9 +365,19 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
 
+        // bootstrap the account
+        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        _initAccount(bootstrap, bootstrapCall);
+    }
+
+    /**
+     * @dev Bootstrap function to initialize the account
+     * @param bootstrap. address of the bootstrap contract,
+     * @param bootstrapCall. encoded data that can be used during the initialization phase
+     */
+    function _initAccount(address bootstrap, bytes memory bootstrapCall) private {
         // this is just implemented for demonstration purposes. You can use any other initialization
         // logic here.
-        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
     }
