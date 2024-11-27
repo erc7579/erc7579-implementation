@@ -239,34 +239,24 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
 
         // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) {
+            // open question: do we want to only allow eoa when account is not initialized or also
+            // after?
+            // the latter would mean that a user cannot revoke their eoa key on the account
             if (!isAlreadyInitialized()) {
-                // if the account is not initialized, then allow initialization with 7702 eoa
-                // signature
-                (bytes memory initData, bytes memory eoaSignature, bytes memory signature) =
-                    abi.decode(userOp.signature, (bytes, bytes, bytes));
-
-                (address bootstrap, bytes memory bootstrapCall) =
-                    abi.decode(initData, (address, bytes));
-
-                bytes32 hash = HashLib.hash(bootstrap, bootstrapCall);
-                address signer = ECDSA.recover(hash.toEthSignedMessageHash(), eoaSignature);
-
+                address signer =
+                    ECDSA.recover(userOpHash.toEthSignedMessageHash(), userOp.signature);
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
 
-                _initModuleManager();
-                (bool success,) = bootstrap.delegatecall(bootstrapCall);
-                if (!success) revert();
-
-                userOp.signature = signature;
+                return VALIDATION_SUCCESS;
             } else {
                 return VALIDATION_FAILED;
             }
+        } else {
+            // bubble up the return value of the validator module
+            validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
         }
-
-        // bubble up the return value of the validator module
-        validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
     }
 
     /**
@@ -365,8 +355,11 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
      * @param data. encoded data that can be used during the initialization phase
      */
     function initializeAccount(bytes calldata data) public payable virtual {
-        // protect this function to only be callable when used with the proxy factory
-        Initializable.checkInitializable();
+        // protect this function to only be callable when used with the proxy factory or when
+        // account calls itself
+        if (msg.sender != address(this)) {
+            Initializable.checkInitializable();
+        }
 
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
