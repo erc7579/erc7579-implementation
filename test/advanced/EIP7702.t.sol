@@ -35,23 +35,27 @@ contract EIP7702 is TestBaseUtilAdvanced {
         etch(account, address(implementation).code);
     }
 
-    function _getInitData(uint256 eoaKey) internal view returns (bytes memory) {
+    function _getInitData() internal view returns (bytes memory) {
         // Create config for initial modules
         BootstrapConfig[] memory validators = makeBootstrapConfig(address(defaultValidator), "");
         BootstrapConfig[] memory executors = makeBootstrapConfig(address(defaultExecutor), "");
         BootstrapConfig memory hook = _makeBootstrapConfig(address(0), "");
         BootstrapConfig[] memory fallbacks = makeBootstrapConfig(address(0), "");
 
-        // Create initcode and salt to be sent to Factory
-        bytes memory initData =
-            bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbacks);
+        return bootstrapSingleton._getInitMSACalldata(validators, executors, hook, fallbacks);
+    }
 
-        (address bootstrap, bytes memory bootstrapCall) = abi.decode(initData, (address, bytes));
-        bytes32 hash = HashLib.hash(bootstrap, bootstrapCall);
+    function _getSignature(
+        uint256 eoaKey,
+        PackedUserOperation memory userOp
+    )
+        internal
+        view
+        returns (bytes memory)
+    {
+        bytes32 hash = entrypoint.getUserOpHash(userOp);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(eoaKey, hash.toEthSignedMessageHash());
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        return abi.encode(initData, signature, hex"41414141414141");
+        return abi.encodePacked(r, s, v);
     }
 
     function test_execSingle() public returns (address) {
@@ -80,7 +84,55 @@ contract EIP7702 is TestBaseUtilAdvanced {
         userOp.nonce = nonce;
         userOp.callData = userOpCalldata;
 
-        userOp.signature = _getInitData(eoaKey);
+        userOp.signature = _getSignature(eoaKey, userOp);
+        _doEIP7702(account);
+
+        // Create userOps array
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = userOp;
+
+        // Send the userOp to the entrypoint
+        entrypoint.handleOps(userOps, payable(address(0x69)));
+
+        // Assert that the value was set ie that execution was successful
+        assertTrue(target.value() == 1337);
+        return account;
+    }
+
+    function test_initializeAndExecSingle() public returns (address) {
+        // Get the account, initcode and nonce
+        uint256 eoaKey = uint256(8);
+        address account = vm.addr(eoaKey);
+        vm.deal(account, 100 ether);
+
+        // Create calldata for the account to execute
+        bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1337);
+
+        bytes memory initData = _getInitData();
+
+        Execution[] memory executions = new Execution[](2);
+        executions[0] = Execution({
+            target: account,
+            value: 0,
+            callData: abi.encodeCall(MSAAdvanced.initializeAccount, initData)
+        });
+        executions[1] = Execution({ target: address(target), value: 0, callData: setValueOnTarget });
+
+        // Encode the call into the calldata for the userOp
+        bytes memory userOpCalldata = abi.encodeCall(
+            IERC7579Account.execute,
+            (ModeLib.encodeSimpleBatch(), ExecutionLib.encodeBatch(executions))
+        );
+
+        uint256 nonce = getNonce(account, address(defaultValidator));
+
+        // Create the userOp and add the data
+        PackedUserOperation memory userOp = getDefaultUserOp();
+        userOp.sender = address(account);
+        userOp.nonce = nonce;
+        userOp.callData = userOpCalldata;
+
+        userOp.signature = _getSignature(eoaKey, userOp);
         _doEIP7702(account);
 
         // Create userOps array
@@ -125,7 +177,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
         userOp.nonce = nonce;
         userOp.callData = userOpCalldata;
 
-        userOp.signature = _getInitData(eoaKey);
+        userOp.signature = _getSignature(eoaKey, userOp);
         _doEIP7702(account);
 
         // Create userOps array
@@ -141,7 +193,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
     }
 
     function test_execSingleFromExecutor() public {
-        address account = test_execSingle();
+        address account = test_initializeAndExecSingle();
 
         bytes[] memory ret = defaultExecutor.executeViaAccount(
             IERC7579Account(address(account)),
@@ -155,7 +207,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
     }
 
     function test_execBatchFromExecutor() public {
-        address account = test_execSingle();
+        address account = test_initializeAndExecSingle();
 
         bytes memory setValueOnTarget = abi.encodeCall(MockTarget.setValue, 1338);
         Execution[] memory executions = new Execution[](2);
@@ -201,7 +253,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
         userOp.nonce = nonce;
         userOp.callData = userOpCalldata;
 
-        userOp.signature = _getInitData(eoaKey);
+        userOp.signature = _getSignature(eoaKey, userOp);
         _doEIP7702(account);
 
         // Create userOps array
@@ -216,7 +268,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
     }
 
     function test_delegateCall_fromExecutor() public {
-        address account = test_execSingle();
+        address account = test_initializeAndExecSingle();
 
         // Create calldata for the account to execute
         address valueTarget = makeAddr("valueTarget");
