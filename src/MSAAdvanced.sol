@@ -239,9 +239,6 @@ contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, Regis
 
         // check if validator is enabled. If not terminate the validation phase.
         if (!_isValidatorInstalled(validator)) {
-            // open question: do we want to only allow eoa when account is not initialized or also
-            // after?
-            // the latter would mean that a user cannot revoke their eoa key on the account
             if (!isAlreadyInitialized()) {
                 address signer =
                     ECDSA.recover(userOpHash.toEthSignedMessageHash(), userOp.signature);
