@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-bytes32 constant INIT_SLOT = keccak256("msa.initilizable");
+bytes32 constant INIT_SLOT = keccak256(
+    abi.encode(uint256(keccak256("initializable.transient.msa")) - 1)
+) & ~bytes32(uint256(0xff));
 
 library Initializable {
     error NotInitializable();
