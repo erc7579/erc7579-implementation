@@ -53,15 +53,6 @@ contract EIP7702 is TestBaseUtilAdvanced {
         view
         returns (bytes memory)
     {
-        //    bytes memory initData = _getInitData();
-        //     (address bootstrap, bytes memory bootstrapCall) = abi.decode(initData, (address,
-        // bytes));
-        //     bytes32 hash = HashLib.hash(bootstrap, bootstrapCall);
-        //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(eoaKey, hash.toEthSignedMessageHash());
-        //     bytes memory signature = abi.encodePacked(r, s, v);
-        //
-        //     return abi.encode(initData, signature, hex"41414141414141");
-
         bytes32 hash = entrypoint.getUserOpHash(userOp);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(eoaKey, hash.toEthSignedMessageHash());
         return abi.encodePacked(r, s, v);
