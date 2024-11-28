@@ -24,9 +24,10 @@ abstract contract ModuleManager is AccountBase, Receiver {
     error NoFallbackHandler(bytes4 selector);
     error CannotRemoveLastValidator();
 
-    // keccak256("modulemanager.storage.msa");
+    // forgefmt: disable-next-line
+    // keccak256(abi.encode(uint256(keccak256("modulemanager.storage.msa")) - 1)) & ~bytes32(uint256(0xff));
     bytes32 internal constant MODULEMANAGER_STORAGE_LOCATION =
-        0xf88ce1fdb7fb1cbd3282e49729100fa3f2d6ee9f797961fe4fb1871cea89ea02;
+        0xe3a55571e8f241b58442871487cc151a8cb048bb4ad24e833467f724ec89a900;
 
     struct FallbackHandler {
         address handler;

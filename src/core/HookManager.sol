@@ -15,9 +15,10 @@ abstract contract HookManager {
         IHook _hook;
     }
 
-    // keccak256("hookmanager.storage.msa");
+    // forgefmt: disable-next-line
+    // keccak256(abi.encode(uint256(keccak256("hookmanager.storage.msa")) - 1)) & ~bytes32(uint256(0xff));
     bytes32 constant HOOKMANAGER_STORAGE_LOCATION =
-        0x36e05829dd1b9a4411d96a3549582172d7f071c1c0db5c573fcf94eb28431608;
+        0xcd97a6611018468306afd07ac8b14141bc76df8b844b3bcba1768d81e4598200;
 
     error HookPostCheckFailed();
     error HookAlreadyInstalled(address currentHook);
