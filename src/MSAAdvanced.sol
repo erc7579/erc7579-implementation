@@ -14,6 +14,7 @@ import { RegistryAdapter } from "./core/RegistryAdapter.sol";
 import { HashLib } from "./lib/HashLib.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { Initializable } from "./lib/Initializable.sol";
+import { ERC7779Adapter } from "./core/ERC7779Adapter.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -22,7 +23,14 @@ import { Initializable } from "./lib/Initializable.sol";
  * This account implements ExecType: DEFAULT and TRY.
  * Hook support is implemented
  */
-contract MSAAdvanced is IMSA, ExecutionHelper, ModuleManager, HookManager, RegistryAdapter {
+contract MSAAdvanced is
+    IMSA,
+    ExecutionHelper,
+    ModuleManager,
+    HookManager,
+    RegistryAdapter,
+    ERC7779Adapter
+{
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
     using ECDSA for bytes32;
