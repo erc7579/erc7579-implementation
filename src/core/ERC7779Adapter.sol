@@ -28,7 +28,7 @@ abstract contract ERC7779Adapter {
     for redelegation.
     *         msg.sender should be the owner of the account.
     */
-    function onRedelegation() external returns (bool) {
+    function onRedelegation() external pure returns (bool) {
         // this is not implemented at the moment so that the account can preserve state across
         // delegations
         return true;
