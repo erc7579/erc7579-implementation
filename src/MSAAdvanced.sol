@@ -254,7 +254,6 @@ contract MSAAdvanced is
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
-                _addStorageBase(MODULEMANAGER_STORAGE_LOCATION);
                 return VALIDATION_SUCCESS;
             } else {
                 return VALIDATION_FAILED;
@@ -370,7 +369,8 @@ contract MSAAdvanced is
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
         _addStorageBase(MODULEMANAGER_STORAGE_LOCATION);
-        
+        _addStorageBase(HOOKMANAGER_STORAGE_LOCATION);
+
         // bootstrap the account
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
         _initAccount(bootstrap, bootstrapCall);
