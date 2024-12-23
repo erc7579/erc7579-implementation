@@ -6,6 +6,8 @@ import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
 import { EntryPoint, SenderCreator, ISenderCreator } from "account-abstraction/core/EntryPoint.sol";
 import { EntryPointSimulations } from "account-abstraction/core/EntryPointSimulations.sol";
 
+address constant ENTRYPOINT_ADDR = 0x0000000071727De22E5E9d8BAf0edAc6f37da032;
+
 contract EntryPointSimulationsPatch is EntryPointSimulations {
     address _entrypointAddr = address(this);
 
@@ -17,11 +19,8 @@ contract EntryPointSimulationsPatch is EntryPointSimulations {
     }
 
     function initSenderCreator() internal override {
-        //this is the address of the first contract created with CREATE by this address.
-        address createdObj = address(
-            uint160(uint256(keccak256(abi.encodePacked(hex"d694", _entrypointAddr, hex"01"))))
-        );
-        _newSenderCreator = SenderCreator(createdObj);
+        // See this https://github.com/eth-infinitism/account-abstraction/pull/514
+        _newSenderCreator = new SenderCreator();
     }
 
     function senderCreator() public view virtual override returns (ISenderCreator) {
@@ -29,7 +28,6 @@ contract EntryPointSimulationsPatch is EntryPointSimulations {
     }
 }
 
-address constant ENTRYPOINT_ADDR = 0x0000000071727De22E5E9d8BAf0edAc6f37da032;
 
 function etchEntrypoint() returns (IEntryPoint) {
     address payable entryPoint = payable(address(new EntryPointSimulationsPatch()));
