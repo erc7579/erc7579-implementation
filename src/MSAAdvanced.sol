@@ -15,6 +15,7 @@ import { HashLib } from "./lib/HashLib.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { Initializable } from "./lib/Initializable.sol";
 import { ERC7779Adapter } from "./core/ERC7779Adapter.sol";
+import { SentinelListLib } from "sentinellist/SentinelList.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -34,6 +35,7 @@ contract MSAAdvanced is
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
     using ECDSA for bytes32;
+    using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
      * @inheritdoc IERC7579Account
@@ -396,5 +398,12 @@ contract MSAAdvanced is
         // logic here.
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
+    }
+
+    function _onRedelegation() internal override {
+        _tryUninstallValidators();
+        _tryUninstallExecutors();
+        _tryUninstallHook(_getHook());
+        _initModuleManager();
     }
 }

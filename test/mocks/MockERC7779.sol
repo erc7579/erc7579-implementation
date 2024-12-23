@@ -7,4 +7,8 @@ contract MockERC7779 is ERC7779Adapter {
     function addStorageBase(bytes32 storageBase) external {
         _addStorageBase(storageBase);
     }
+
+    function _onRedelegation() internal override {
+        // do nothing
+    }
 }

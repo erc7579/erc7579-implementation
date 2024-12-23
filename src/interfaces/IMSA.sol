@@ -3,10 +3,11 @@ pragma solidity ^0.8.21;
 
 import { IERC7579Account } from "./IERC7579Account.sol";
 import { IERC4337Account } from "./IERC4337Account.sol";
+import { IERC7779 } from "./IERC7779.sol";
 
 import { CallType, ExecType, ModeCode } from "../lib/ModeLib.sol";
 
-interface IMSA is IERC7579Account, IERC4337Account {
+interface IMSA is IERC7579Account, IERC4337Account, IERC7779 {
     // Error thrown when an unsupported ModuleType is requested
     error UnsupportedModuleType(uint256 moduleTypeId);
     // Error thrown when an execution with an unsupported CallType was made

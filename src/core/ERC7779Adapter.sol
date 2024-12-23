@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-abstract contract ERC7779Adapter {
+import {IERC7779} from "../interfaces/IERC7779.sol";
+
+abstract contract ERC7779Adapter is IERC7779 {
     error NonAuthorizedOnRedelegationCaller();
 
     // keccak256(abi.encode(uint256(keccak256(bytes("InteroperableDelegatedAccount.ERC.Storage"))) -
@@ -55,8 +57,11 @@ abstract contract ERC7779Adapter {
     */
     function onRedelegation() external returns (bool) {
         require(msg.sender == address(this), NonAuthorizedOnRedelegationCaller());
-        // this is not implemented at the moment so that the account can preserve state across
-        // delegations
+        _onRedelegation();
         return true;
     }
+
+    /// @dev This function is called before redelegation.
+    /// @dev Account should override this function to implement the specific logic.
+    function _onRedelegation() internal virtual;
 }
