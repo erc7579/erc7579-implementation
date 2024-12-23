@@ -10,6 +10,8 @@ import "../interfaces/IERC7579Module.sol";
  * @author zeroknots.eth | rhinestone.wtf
  */
 abstract contract HookManager {
+    event HookUninstallFailed(address hook, bytes data);
+
     /// @custom:storage-location erc7201:hookmanager.storage.msa
     struct HookManagerStorage {
         IHook _hook;
@@ -53,6 +55,16 @@ abstract contract HookManager {
     function _uninstallHook(address hook, bytes calldata data) internal virtual {
         _setHook(address(0));
         IHook(hook).onUninstall(data);
+    }
+
+    function _tryUninstallHook(address hook) internal virtual {
+        if (hook != address(0)) {
+            try IHook(hook).onUninstall("") { }
+            catch {
+                emit HookUninstallFailed(hook, "");
+            }
+            _setHook(address(0));
+        }
     }
 
     function _getHook() internal view returns (address _hook) {
