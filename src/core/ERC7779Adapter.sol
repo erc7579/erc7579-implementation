@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {IERC7779} from "../interfaces/IERC7779.sol";
+import { IERC7779 } from "../interfaces/IERC7779.sol";
 
 abstract contract ERC7779Adapter is IERC7779 {
     error NonAuthorizedOnRedelegationCaller();

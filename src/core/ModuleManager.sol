@@ -120,7 +120,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         address validator = $valdiators.getNext(SENTINEL);
         while (validator != SENTINEL) {
-            try IValidator(validator).onUninstall("") {} catch {
+            try IValidator(validator).onUninstall("") { }
+            catch {
                 emit ValidatorUninstallFailed(validator, "");
             }
             validator = $valdiators.getNext(validator);
@@ -192,7 +193,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
         address executor = $executors.getNext(SENTINEL);
         while (executor != SENTINEL) {
-            try IExecutor(executor).onUninstall("") {} catch {
+            try IExecutor(executor).onUninstall("") { }
+            catch {
                 emit ExecutorUninstallFailed(executor, "");
             }
             executor = $executors.getNext(executor);
