@@ -370,10 +370,11 @@ contract MSAAdvanced is
         _initModuleManager();
         bool isERC7702;
         assembly {
-            isERC7702 := eq(
-                extcodehash(address()), 
-                0xeadcdba66a79ab5dce91622d1d75c8cff5cff0b96944c3bf1072cd08ce018329 // (keccak256(0xef01))
-            )
+            isERC7702 :=
+                eq(
+                    extcodehash(address()),
+                    0xeadcdba66a79ab5dce91622d1d75c8cff5cff0b96944c3bf1072cd08ce018329 // (keccak256(0xef01))
+                )
         }
         if (isERC7702) {
             _addStorageBase(MODULEMANAGER_STORAGE_LOCATION);

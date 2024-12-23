@@ -11,7 +11,9 @@ contract TestFuzz_ERC7779Adapter is Test {
 
     function setUp() public {
         mockERC7779 = new MockERC7779();
-        //bytes32 erc7779StorageBase = keccak256(abi.encode(uint256(keccak256(bytes("InteroperableDelegatedAccount.ERC.Storage"))) - 1)) & ~bytes32(uint256(0xff));
+        //bytes32 erc7779StorageBase =
+        // keccak256(abi.encode(uint256(keccak256(bytes("InteroperableDelegatedAccount.ERC.Storage")))
+        // - 1)) & ~bytes32(uint256(0xff));
         //console.logBytes32(erc7779StorageBase);
     }
 
@@ -32,4 +34,3 @@ contract TestFuzz_ERC7779Adapter is Test {
         }
     }
 }
-
