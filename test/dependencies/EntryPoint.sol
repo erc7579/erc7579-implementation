@@ -3,7 +3,7 @@ pragma solidity ^0.8.21;
 
 import "account-abstraction/interfaces/IEntryPoint.sol";
 import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
-import { EntryPoint, SenderCreator } from "account-abstraction/core/EntryPoint.sol";
+import { EntryPoint, SenderCreator, ISenderCreator } from "account-abstraction/core/EntryPoint.sol";
 import { EntryPointSimulations } from "account-abstraction/core/EntryPointSimulations.sol";
 
 contract EntryPointSimulationsPatch is EntryPointSimulations {
@@ -24,7 +24,7 @@ contract EntryPointSimulationsPatch is EntryPointSimulations {
         _newSenderCreator = SenderCreator(createdObj);
     }
 
-    function senderCreator() internal view virtual override returns (SenderCreator) {
+    function senderCreator() public view virtual override returns (ISenderCreator) {
         return _newSenderCreator;
     }
 }
