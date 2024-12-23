@@ -28,7 +28,6 @@ contract EntryPointSimulationsPatch is EntryPointSimulations {
     }
 }
 
-
 function etchEntrypoint() returns (IEntryPoint) {
     address payable entryPoint = payable(address(new EntryPointSimulationsPatch()));
     etch(ENTRYPOINT_ADDR, entryPoint.code);

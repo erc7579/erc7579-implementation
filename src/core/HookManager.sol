@@ -58,8 +58,9 @@ abstract contract HookManager {
     }
 
     function _tryUninstallHook(address hook) internal virtual {
-        if (hook != address(0)) {   
-            try IHook(hook).onUninstall("") {} catch {
+        if (hook != address(0)) {
+            try IHook(hook).onUninstall("") { }
+            catch {
                 emit HookUninstallFailed(hook, "");
             }
             _setHook(address(0));
