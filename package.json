@@ -29,7 +29,7 @@
     "solady": "github:vectorized/solady"
   },
   "devDependencies": {
-    "solhint": "^5.0.1"
+    "solhint": "^5.0.3"
   },
   "files": [
     "src",

@@ -19,6 +19,8 @@ import {
 import "./TestBaseUtilAdvanced.t.sol";
 import { HashLib } from "src/lib/HashLib.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
+import { MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_HOOK } from "src/core/ModuleManager.sol";
+import { MockHook } from "../mocks/MockHook.sol";
 
 contract EIP7702 is TestBaseUtilAdvanced {
     using ECDSA for bytes32;
@@ -283,5 +285,35 @@ contract EIP7702 is TestBaseUtilAdvanced {
 
         // Assert that the value was set ie that execution was successful
         assertTrue(valueTarget.balance == value);
+    }
+
+    function test_onRedelegation() public {
+        address account = test_initializeAndExecSingle();
+
+        MockHook hook = new MockHook();
+
+        vm.prank(address(entrypoint));
+        IMSA(account).installModule(MODULE_TYPE_HOOK, address(hook), "");
+
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_VALIDATOR, address(defaultValidator), ""));
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_EXECUTOR, address(defaultExecutor), ""));
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_HOOK, address(hook), ""));
+        // storage is cleared
+        vm.prank(address(account));
+        IMSA(account).onRedelegation();
+        assertFalse(IMSA(account).isModuleInstalled(MODULE_TYPE_VALIDATOR, address(defaultValidator), ""));
+        assertFalse(IMSA(account).isModuleInstalled(MODULE_TYPE_EXECUTOR, address(defaultExecutor), ""));
+        assertFalse(IMSA(account).isModuleInstalled(MODULE_TYPE_HOOK, address(hook), ""));
+
+        // account is properly initialized to install modules again
+        vm.startPrank(address(entrypoint));
+        IMSA(account).installModule(MODULE_TYPE_VALIDATOR, address(defaultValidator), "");
+        IMSA(account).installModule(MODULE_TYPE_EXECUTOR, address(defaultExecutor), "");
+        IMSA(account).installModule(MODULE_TYPE_HOOK, address(hook), "");
+
+        vm.stopPrank();
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_VALIDATOR, address(defaultValidator), ""));
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_EXECUTOR, address(defaultExecutor), ""));
+        assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_HOOK, address(hook), ""));
     }
 }

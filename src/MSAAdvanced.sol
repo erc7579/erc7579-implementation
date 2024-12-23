@@ -15,6 +15,7 @@ import { HashLib } from "./lib/HashLib.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { Initializable } from "./lib/Initializable.sol";
 import { ERC7779Adapter } from "./core/ERC7779Adapter.sol";
+import { SentinelListLib } from "sentinellist/SentinelList.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -34,6 +35,7 @@ contract MSAAdvanced is
     using ExecutionLib for bytes;
     using ModeLib for ModeCode;
     using ECDSA for bytes32;
+    using SentinelListLib for SentinelListLib.SentinelList;
 
     /**
      * @inheritdoc IERC7579Account
@@ -254,7 +256,6 @@ contract MSAAdvanced is
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
-
                 return VALIDATION_SUCCESS;
             } else {
                 return VALIDATION_FAILED;
@@ -369,6 +370,18 @@ contract MSAAdvanced is
 
         // checks if already initialized and reverts before setting the state to initialized
         _initModuleManager();
+        bool isERC7702;
+        assembly {
+            isERC7702 :=
+                eq(
+                    extcodehash(address()),
+                    0xeadcdba66a79ab5dce91622d1d75c8cff5cff0b96944c3bf1072cd08ce018329 // (keccak256(0xef01))
+                )
+        }
+        if (isERC7702) {
+            _addStorageBase(MODULEMANAGER_STORAGE_LOCATION);
+            _addStorageBase(HOOKMANAGER_STORAGE_LOCATION);
+        }
 
         // bootstrap the account
         (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
@@ -385,5 +398,12 @@ contract MSAAdvanced is
         // logic here.
         (bool success,) = bootstrap.delegatecall(bootstrapCall);
         if (!success) revert();
+    }
+
+    function _onRedelegation() internal override {
+        _tryUninstallValidators();
+        _tryUninstallExecutors();
+        _tryUninstallHook(_getHook());
+        _initModuleManager();
     }
 }
