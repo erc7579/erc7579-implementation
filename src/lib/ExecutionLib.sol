@@ -10,52 +10,45 @@ import { Execution } from "../interfaces/IERC7579Account.sol";
 library ExecutionLib {
     error ERC7579DecodingError();
 
+    /**
+     * @notice Decode a batch of `Execution` executionBatch from a `bytes` calldata.
+     * @dev code is copied from solady's LibERC7579.sol
+     * https://github.com/Vectorized/solady/blob/740812cedc9a1fc11e17cb3d4569744367dedf19/src/accounts/LibERC7579.sol#L146
+     *      Credits to Vectorized and the Solady Team
+     */
     function decodeBatch(bytes calldata executionCalldata)
         internal
         pure
         returns (Execution[] calldata executionBatch)
     {
-        unchecked {
-            uint256 bufferLength = executionCalldata.length;
-
-            // Check executionCalldata is not empty.
-            if (bufferLength < 32) revert ERC7579DecodingError();
-
-            // Get the offset of the array (pointer to the array length).
-            uint256 arrayLengthPointer = uint256(bytes32(executionCalldata[0:32]));
-
-            // The array length (at arrayLengthPointer) should be 32 bytes long. We check that this
-            // is within the
-            // buffer bounds. Since we know bufferLength is at least 32, we can subtract with no
-            // overflow risk.
-            if (arrayLengthPointer > bufferLength - 32) revert ERC7579DecodingError();
-
-            // Get the array length. arrayLengthPointer + 32 is bounded by bufferLength so it does
-            // not overflow.
-            uint256 arrayLength =
-                uint256(bytes32(executionCalldata[arrayLengthPointer:arrayLengthPointer + 32]));
-
-            // Check that the buffer is long enough to store the array elements as "offset pointer":
-            // - each element of the array is an "offset pointer" to the data.
-            // - each "offset pointer" (to an array element) takes 32 bytes.
-            // - validity of the calldata at that location is checked when the array element is
-            // accessed, so we only
-            //   need to check that the buffer is large enough to hold the pointers.
-            //
-            // Since we know bufferLength is at least arrayLengthPointer + 32, we can subtract with
-            // no overflow risk.
-            // Solidity limits length of such arrays to 2**64-1, this guarantees `arrayLength * 32`
-            // does not overflow.
-            if (
-                arrayLength > type(uint64).max
-                    || bufferLength - arrayLengthPointer - 32 < arrayLength * 32
-            ) {
-                revert ERC7579DecodingError();
+        /// @solidity memory-safe-assembly
+        assembly {
+            let u := calldataload(executionCalldata.offset)
+            let s := add(executionCalldata.offset, u)
+            let e := sub(add(executionCalldata.offset, executionCalldata.length), 0x20)
+            executionBatch.offset := add(s, 0x20)
+            executionBatch.length := calldataload(s)
+            if or(shr(64, u), gt(add(s, shl(5, executionBatch.length)), e)) {
+                mstore(0x00, 0xba597e7e) // `DecodingError()`.
+                revert(0x1c, 0x04)
             }
-
-            assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthPointer), 32)
-                executionBatch.length := arrayLength
+            if executionBatch.length {
+                // Perform bounds checks on the decoded `executionBatch`.
+                // Loop runs out-of-gas if `executionBatch.length` is big enough to cause overflows.
+                for { let i := executionBatch.length } 1 { } {
+                    i := sub(i, 1)
+                    let p := calldataload(add(executionBatch.offset, shl(5, i)))
+                    let c := add(executionBatch.offset, p)
+                    let q := calldataload(add(c, 0x40))
+                    let o := add(c, q)
+                    // forgefmt: disable-next-item
+                    if or(shr(64, or(calldataload(o), or(p, q))),
+                        or(gt(add(c, 0x40), e), gt(add(o, calldataload(o)), e))) {
+                        mstore(0x00, 0xba597e7e) // `DecodingError()`.
+                        revert(0x1c, 0x04)
+                    }
+                    if iszero(i) { break }
+                }
             }
         }
     }
