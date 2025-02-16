@@ -332,6 +332,11 @@ contract MSAAdvanced is
             return _isFallbackHandlerInstalled(abi.decode(additionalContext, (bytes4)), module);
         } else if (moduleTypeId == MODULE_TYPE_HOOK) {
             return _isHookInstalled(module);
+        } else if (
+            moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC1271
+                || moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
+        ) {
+            return _isPreValidationHookInstalled(module, moduleTypeId);
         } else {
             return false;
         }
@@ -376,6 +381,10 @@ contract MSAAdvanced is
         else if (modulTypeId == MODULE_TYPE_EXECUTOR) return true;
         else if (modulTypeId == MODULE_TYPE_FALLBACK) return true;
         else if (modulTypeId == MODULE_TYPE_HOOK) return true;
+        else if (
+            modulTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC1271
+                || modulTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
+        ) return true;
         else return false;
     }
 
