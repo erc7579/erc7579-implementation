@@ -10,6 +10,8 @@ uint256 constant MODULE_TYPE_VALIDATOR = 1;
 uint256 constant MODULE_TYPE_EXECUTOR = 2;
 uint256 constant MODULE_TYPE_FALLBACK = 3;
 uint256 constant MODULE_TYPE_HOOK = 4;
+uint256 constant MODULE_TYPE_PREVALIDATION_HOOK_ERC1271 = 8;
+uint256 constant MODULE_TYPE_PREVALIDATION_HOOK_ERC4337 = 9;
 
 interface IModule {
     error AlreadyInitialized(address smartAccount);
@@ -95,3 +97,25 @@ interface IHook is IModule {
 }
 
 interface IFallback is IModule { }
+
+interface IPreValidationHookERC1271 is IModule {
+    function preValidationHookERC1271(
+        address sender,
+        bytes32 hash,
+        bytes calldata data
+    )
+        external
+        view
+        returns (bytes32 hookHash, bytes memory hookSignature);
+}
+
+interface IPreValidationHookERC4337 is IModule {
+    function preValidationHookERC4337(
+        PackedUserOperation calldata userOp,
+        uint256 missingAccountFunds,
+        bytes32 userOpHash
+    )
+        external
+        view
+        returns (bytes32 hookHash, bytes memory hookSignature);
+}

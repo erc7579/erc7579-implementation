@@ -16,6 +16,7 @@ import { ECDSA } from "solady/utils/ECDSA.sol";
 import { Initializable } from "./lib/Initializable.sol";
 import { ERC7779Adapter } from "./core/ERC7779Adapter.sol";
 import { SentinelListLib } from "sentinellist/SentinelList.sol";
+import { PreValidationHookManager } from "./core/PreValidationHookManager.sol";
 
 /**
  * @author zeroknots.eth | rhinestone.wtf
@@ -29,6 +30,7 @@ contract MSAAdvanced is
     ExecutionHelper,
     ModuleManager,
     HookManager,
+    PreValidationHookManager,
     RegistryAdapter,
     ERC7779Adapter
 {
@@ -182,11 +184,22 @@ contract MSAAdvanced is
     {
         if (!IModule(module).isModuleType(moduleTypeId)) revert MismatchModuleTypeId(moduleTypeId);
 
-        if (moduleTypeId == MODULE_TYPE_VALIDATOR) _installValidator(module, initData);
-        else if (moduleTypeId == MODULE_TYPE_EXECUTOR) _installExecutor(module, initData);
-        else if (moduleTypeId == MODULE_TYPE_FALLBACK) _installFallbackHandler(module, initData);
-        else if (moduleTypeId == MODULE_TYPE_HOOK) _installHook(module, initData);
-        else revert UnsupportedModuleType(moduleTypeId);
+        if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
+            _installValidator(module, initData);
+        } else if (moduleTypeId == MODULE_TYPE_EXECUTOR) {
+            _installExecutor(module, initData);
+        } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
+            _installFallbackHandler(module, initData);
+        } else if (moduleTypeId == MODULE_TYPE_HOOK) {
+            _installHook(module, initData);
+        } else if (
+            moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC1271
+                || moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
+        ) {
+            _installPreValidationHook(module, moduleTypeId, initData);
+        } else {
+            revert UnsupportedModuleType(moduleTypeId);
+        }
         emit ModuleInstalled(moduleTypeId, module);
     }
 
@@ -211,6 +224,11 @@ contract MSAAdvanced is
             _uninstallFallbackHandler(module, deInitData);
         } else if (moduleTypeId == MODULE_TYPE_HOOK) {
             _uninstallHook(module, deInitData);
+        } else if (
+            moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC1271
+                || moduleTypeId == MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
+        ) {
+            _uninstallPreValidationHook(module, moduleTypeId, deInitData);
         } else {
             revert UnsupportedModuleType(moduleTypeId);
         }
@@ -261,6 +279,8 @@ contract MSAAdvanced is
                 return VALIDATION_FAILED;
             }
         } else {
+            (userOpHash, userOp.signature) =
+                _withPreValidationHook(userOpHash, userOp, missingAccountFunds);
             // bubble up the return value of the validator module
             validSignature = IValidator(validator).validateUserOp(userOp, userOpHash);
         }
@@ -286,7 +306,9 @@ contract MSAAdvanced is
     {
         address validator = address(bytes20(data[0:20]));
         if (!_isValidatorInstalled(validator)) revert InvalidModule(validator);
-        return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, data[20:]);
+        bytes memory signature_;
+        (hash, signature_) = _withPreValidationHook(hash, data[20:]);
+        return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, signature_);
     }
 
     /**
