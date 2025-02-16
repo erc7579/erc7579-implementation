@@ -165,7 +165,6 @@ abstract contract PreValidationHookManager {
         returns (bytes32 postHash, bytes memory postSig)
     {
         address preValidationHook = _getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC4337);
-
         if (preValidationHook == address(0)) {
             return (hash, userOp.signature);
         } else {
