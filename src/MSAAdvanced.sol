@@ -270,7 +270,6 @@ contract MSAAdvanced is
             if (!isAlreadyInitialized()) {
                 address signer =
                     ECDSA.recover(userOpHash.toEthSignedMessageHash(), userOp.signature);
-
                 if (signer != address(this)) {
                     return VALIDATION_FAILED;
                 }
@@ -305,7 +304,15 @@ contract MSAAdvanced is
         returns (bytes4)
     {
         address validator = address(bytes20(data[0:20]));
-        if (!_isValidatorInstalled(validator)) revert InvalidModule(validator);
+        if (!_isValidatorInstalled(validator)) {
+            if (!isAlreadyInitialized()) {
+                address signer = ECDSA.recover(hash.toEthSignedMessageHash(), data);
+                if (signer == address(this)) {
+                    return 0x1626ba7e; // EIP1271MagicValue
+                }
+            }
+            revert InvalidModule(validator);
+        }
         bytes memory signature_;
         (hash, signature_) = _withPreValidationHook(hash, data[20:]);
         return IValidator(validator).isValidSignatureWithSender(msg.sender, hash, signature_);
