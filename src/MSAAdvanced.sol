@@ -419,6 +419,7 @@ contract MSAAdvanced is
         if (isERC7702) {
             _addStorageBase(MODULEMANAGER_STORAGE_LOCATION);
             _addStorageBase(HOOKMANAGER_STORAGE_LOCATION);
+            _addStorageBase(PREVALIDATION_HOOKMANAGER_STORAGE_LOCATION);
         }
 
         // bootstrap the account
@@ -442,6 +443,9 @@ contract MSAAdvanced is
         _tryUninstallValidators();
         _tryUninstallExecutors();
         _tryUninstallHook(_getHook());
+        // Review
+        _tryUninstallPreValidationHook(_getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC1271), MODULE_TYPE_PREVALIDATION_HOOK_ERC1271);
+        _tryUninstallPreValidationHook(_getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC4337), MODULE_TYPE_PREVALIDATION_HOOK_ERC4337);
         _initModuleManager();
     }
 }

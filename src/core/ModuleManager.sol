@@ -95,6 +95,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IValidator(validator).onUninstall(disableModuleData);
     }
 
+    // Review: This can be removed.
     /*
     function _tryUninstallValidators(bytes[] calldata data) internal {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
@@ -168,6 +169,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IExecutor(executor).onUninstall(disableModuleData);
     }
 
+    // Review: This can be removed.
     /*
     function _tryUninstallExecutors(bytes[] calldata data) internal {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
