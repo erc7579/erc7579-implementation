@@ -444,8 +444,14 @@ contract MSAAdvanced is
         _tryUninstallExecutors();
         _tryUninstallHook(_getHook());
         // Review
-        _tryUninstallPreValidationHook(_getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC1271), MODULE_TYPE_PREVALIDATION_HOOK_ERC1271);
-        _tryUninstallPreValidationHook(_getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC4337), MODULE_TYPE_PREVALIDATION_HOOK_ERC4337);
+        _tryUninstallPreValidationHook(
+            _getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC1271),
+            MODULE_TYPE_PREVALIDATION_HOOK_ERC1271
+        );
+        _tryUninstallPreValidationHook(
+            _getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC4337),
+            MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
+        );
         _initModuleManager();
     }
 }
