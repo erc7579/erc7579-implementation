@@ -95,28 +95,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IValidator(validator).onUninstall(disableModuleData);
     }
 
-    // Review: This can be removed.
-    /*
-    function _tryUninstallValidators(bytes[] calldata data) internal {
-        SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
-        uint256 length = data.length;
-        uint256 index;
-        address validator = $valdiators.getNext(SENTINEL);
-        while (validator != SENTINEL) {
-            bytes memory uninstallData;
-            if (index < length) {
-                uninstallData = data[index];
-            }
-            try IValidator(validator).onUninstall(uninstallData) {} catch {
-                emit ValidatorUninstallFailed(validator, uninstallData);
-            }
-            validator = $valdiators.getNext(validator);
-            index++;
-        }
-        $valdiators.popAll();
-    }
-    */
-
     function _tryUninstallValidators() internal {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         address validator = $valdiators.getNext(SENTINEL);
@@ -168,28 +146,6 @@ abstract contract ModuleManager is AccountBase, Receiver {
         $executors.pop(prev, executor);
         IExecutor(executor).onUninstall(disableModuleData);
     }
-
-    // Review: This can be removed.
-    /*
-    function _tryUninstallExecutors(bytes[] calldata data) internal {
-        SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
-        uint256 length = data.length;
-        uint256 index;
-        address executor = $executors.getNext(SENTINEL);
-        while (executor != SENTINEL) {
-            bytes memory uninstallData;
-            if (index < length) {
-                uninstallData = data[index];
-            }
-            try IExecutor(executor).onUninstall(uninstallData) {} catch {
-                emit ExecutorUninstallFailed(executor, uninstallData);
-            }
-            executor = $executors.getNext(executor);
-            index++;
-        }
-        $executors.popAll();
-    }
-    */
 
     function _tryUninstallExecutors() internal {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
