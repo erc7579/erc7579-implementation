@@ -95,7 +95,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IValidator(validator).onUninstall(disableModuleData);
     }
 
-    function _tryUninstallValidators() internal {
+    function _tryUninstallValidators() internal virtual {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         address validator = $valdiators.getNext(SENTINEL);
         while (validator != SENTINEL) {
@@ -108,7 +108,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         $valdiators.popAll();
     }
 
-    function _tryUninstallValidators(bytes[] calldata data) internal {
+    function _tryUninstallValidators(bytes[] memory data) internal virtual {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         uint256 length = data.length;
         uint256 index;
@@ -167,7 +167,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IExecutor(executor).onUninstall(disableModuleData);
     }
 
-    function _tryUninstallExecutors() internal {
+    function _tryUninstallExecutors() internal virtual {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
         address executor = $executors.getNext(SENTINEL);
         while (executor != SENTINEL) {
@@ -180,7 +180,7 @@ abstract contract ModuleManager is AccountBase, Receiver {
         $executors.popAll();
     }
 
-    function _tryUninstallExecutors(bytes[] calldata data) internal {
+    function _tryUninstallExecutors(bytes[] memory data) internal virtual {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
         uint256 length = data.length;
         uint256 index;

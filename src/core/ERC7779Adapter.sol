@@ -60,14 +60,16 @@ abstract contract ERC7779Adapter is IERC7779 {
     *         It should uninitialize storages if needed and execute wallet-specific logic to prepare
     for redelegation.
     *         msg.sender should be the owner of the account.
+    * @param context - The context of the redelegation. Additional data required to uninitialize storages.
     */
-    function onRedelegation() external returns (bool) {
+    function onRedelegation(bytes calldata context) external returns (bool) {
         require(msg.sender == address(this), NonAuthorizedOnRedelegationCaller());
-        _onRedelegation();
+        _onRedelegation(context);
         return true;
     }
 
     /// @dev This function is called before redelegation.
     /// @dev Account should override this function to implement the specific logic.
-    function _onRedelegation() internal virtual;
+    /// @param context The context is the additional data required to uninitialize storages.
+    function _onRedelegation(bytes calldata context) internal virtual;
 }
