@@ -46,6 +46,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         // single fallback handler for all fallbacks
         // account vendors may implement this differently. This is just a reference implementation
         mapping(bytes4 selector => FallbackHandler fallbackHandler) $fallbacks;
+        ///< List of fallback selectors, initialized upon contract deployment.
+        bytes4[] fallbackSelectors;
     }
 
     function $moduleManager() internal pure virtual returns (ModuleManagerStorage storage $ims) {
@@ -235,6 +237,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
             revert("Function selector already used");
         }
         $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
+        // Add the selector to the maintained list of fallback selectors
+        $moduleManager().fallbackSelectors.push(selector);
         IFallback(handler).onInstall(initData);
     }
 
@@ -260,7 +264,35 @@ abstract contract ModuleManager is AccountBase, Receiver {
 
         $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
 
+        // Remove selector from fallbackSelectors via swap-and-pop
+        uint256 len = $moduleManager().fallbackSelectors.length;
+        for (uint256 i = 0; i < len; i++) {
+            if ($moduleManager().fallbackSelectors[i] == selector) {
+                $moduleManager().fallbackSelectors[i] = $moduleManager().fallbackSelectors[len - 1];
+                $moduleManager().fallbackSelectors.pop();
+                break;
+            }
+        }
+
         IFallback(handler).onUninstall(_deInitData);
+    }
+
+    // Review: if uninstalling selectors also need some data.
+    function _tryUninstallFallbacks() internal {
+        uint256 len = $moduleManager().fallbackSelectors.length;
+
+        for (uint256 i = 0; i < len; i++) {
+            bytes4 selector = $moduleManager().fallbackSelectors[i];
+            FallbackHandler memory fallbackHandler = $moduleManager().$fallbacks[selector];
+
+            if (address(fallbackHandler.handler) == address(0)) continue;
+
+            IFallback(fallbackHandler.handler).onUninstall(abi.encodePacked(selector));
+
+            $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
+        }
+
+        delete $moduleManager().fallbackSelectors;
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {

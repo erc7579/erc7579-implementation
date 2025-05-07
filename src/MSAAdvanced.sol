@@ -442,12 +442,15 @@ contract MSAAdvanced is
     function _onRedelegation(bytes calldata context) internal override {
         // Decode the context data which should contain arrays of uninstall data for validators and
         // executors
-        (bytes[] memory validatorUninstallData, bytes[] memory executorUninstallData) =
-            abi.decode(context, (bytes[], bytes[]));
+        // (bytes[] memory validatorUninstallData, bytes[] memory executorUninstallData) =
+        //     abi.decode(context, (bytes[], bytes[]));
 
         // Call the uninstall functions with the decoded data
-        _tryUninstallValidators(validatorUninstallData);
-        _tryUninstallExecutors(executorUninstallData);
+        // _tryUninstallValidators(validatorUninstallData);
+        // _tryUninstallExecutors(executorUninstallData);
+
+        _tryUninstallValidators();
+        _tryUninstallExecutors();
 
         // Continue with other uninstallations
         _tryUninstallHook(_getHook());
@@ -459,6 +462,7 @@ contract MSAAdvanced is
             _getPreValidationHook(MODULE_TYPE_PREVALIDATION_HOOK_ERC4337),
             MODULE_TYPE_PREVALIDATION_HOOK_ERC4337
         );
+        _tryUninstallFallbacks();
         _initModuleManager();
     }
 }
