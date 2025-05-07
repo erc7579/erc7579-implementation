@@ -42,6 +42,12 @@ abstract contract ERC7779Adapter is IERC7779 {
         assembly {
             $.slot := ERC7779_STORAGE_BASE
         }
+        // Check if the storageBase already exists to avoid duplication
+        for (uint256 i = 0; i < $.storageBases.length; i++) {
+            if ($.storageBases[i] == storageBase) {
+                return; // Exit if the storageBase is already present
+            }
+        }
         $.storageBases.push(storageBase);
     }
 
