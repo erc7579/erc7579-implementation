@@ -422,8 +422,8 @@ contract MSAAdvanced is
         }
 
         // bootstrap the account
-        (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
-        _initAccount(bootstrap, bootstrapCall);
+        // (address bootstrap, bytes memory bootstrapCall) = abi.decode(data, (address, bytes));
+        // _initAccount(bootstrap, bootstrapCall);
     }
 
     /**
