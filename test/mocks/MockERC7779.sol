@@ -8,7 +8,7 @@ contract MockERC7779 is ERC7779Adapter {
         _addStorageBase(storageBase);
     }
 
-    function _onRedelegation() internal override {
+    function _onRedelegation(bytes calldata context) internal override {
         // do nothing
     }
 }

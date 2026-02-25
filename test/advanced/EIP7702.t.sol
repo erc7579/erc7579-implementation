@@ -308,7 +308,7 @@ contract EIP7702 is TestBaseUtilAdvanced {
         assertTrue(IMSA(account).isModuleInstalled(MODULE_TYPE_HOOK, address(hook), ""));
         // storage is cleared
         vm.prank(address(account));
-        IMSA(account).onRedelegation();
+        IMSA(account).onRedelegation(bytes(""));
         assertFalse(
             IMSA(account).isModuleInstalled(MODULE_TYPE_VALIDATOR, address(defaultValidator), "")
         );

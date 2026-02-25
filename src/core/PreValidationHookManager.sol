@@ -92,6 +92,7 @@ abstract contract PreValidationHookManager {
     }
 
     function _tryUninstallPreValidationHook(address hook, uint256 hookType) internal virtual {
+        if (hook == address(0)) return;
         PreValidationHookManagerStorage storage $ = _getStorage();
         if (hookType == MODULE_TYPE_PREVALIDATION_HOOK_ERC1271) {
             try $.hook1271.onUninstall("") { }

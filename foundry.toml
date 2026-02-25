@@ -1,5 +1,5 @@
 [profile.default]
-evm_version = "cancun"
+evm_version = "prague"
 src = "src"
 out = "out"
 libs = ["node_modules"]

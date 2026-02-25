@@ -46,6 +46,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
         // single fallback handler for all fallbacks
         // account vendors may implement this differently. This is just a reference implementation
         mapping(bytes4 selector => FallbackHandler fallbackHandler) $fallbacks;
+        ///< List of fallback selectors, initialized upon contract deployment.
+        bytes4[] fallbackSelectors;
     }
 
     function $moduleManager() internal pure virtual returns (ModuleManagerStorage storage $ims) {
@@ -95,8 +97,20 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IValidator(validator).onUninstall(disableModuleData);
     }
 
-    /*
-    function _tryUninstallValidators(bytes[] calldata data) internal {
+    function _tryUninstallValidators() internal virtual {
+        SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
+        address validator = $valdiators.getNext(SENTINEL);
+        while (validator != SENTINEL) {
+            try IValidator(validator).onUninstall("") { }
+            catch {
+                emit ValidatorUninstallFailed(validator, "");
+            }
+            validator = $valdiators.getNext(validator);
+        }
+        $valdiators.popAll();
+    }
+
+    function _tryUninstallValidators(bytes[] memory data) internal virtual {
         SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
         uint256 length = data.length;
         uint256 index;
@@ -106,25 +120,12 @@ abstract contract ModuleManager is AccountBase, Receiver {
             if (index < length) {
                 uninstallData = data[index];
             }
-            try IValidator(validator).onUninstall(uninstallData) {} catch {
+            try IValidator(validator).onUninstall(uninstallData) { }
+            catch {
                 emit ValidatorUninstallFailed(validator, uninstallData);
             }
             validator = $valdiators.getNext(validator);
             index++;
-        }
-        $valdiators.popAll();
-    }
-    */
-
-    function _tryUninstallValidators() internal {
-        SentinelListLib.SentinelList storage $valdiators = $moduleManager().$valdiators;
-        address validator = $valdiators.getNext(SENTINEL);
-        while (validator != SENTINEL) {
-            try IValidator(validator).onUninstall("") { }
-            catch {
-                emit ValidatorUninstallFailed(validator, "");
-            }
-            validator = $valdiators.getNext(validator);
         }
         $valdiators.popAll();
     }
@@ -168,8 +169,20 @@ abstract contract ModuleManager is AccountBase, Receiver {
         IExecutor(executor).onUninstall(disableModuleData);
     }
 
-    /*
-    function _tryUninstallExecutors(bytes[] calldata data) internal {
+    function _tryUninstallExecutors() internal virtual {
+        SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
+        address executor = $executors.getNext(SENTINEL);
+        while (executor != SENTINEL) {
+            try IExecutor(executor).onUninstall("") { }
+            catch {
+                emit ExecutorUninstallFailed(executor, "");
+            }
+            executor = $executors.getNext(executor);
+        }
+        $executors.popAll();
+    }
+
+    function _tryUninstallExecutors(bytes[] memory data) internal virtual {
         SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
         uint256 length = data.length;
         uint256 index;
@@ -179,25 +192,12 @@ abstract contract ModuleManager is AccountBase, Receiver {
             if (index < length) {
                 uninstallData = data[index];
             }
-            try IExecutor(executor).onUninstall(uninstallData) {} catch {
+            try IExecutor(executor).onUninstall(uninstallData) { }
+            catch {
                 emit ExecutorUninstallFailed(executor, uninstallData);
             }
             executor = $executors.getNext(executor);
             index++;
-        }
-        $executors.popAll();
-    }
-    */
-
-    function _tryUninstallExecutors() internal {
-        SentinelListLib.SentinelList storage $executors = $moduleManager().$executors;
-        address executor = $executors.getNext(SENTINEL);
-        while (executor != SENTINEL) {
-            try IExecutor(executor).onUninstall("") { }
-            catch {
-                emit ExecutorUninstallFailed(executor, "");
-            }
-            executor = $executors.getNext(executor);
         }
         $executors.popAll();
     }
@@ -237,6 +237,8 @@ abstract contract ModuleManager is AccountBase, Receiver {
             revert("Function selector already used");
         }
         $moduleManager().$fallbacks[selector] = FallbackHandler(handler, calltype);
+        // Add the selector to the maintained list of fallback selectors
+        $moduleManager().fallbackSelectors.push(selector);
         IFallback(handler).onInstall(initData);
     }
 
@@ -262,7 +264,35 @@ abstract contract ModuleManager is AccountBase, Receiver {
 
         $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
 
+        // Remove selector from fallbackSelectors via swap-and-pop
+        uint256 len = $moduleManager().fallbackSelectors.length;
+        for (uint256 i = 0; i < len; i++) {
+            if ($moduleManager().fallbackSelectors[i] == selector) {
+                $moduleManager().fallbackSelectors[i] = $moduleManager().fallbackSelectors[len - 1];
+                $moduleManager().fallbackSelectors.pop();
+                break;
+            }
+        }
+
         IFallback(handler).onUninstall(_deInitData);
+    }
+
+    // Review: if uninstalling selectors also need some data.
+    function _tryUninstallFallbacks() internal {
+        uint256 len = $moduleManager().fallbackSelectors.length;
+
+        for (uint256 i = 0; i < len; i++) {
+            bytes4 selector = $moduleManager().fallbackSelectors[i];
+            FallbackHandler memory fallbackHandler = $moduleManager().$fallbacks[selector];
+
+            if (address(fallbackHandler.handler) == address(0)) continue;
+
+            IFallback(fallbackHandler.handler).onUninstall(abi.encodePacked(selector));
+
+            $moduleManager().$fallbacks[selector] = FallbackHandler(address(0), CallType.wrap(0x00));
+        }
+
+        delete $moduleManager().fallbackSelectors;
     }
 
     function _isFallbackHandlerInstalled(bytes4 functionSig) internal view virtual returns (bool) {

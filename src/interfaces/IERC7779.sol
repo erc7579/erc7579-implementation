@@ -27,6 +27,8 @@ interface IERC7779 {
     *         It should uninitialize storages if needed and execute wallet-specific logic to prepare
     for redelegation.
     *         msg.sender should be the owner of the account.
+    * @param context - The context of the redelegation. Additional data required to uninitialize
+    storages.
     */
-    function onRedelegation() external returns (bool);
+    function onRedelegation(bytes calldata context) external returns (bool);
 }
